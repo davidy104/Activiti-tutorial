@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="traininngProcess" name="Training Schedule Process" isExecutable="true">
+    <startEvent id="startevent1" name="Start">
+      <extensionElements>
+        <activiti:formProperty id="customerName" name="Name" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="customerEamil" name="email" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="trainingTopic" name="Tpoic for training" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="trainingDate" name="Training Date" type="date" datePattern="dd-MM-yy" required="true"></activiti:formProperty>
+      </extensionElements>
+    </startEvent>
+    <userTask id="usertask1" name="Business Development Executive" activiti:assignee="gonzo">
+      <extensionElements>
+        <activiti:formProperty id="custName" name="Customer Name" type="string" expression="${customerName}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="trainTopic" name="Training Topic" type="string" expression="${trainingTopic}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="trainDate" name="Training Date" type="date" expression="${trainingDate}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="trainerName" name="Trainer Name" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="trainerMailId" name="Trainer Id" type="string" required="true"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="usertask1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow7" sourceRef="parallelgateway2" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="mailtask1" name="Inform Traininer" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${trainerMailId}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[contact@attuneuniversity.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Training Schedule for ${trainingTopic}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>&lt;html&gt;
+&lt;body&gt;
+
+Hello ${trainerName },&lt;br/&gt;
+
+Your training is scheduled on  ${trainingDate}  with ${ customerName}  for ${trainingTopic} training 
+as per the clients request.
+&lt;br/&gt;
+Regards&lt;br/&gt;
+ Attune University&lt;br/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow8" sourceRef="parallelgateway1" targetRef="mailtask1"></sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="mailtask1" targetRef="parallelgateway2"></sequenceFlow>
+    <serviceTask id="mailtask2" name="Inform Trainine Requester" activiti:type="mail">
+      <extensionElements>
+        <activiti:field name="to">
+          <activiti:expression>${customerEamil}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="from">
+          <activiti:string><![CDATA[contact@attuneuniversity.com]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="subject">
+          <activiti:expression>Training Schedule for ${trainingTopic}</activiti:expression>
+        </activiti:field>
+        <activiti:field name="html">
+          <activiti:expression>&lt;html&gt;
+&lt;body&gt;
+
+Hello ${customerName},&lt;br/&gt;
+
+You request for ${trainingTopic} training has been schedule with our trainier ${trainerName}  on ${trainingDate} as per your request.
+&lt;br/&gt;
+Regards&lt;br/&gt;
+ Attune University.&lt;br/&gt;
+&lt;/body&gt;
+&lt;/html&gt;</activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow10" sourceRef="parallelgateway1" targetRef="mailtask2"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="mailtask2" targetRef="parallelgateway2"></sequenceFlow>
+    <parallelGateway id="parallelgateway1" name="Exclusive Gateway"></parallelGateway>
+    <parallelGateway id="parallelgateway2" name="Exclusive Gateway"></parallelGateway>
+    <sequenceFlow id="flow12" sourceRef="usertask1" targetRef="parallelgateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_traininngProcess">
+    <bpmndi:BPMNPlane bpmnElement="traininngProcess" id="BPMNPlane_traininngProcess">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="20.0" y="144.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="68.0" width="105.0" x="130.0" y="128.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="650.0" y="147.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask1" id="BPMNShape_mailtask1">
+        <omgdc:Bounds height="55.0" width="105.0" x="410.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="mailtask2" id="BPMNShape_mailtask2">
+        <omgdc:Bounds height="55.0" width="105.0" x="410.0" y="87.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway1" id="BPMNShape_parallelgateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="300.0" y="141.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="parallelgateway2" id="BPMNShape_parallelgateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="570.0" y="144.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="55.0" y="161.0"></omgdi:waypoint>
+        <omgdi:waypoint x="130.0" y="162.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="610.0" y="164.0"></omgdi:waypoint>
+        <omgdi:waypoint x="650.0" y="164.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="340.0" y="161.0"></omgdi:waypoint>
+        <omgdi:waypoint x="462.0" y="190.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="515.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="184.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="340.0" y="161.0"></omgdi:waypoint>
+        <omgdi:waypoint x="462.0" y="142.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="515.0" y="114.0"></omgdi:waypoint>
+        <omgdi:waypoint x="590.0" y="144.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="235.0" y="162.0"></omgdi:waypoint>
+        <omgdi:waypoint x="300.0" y="161.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
