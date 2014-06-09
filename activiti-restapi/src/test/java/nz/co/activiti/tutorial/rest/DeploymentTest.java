@@ -5,6 +5,7 @@ import javax.annotation.Resource;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.rest.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.rest.deployment.DeploymentResponse;
+import nz.co.activiti.tutorial.rest.deployment.DeploymentsResponse;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -15,6 +16,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
@@ -30,17 +33,25 @@ public class DeploymentTest {
 
 	@Test
 	public void testDeployment() throws Exception {
-		DeploymentResponse deploymentResponse = deploymentDS
-				.deploymentSingleBpmn(PROCESS_LOCATION,
-						"laptopOrderHumanProcess", ".bpmn20.xml");
-
+		DeploymentResponse deploymentResponse = deploymentDS.deployment(
+				"tenantId7890", PROCESS_LOCATION, "laptopOrderHumanProcess",
+				".bpmn20.xml");
+		assertNotNull(deploymentResponse);
 		LOGGER.info("deploymentResponse:{} ", deploymentResponse);
+	}
+
+	@Test
+	public void testGetAllDeployments() throws Exception {
+		DeploymentsResponse deploymentsResponse = deploymentDS
+				.getAllDeployments();
+		assertNotNull(deploymentsResponse);
+		LOGGER.info("deploymentsResponse:{} ", deploymentsResponse);
 	}
 
 	@Test
 	// @Ignore("we need to know exact deploymentId before deleting")
 	public void testUnDeployment() throws Exception {
-		String deploymentId = "7501";
+		String deploymentId = "40";
 		deploymentDS.undeployment(deploymentId);
 	}
 }

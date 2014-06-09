@@ -34,7 +34,33 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 	private DeploymentJSONConverter deploymentJSONConverter;
 
 	@Override
-	public DeploymentResponse deploymentSingleBpmn(String classpathBpmn,
+	public DeploymentsResponse getAllDeployments() throws Exception {
+		LOGGER.info("getAllDeployments start:{}");
+		DeploymentsResponse deploymentsResponse = null;
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments");
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode != ClientResponse.Status.OK) {
+			throw new Exception("getAllDeployments failed:{} " + respStr);
+		} else {
+			deploymentsResponse = deploymentJSONConverter
+					.toDeploymentsResponse(respStr);
+		}
+
+		return deploymentsResponse;
+	}
+
+	@Override
+	public DeploymentResponse deployment(String tenantId, String classpathBpmn,
 			String fileName, String fileExtension) throws Exception {
 		LOGGER.info("deploymentSingleBpmn start:{}", classpathBpmn);
 		DeploymentResponse deploymentResponse = null;
@@ -46,7 +72,7 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 		GeneralUtils.inputStreamToFile(processStream, processFile);
 
 		FormDataMultiPart multiPart = new FormDataMultiPart();
-		multiPart.field("name", "laptopProcess");
+		multiPart.field("tenantId", tenantId);
 		multiPart.bodyPart(new FileDataBodyPart("deployment", processFile));
 
 		WebResource webResource = client.resource(baseUrl).path(

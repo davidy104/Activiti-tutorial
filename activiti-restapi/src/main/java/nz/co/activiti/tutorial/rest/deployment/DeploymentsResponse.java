@@ -1,6 +1,7 @@
 package nz.co.activiti.tutorial.rest.deployment;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -15,6 +16,13 @@ public class DeploymentsResponse implements Serializable {
 	private String sort;
 	private String order;
 	private Integer size;
+
+	public void addData(DeploymentResponse deploymentResponse) {
+		if (data == null) {
+			data = new ArrayList<DeploymentResponse>();
+		}
+		data.add(deploymentResponse);
+	}
 
 	public List<DeploymentResponse> getData() {
 		return data;
