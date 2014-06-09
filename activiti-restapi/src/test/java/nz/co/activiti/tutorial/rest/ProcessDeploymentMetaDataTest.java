@@ -9,6 +9,7 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import com.sun.jersey.multipart.file.FileDataBodyPart;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@Ignore
 public class ProcessDeploymentMetaDataTest {
 
 	private static final Logger LOGGER = LoggerFactory
@@ -44,8 +46,8 @@ public class ProcessDeploymentMetaDataTest {
 		InputStream processStream = ProcessDeploymentMetaDataTest.class
 				.getClassLoader().getResourceAsStream(PROCESS_LOCATION);
 
-		File processFile = File.createTempFile(
-				"laptopOrderHumanProcess", ".bpmn20.xml");
+		File processFile = File.createTempFile("laptopOrderHumanProcess",
+				".bpmn20.xml");
 
 		GeneralUtils.inputStreamToFile(processStream, processFile);
 
@@ -85,10 +87,6 @@ public class ProcessDeploymentMetaDataTest {
 				.getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 	}
-	
-	
-	
-	
 
 	@Test
 	public void testGetProcessDefinitions() throws Exception {

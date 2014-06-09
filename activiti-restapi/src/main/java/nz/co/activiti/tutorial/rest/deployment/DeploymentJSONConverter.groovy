@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DeploymentJSONConverter {
 
-	DeploymentResponse toProcessDefinitionResponse(String jsonText){
+	DeploymentResponse toDeploymentResponse(String jsonText){
 		log.info "toProcessDefinitionResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -30,5 +30,12 @@ class DeploymentJSONConverter {
 
 		log.info "after convert:{} $response"
 		return response
+	}
+
+	DeploymentsResponse toDeploymentsResponse(String jsonText){
+		log.info "toDeploymentsResponse start:{} $jsonText"
+		JsonSlurper jsonSlurper = new JsonSlurper();
+		Object result = jsonSlurper.parseText(jsonText);
+		Map jsonResult = (Map) result;
 	}
 }

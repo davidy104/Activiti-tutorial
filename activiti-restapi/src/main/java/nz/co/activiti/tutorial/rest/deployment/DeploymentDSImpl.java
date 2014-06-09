@@ -65,7 +65,7 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 			throw new Exception("deploymentSingleBpmn failed:{} " + respStr);
 		} else {
 			deploymentResponse = deploymentJSONConverter
-					.toProcessDefinitionResponse(respStr);
+					.toDeploymentResponse(respStr);
 		}
 
 		LOGGER.info("deploymentSingleBpmn end:{}", deploymentResponse);
