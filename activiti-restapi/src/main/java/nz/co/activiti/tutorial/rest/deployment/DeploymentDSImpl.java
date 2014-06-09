@@ -74,7 +74,21 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 
 	@Override
 	public void undeployment(String deploymentId) throws Exception {
+		LOGGER.info("undeployment start:{}", deploymentId);
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments/" + deploymentId);
 
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.delete(ClientResponse.class);
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode != ClientResponse.Status.NO_CONTENT) {
+			throw new Exception("undeployment failed:{} " + respStr);
+		}
 	}
 
 }

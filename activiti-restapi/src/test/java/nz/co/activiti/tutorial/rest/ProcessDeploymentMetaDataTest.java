@@ -72,7 +72,7 @@ public class ProcessDeploymentMetaDataTest {
 
 	@Test
 	public void testUnDeployment() throws Exception {
-		String deploymentId = "44";
+		String deploymentId = "40";
 		WebResource webResource = activitiRestClientAccessor.client.resource(
 				REST_URI).path("/repository/deployments/" + deploymentId);
 

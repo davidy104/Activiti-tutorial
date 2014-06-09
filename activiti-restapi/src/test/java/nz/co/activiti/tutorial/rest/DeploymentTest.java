@@ -6,6 +6,7 @@ import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.rest.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.rest.deployment.DeploymentResponse;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -36,4 +37,10 @@ public class DeploymentTest {
 		LOGGER.info("deploymentResponse:{} ", deploymentResponse);
 	}
 
+	@Test
+	// @Ignore("we need to know exact deploymentId before deleting")
+	public void testUnDeployment() throws Exception {
+		String deploymentId = "7501";
+		deploymentDS.undeployment(deploymentId);
+	}
 }
