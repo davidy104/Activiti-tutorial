@@ -19,16 +19,14 @@ public class JerseyClientSupport {
 
 	protected Client client;
 
-	public static String AUTH_HEADER = "Authorization";
-
 	@PostConstruct
 	private void init() {
 		com.sun.jersey.api.client.config.ClientConfig config = new com.sun.jersey.api.client.config.DefaultClientConfig();
 		config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING,
 				Boolean.TRUE);
-		
+
 		config.getClasses().add(MultiPartWriter.class);
-	
+
 		client = Client.create(config);
 		client.setConnectTimeout(10000);
 		client.setReadTimeout(10000);

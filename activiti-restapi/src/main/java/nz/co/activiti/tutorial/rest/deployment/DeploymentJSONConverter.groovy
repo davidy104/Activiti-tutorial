@@ -33,6 +33,48 @@ class DeploymentJSONConverter {
 		return response
 	}
 
+	List<DeploymentResource> toDeploymentResources(String jsonText){
+		log.info "toDeploymentResources start:{} $jsonText"
+		List<DeploymentResource> deploymentResources = new ArrayList<DeploymentResource>();
+		JsonSlurper jsonSlurper = new JsonSlurper();
+		Object[] listResult = (Object[])jsonSlurper.parseText(jsonText);
+		listResult.each {
+			println "single resource:{} "+it
+			DeploymentResource deploymentResource = new DeploymentResource(id:it.id,
+			url:it.url,
+			dataUrl:it.dataUrl,
+			mediaType:it.mediaType,
+			type:it.type
+			)
+			deploymentResources.add(deploymentResource)
+		}
+		return deploymentResources
+	}
+
+
+	DeploymentResource toDeploymentResource(String jsonText){
+		log.info "toDeploymentResource start:{} $jsonText"
+
+		JsonSlurper jsonSlurper = new JsonSlurper();
+		Object result = jsonSlurper.parseText(jsonText);
+		Map jsonResult = (Map) result;
+		String id = (String) jsonResult.get("id");
+		String url = (String) jsonResult.get("url");
+		String dataUrl = (String) jsonResult.get("dataUrl");
+		String mediaType = (String) jsonResult.get("mediaType");
+		String type = (String) jsonResult.get("type");
+
+		DeploymentResource deploymentResource = new DeploymentResource(id:id,
+		url:url,
+		dataUrl:dataUrl,
+		mediaType:mediaType,
+		type:type
+		)
+
+		log.info "toDeploymentResource end:{} $deploymentResource"
+	}
+
+
 	DeploymentsResponse toDeploymentsResponse(String jsonText){
 		log.info "toDeploymentsResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();

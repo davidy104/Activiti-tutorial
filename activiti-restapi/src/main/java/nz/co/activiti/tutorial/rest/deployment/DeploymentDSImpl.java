@@ -2,6 +2,8 @@ package nz.co.activiti.tutorial.rest.deployment;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
@@ -34,6 +36,67 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 	private DeploymentJSONConverter deploymentJSONConverter;
 
 	@Override
+	public List<DeploymentResource> getDeploymentResourcesByDeployId(
+			String deploymentId) throws Exception {
+		LOGGER.info("getDeploymentResourcesByDeployId start:{}", deploymentId);
+		List<DeploymentResource> deploymentResources = null;
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments/" + deploymentId + "/resources");
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode != ClientResponse.Status.OK) {
+			throw new Exception("getDeploymentResourcesByDeployId failed:{} "
+					+ respStr);
+		} else {
+			deploymentResources = deploymentJSONConverter
+					.toDeploymentResources(respStr);
+		}
+		LOGGER.info("getDeploymentResourcesByDeployId end:{}");
+		return deploymentResources;
+	}
+
+	@Override
+	public DeploymentResource getDeploymentResource(String deploymentId,
+			String resourceId) throws Exception {
+		LOGGER.info("getDeploymentResource start:{}");
+		LOGGER.info("deploymentId:{}", deploymentId);
+		LOGGER.info("resourceId:{}", resourceId);
+		DeploymentResource deploymentResource = null;
+
+		String encodedResourceId = URLEncoder.encode(resourceId, "UTF-8");
+
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments/" + deploymentId + "/resources/"
+						+ encodedResourceId);
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode != ClientResponse.Status.OK) {
+			throw new Exception("getDeploymentResource failed:{} " + respStr);
+		} else {
+			deploymentResource = deploymentJSONConverter
+					.toDeploymentResource(respStr);
+		}
+		LOGGER.info("getDeploymentResource end:{}", deploymentResource);
+		return deploymentResource;
+	}
+
+	@Override
 	public DeploymentsResponse getAllDeployments() throws Exception {
 		LOGGER.info("getAllDeployments start:{}");
 		DeploymentsResponse deploymentsResponse = null;
@@ -55,8 +118,34 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 			deploymentsResponse = deploymentJSONConverter
 					.toDeploymentsResponse(respStr);
 		}
-
 		return deploymentsResponse;
+	}
+
+	@Override
+	public DeploymentResponse getDeploymentByDeploymentId(String deploymentId)
+			throws Exception {
+		LOGGER.info("getDeploymentByDeploymentId start:{}", deploymentId);
+		DeploymentResponse deploymentResponse = null;
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments/" + deploymentId);
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode != ClientResponse.Status.OK) {
+			throw new Exception("getDeploymentByDeploymentId failed:{} "
+					+ respStr);
+		} else {
+			deploymentResponse = deploymentJSONConverter
+					.toDeploymentResponse(respStr);
+		}
+		return deploymentResponse;
 	}
 
 	@Override
@@ -88,7 +177,7 @@ public class DeploymentDSImpl extends ActivitiRestClientAccessor implements
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode != ClientResponse.Status.CREATED) {
-			throw new Exception("deploymentSingleBpmn failed:{} " + respStr);
+			throw new Exception("deployment failed:{} " + respStr);
 		} else {
 			deploymentResponse = deploymentJSONConverter
 					.toDeploymentResponse(respStr);
