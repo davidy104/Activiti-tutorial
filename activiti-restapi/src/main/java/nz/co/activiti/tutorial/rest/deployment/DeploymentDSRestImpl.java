@@ -4,12 +4,15 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
+import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameters;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
@@ -101,8 +104,11 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Deployments getAllDeployments() throws Exception {
-		LOGGER.info("getAllDeployments start:{}");
+	public Deployments getDeployments(
+			Map<DeploymentQueryParameters, String> deploymentQueryParameters,
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			throws Exception {
+		LOGGER.info("getDeployments start:{}");
 		Deployments deploymentsResponse = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/deployments");

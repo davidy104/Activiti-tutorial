@@ -1,15 +1,18 @@
 package nz.co.activiti.tutorial.ds.deployment;
 
 import java.util.List;
+import java.util.Map;
 
-import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
+import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameters;
+import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 
 /**
- * 
+ *
  * @author dyuan
- * 
+ *
  */
 public interface DeploymentDS {
 
@@ -18,7 +21,10 @@ public interface DeploymentDS {
 
 	void undeployment(String deploymentId) throws Exception;
 
-	Deployments getAllDeployments() throws Exception;
+	Deployments getDeployments(
+			Map<DeploymentQueryParameters, String> deploymentQueryParameters,
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			throws Exception;
 
 	Deployment getDeploymentByDeploymentId(String deploymentId)
 			throws Exception;

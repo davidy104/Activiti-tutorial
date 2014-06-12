@@ -1,9 +1,9 @@
 package nz.co.activiti.tutorial.traningprocess;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import nz.co.activiti.tutorial.model.processinstance.ProcessActivityDto;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.ActivitiFacade;
-import nz.co.activiti.tutorial.utils.ProcessActivityDto;
 
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
@@ -120,9 +120,7 @@ public class TrainingRequestTest {
 		assertNotNull(taskFormData);
 
 		List<FormProperty> formProperties = taskFormData.getFormProperties();
-//		assertEquals(formProperties.size(),4);
-
-
+		// assertEquals(formProperties.size(),4);
 
 		for (FormProperty formProperty : formProperties) {
 			LOGGER.info("formName:{} ", formProperty.getName());
