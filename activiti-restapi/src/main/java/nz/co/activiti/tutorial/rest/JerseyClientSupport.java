@@ -56,10 +56,6 @@ public class JerseyClientSupport {
 		return buffer.toString();
 	}
 
-	public Client getClient() {
-		return client;
-	}
-
 	@PreDestroy
 	public void cleanup() {
 		client.destroy();

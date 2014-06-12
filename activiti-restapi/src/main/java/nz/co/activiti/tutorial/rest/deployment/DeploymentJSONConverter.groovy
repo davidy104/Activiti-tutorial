@@ -3,13 +3,17 @@ package nz.co.activiti.tutorial.rest.deployment
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 
+import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
+import nz.co.activiti.tutorial.model.deployment.Deployment;
+import nz.co.activiti.tutorial.model.deployment.Deployments;
+
 import org.springframework.stereotype.Component
 
 @Component
 @Slf4j
 class DeploymentJSONConverter {
 
-	DeploymentResponse toDeploymentResponse(String jsonText){
+	Deployment toDeploymentResponse(String jsonText){
 		log.info "toDeploymentResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -22,7 +26,7 @@ class DeploymentJSONConverter {
 		String url = (String) jsonResult.get("url");
 		String tenantId = (String) jsonResult.get("tenantId");
 
-		DeploymentResponse response = new DeploymentResponse(id:id,
+		Deployment response = new Deployment(id:id,
 		name:name,
 		deploymentTime:deploymentTime,
 		category:category,
@@ -75,7 +79,7 @@ class DeploymentJSONConverter {
 	}
 
 
-	DeploymentsResponse toDeploymentsResponse(String jsonText){
+	Deployments toDeploymentsResponse(String jsonText){
 		log.info "toDeploymentsResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -90,7 +94,7 @@ class DeploymentJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		DeploymentsResponse deploymentsResponse = new DeploymentsResponse(total:total,
+		Deployments deploymentsResponse = new Deployments(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -99,13 +103,13 @@ class DeploymentJSONConverter {
 
 		datajson.each {
 			println "single response:{} "+it
-			DeploymentResponse deploymentResponse = new DeploymentResponse(id:it.id,
+			Deployment deploymentResponse = new Deployment(id:it.id,
 			name:it.name,
 			deploymentTime:it.deploymentTime,
 			category:it.category,
 			url:it.url,
 			tenantId:it.tenantId)
-			deploymentsResponse.addData(deploymentResponse)
+			deploymentsResponse.addDeployment(deploymentResponse)
 		}
 		log.info "after convert:{} $deploymentsResponse"
 		return deploymentsResponse

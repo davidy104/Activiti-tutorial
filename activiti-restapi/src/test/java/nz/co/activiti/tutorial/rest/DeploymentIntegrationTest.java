@@ -1,14 +1,16 @@
 package nz.co.activiti.tutorial.rest;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.model.deployment.Deployment;
+import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
+import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.rest.deployment.DeploymentDS;
-import nz.co.activiti.tutorial.rest.deployment.DeploymentResource;
-import nz.co.activiti.tutorial.rest.deployment.DeploymentResponse;
-import nz.co.activiti.tutorial.rest.deployment.DeploymentsResponse;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -20,8 +22,6 @@ import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertNotNull;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
@@ -30,7 +30,7 @@ public class DeploymentIntegrationTest {
 			.getLogger(DeploymentIntegrationTest.class);
 
 	@Resource
-	private DeploymentDS deploymentDS;
+	private DeploymentDS deploymentDSRest;
 
 	private static final String PROCESS_LOCATION = "process/laptopOrderHumanProcess.bpmn20.xml";
 
@@ -40,7 +40,7 @@ public class DeploymentIntegrationTest {
 
 	@Test
 	public void testDeployment() throws Exception {
-		DeploymentResponse deploymentResponse = deploymentDS.deployment(
+		Deployment deploymentResponse = deploymentDSRest.deployment(
 				"tenantId7890", PROCESS_LOCATION, "laptopOrderHumanProcess",
 				".bpmn20.xml");
 		assertNotNull(deploymentResponse);
@@ -49,15 +49,14 @@ public class DeploymentIntegrationTest {
 
 	@Test
 	public void testGetAllDeployments() throws Exception {
-		DeploymentsResponse deploymentsResponse = deploymentDS
-				.getAllDeployments();
+		Deployments deploymentsResponse = deploymentDSRest.getAllDeployments();
 		assertNotNull(deploymentsResponse);
 		LOGGER.info("deploymentsResponse:{} ", deploymentsResponse);
 	}
 
 	@Test
 	public void testGetDeploymentByDeploymentId() throws Exception {
-		DeploymentResponse deploymentResponse = deploymentDS
+		Deployment deploymentResponse = deploymentDSRest
 				.getDeploymentByDeploymentId(TEST_DEPLOYMENT_ID);
 		assertNotNull(deploymentResponse);
 		LOGGER.info("deploymentResponse:{} ", deploymentResponse);
@@ -65,7 +64,7 @@ public class DeploymentIntegrationTest {
 
 	@Test
 	public void testGetDeploymentResourcesByDeployId() throws Exception {
-		List<DeploymentResource> deploymentResources = deploymentDS
+		List<DeploymentResource> deploymentResources = deploymentDSRest
 				.getDeploymentResourcesByDeployId(TEST_DEPLOYMENT_ID);
 		assertNotNull(deploymentResources);
 
@@ -77,7 +76,7 @@ public class DeploymentIntegrationTest {
 	@Test
 	@Ignore("try to resolve it later, for sending encoding parameter")
 	public void testGetDeploymentResource() throws Exception {
-		DeploymentResource deploymentResource = deploymentDS
+		DeploymentResource deploymentResource = deploymentDSRest
 				.getDeploymentResource(TEST_DEPLOYMENT_ID,
 						TEST_DEPLOYMENT_RESOURCE_ID);
 		assertNotNull(deploymentResource);
@@ -86,9 +85,9 @@ public class DeploymentIntegrationTest {
 	}
 
 	@Test
-//	@Ignore("we need to know exact deploymentId before deleting")
+	// @Ignore("we need to know exact deploymentId before deleting")
 	public void testUnDeployment() throws Exception {
 		String deploymentId = "9102";
-		deploymentDS.undeployment(deploymentId);
+		deploymentDSRest.undeployment(deploymentId);
 	}
 }
