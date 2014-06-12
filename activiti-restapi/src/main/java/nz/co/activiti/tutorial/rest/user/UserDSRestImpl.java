@@ -71,28 +71,9 @@ public class UserDSRestImpl extends ActivitiRestClientAccessor implements
 			throws Exception {
 		LOGGER.info("getUsers start:{} ");
 		Users users = null;
-		StringBuilder pathSb = new StringBuilder("/identity/users");
-		String userQueryParametersUrl = this
-				.userQueryParametersUrlBuild(userQueryParameters);
-		String paingAndSortingParametersUrl = this
-				.pagingAndSortQueryParametersUrlBuild(paginAndSortParameters);
 
-		if (!StringUtils.isEmpty(userQueryParametersUrl)) {
-			pathSb.append("?").append(userQueryParametersUrl.substring(1));
-		}
-
-		if (!StringUtils.isEmpty(paingAndSortingParametersUrl)) {
-			if (!StringUtils.isEmpty(userQueryParametersUrl)) {
-				pathSb.append(paingAndSortingParametersUrl);
-			} else {
-				pathSb.append("?").append(
-						paingAndSortingParametersUrl.substring(1));
-			}
-		}
-		String path = pathSb.toString();
-		LOGGER.info("path:{} ", path);
-
-		WebResource webResource = client.resource(baseUrl).path(path);
+		WebResource webResource = client.resource(baseUrl).path(
+				"/identity/users");
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)

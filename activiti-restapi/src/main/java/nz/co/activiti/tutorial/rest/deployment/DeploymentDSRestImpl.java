@@ -19,6 +19,7 @@ import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.ProcessDeploymentMetaDataTest;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -110,8 +111,24 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 			throws Exception {
 		LOGGER.info("getDeployments start:{}");
 		Deployments deploymentsResponse = null;
+
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/deployments");
+
+		if (deploymentQueryParameters != null) {
+			for (Map.Entry<DeploymentQueryParameters, String> entry : deploymentQueryParameters
+					.entrySet()) {
+				if (!StringUtils.isEmpty(entry.getValue())) {
+					webResource.queryParam(String.valueOf(entry.getKey()),
+							String.valueOf(entry.getValue()));
+				}
+			}
+		}
+
+		if (pagingAndSortingParameters != null) {
+			this.pagingAndSortQueryParametersUrlBuild(webResource,
+					pagingAndSortingParameters);
+		}
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)

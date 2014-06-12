@@ -2,10 +2,10 @@ package nz.co.activiti.tutorial.rest.deployment
 
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-
-import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
-import nz.co.activiti.tutorial.model.deployment.Deployment;
-import nz.co.activiti.tutorial.model.deployment.Deployments;
+import nz.co.activiti.tutorial.ConvertException
+import nz.co.activiti.tutorial.model.deployment.Deployment
+import nz.co.activiti.tutorial.model.deployment.DeploymentResource
+import nz.co.activiti.tutorial.model.deployment.Deployments
 
 import org.springframework.stereotype.Component
 
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DeploymentJSONConverter {
 
-	Deployment toDeploymentResponse(String jsonText){
+	Deployment toDeploymentResponse(String jsonText)  throws ConvertException{
 		log.info "toDeploymentResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -37,7 +37,7 @@ class DeploymentJSONConverter {
 		return response
 	}
 
-	List<DeploymentResource> toDeploymentResources(String jsonText){
+	List<DeploymentResource> toDeploymentResources(String jsonText)  throws ConvertException{
 		log.info "toDeploymentResources start:{} $jsonText"
 		List<DeploymentResource> deploymentResources = new ArrayList<DeploymentResource>();
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -56,7 +56,7 @@ class DeploymentJSONConverter {
 	}
 
 
-	DeploymentResource toDeploymentResource(String jsonText){
+	DeploymentResource toDeploymentResource(String jsonText)  throws ConvertException{
 		log.info "toDeploymentResource start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -79,7 +79,7 @@ class DeploymentJSONConverter {
 	}
 
 
-	Deployments toDeploymentsResponse(String jsonText){
+	Deployments toDeploymentsResponse(String jsonText) throws ConvertException{
 		log.info "toDeploymentsResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);

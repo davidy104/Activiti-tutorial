@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
 @Component
@@ -40,17 +41,16 @@ public class ActivitiRestClientAccessor extends JerseyClientSupport {
 	 * @param parameters
 	 * @return
 	 */
-	protected String pagingAndSortQueryParametersUrlBuild(
+	protected void pagingAndSortQueryParametersUrlBuild(
+			WebResource webResource,
 			Map<PagingAndSortingParameters, String> parameters) {
-		StringBuilder sb = new StringBuilder("");
 		for (Map.Entry<PagingAndSortingParameters, String> entry : parameters
 				.entrySet()) {
 			if (!StringUtils.isEmpty(entry.getValue())) {
-				sb.append("&" + String.valueOf(entry.getKey()) + "="
-						+ String.valueOf(entry.getValue()));
+				webResource.queryParam(String.valueOf(entry.getKey()),
+						entry.getValue());
 			}
 		}
-		return sb.toString();
 	}
 
 	protected String variablesJsonBuild(Map<String, Object> variables) {

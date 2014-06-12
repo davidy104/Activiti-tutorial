@@ -2,12 +2,16 @@ package nz.co.activiti.tutorial.rest;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
+import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameters;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
@@ -48,8 +52,16 @@ public class DeploymentIntegrationTest {
 	}
 
 	@Test
-	public void testGetAllDeployments() throws Exception {
-		Deployments deploymentsResponse = deploymentDSRest.getAllDeployments();
+	public void testGetDeployments() throws Exception {
+		Map<DeploymentQueryParameters, String> deploymentQueryParameters = new HashMap<DeploymentQueryParameters, String>();
+		deploymentQueryParameters.put(DeploymentQueryParameters.tenantId,
+				"tenantId7890");
+
+		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
+		pagingAndSortingParameters.put(PagingAndSortingParameters.size, "2");
+
+		Deployments deploymentsResponse = deploymentDSRest.getDeployments(null,
+				pagingAndSortingParameters);
 		assertNotNull(deploymentsResponse);
 		LOGGER.info("deploymentsResponse:{} ", deploymentsResponse);
 	}
