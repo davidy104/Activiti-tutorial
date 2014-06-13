@@ -22,6 +22,9 @@ public class ActivitiRestClientAccessor extends JerseyClientSupport {
 	@Value("${activiti.auth.password:kermit}")
 	private String password;
 
+	@Value("${activiti.api.baseurl}")
+	protected String baseUrl;
+
 	@PostConstruct
 	private void init() {
 		client.addFilter(new HTTPBasicAuthFilter(userId, password));
@@ -47,8 +50,8 @@ public class ActivitiRestClientAccessor extends JerseyClientSupport {
 		for (Map.Entry<PagingAndSortingParameters, String> entry : parameters
 				.entrySet()) {
 			if (!StringUtils.isEmpty(entry.getValue())) {
-				webResource.queryParam(String.valueOf(entry.getKey()),
-						entry.getValue());
+				webResource = webResource.queryParam(
+						String.valueOf(entry.getKey()), entry.getValue());
 			}
 		}
 	}

@@ -3,21 +3,27 @@ package nz.co.activiti.tutorial.rest.processdefinition;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
+import nz.co.activiti.tutorial.GenericActivitiRestException;
+import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
+import nz.co.activiti.tutorial.model.Family;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.Party;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -30,9 +36,6 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(ProcessDefinitionDSRestImpl.class);
 
-	@Value("${activiti.api.baseurl}")
-	private String baseUrl;
-
 	private DateFormat dateFormat = new SimpleDateFormat(
 			"yyyy-MM-dd'T'HH:mm:ss'Z'");
 
@@ -43,12 +46,30 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	private GeneralModelJSONConverter generalModelJSONConverter;
 
 	@Override
-	public ProcessDefinitions getAllProcessDefinitions() throws Exception {
+	public ProcessDefinitions getProcessDefinitions(
+			Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters,
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			throws Exception {
 		LOGGER.info("getAllProcessDefinitions start:{}");
 
-		ProcessDefinitions processDefinitionsResponse = null;
+		ProcessDefinitions processDefinitions = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions");
+
+		if (processDefinitionQueryParameters != null) {
+			for (Map.Entry<ProcessDefinitionQueryParameters, String> entry : processDefinitionQueryParameters
+					.entrySet()) {
+				if (!StringUtils.isEmpty(entry.getValue())) {
+					webResource = webResource.queryParam(entry.getKey().name(),
+							entry.getValue());
+				}
+			}
+		}
+
+		if (pagingAndSortingParameters != null) {
+			this.pagingAndSortQueryParametersUrlBuild(webResource,
+					pagingAndSortingParameters);
+		}
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)
@@ -59,15 +80,19 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getAllProcessDefinitions failed:{} " + respStr);
-		} else {
-			processDefinitionsResponse = processDefinitionJSONConverter
+		if (statusCode == ClientResponse.Status.OK) {
+			processDefinitions = processDefinitionJSONConverter
 					.toProcessDefinitions(respStr);
+
+		} else if (statusCode == ClientResponse.Status.BAD_REQUEST) {
+			throw new GenericActivitiRestException(
+					"Parameters format is wrong:{}" + respStr);
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
 		LOGGER.info("getAllProcessDefinitions end:{}");
-		return processDefinitionsResponse;
+		return processDefinitions;
 	}
 
 	@Override
@@ -75,7 +100,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 			String processDefinitionId) throws Exception {
 		LOGGER.info("getProcessDefinitionByProcessDefinitionId start:{}",
 				processDefinitionId);
-		ProcessDefinition processDefinitionResponse = null;
+		ProcessDefinition processDefinition = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId);
@@ -89,17 +114,19 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getProcessDefinitionByProcessDefinitionId ["
-					+ processDefinitionId + "] failed:{} " + respStr);
-		} else {
-			processDefinitionResponse = processDefinitionJSONConverter
+		if (statusCode == ClientResponse.Status.OK) {
+			processDefinition = processDefinitionJSONConverter
 					.toProcessDefinition(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
 		LOGGER.info("getProcessDefinitionByProcessDefinitionId end:{}",
-				processDefinitionResponse);
-		return processDefinitionResponse;
+				processDefinition);
+		return processDefinition;
 	}
 
 	@Override
@@ -108,7 +135,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("updateCategory start:{}");
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
 		LOGGER.info("updateCategory:{}", updateCategory);
-		ProcessDefinition processDefinitionResponse = null;
+		ProcessDefinition processDefinition = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId);
@@ -125,23 +152,29 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getProcessDefinitionByProcessDefinitionId ["
-					+ processDefinitionId + "] failed:{} " + respStr);
-		} else {
-			processDefinitionResponse = processDefinitionJSONConverter
+		if (statusCode == ClientResponse.Status.OK) {
+			processDefinition = processDefinitionJSONConverter
 					.toProcessDefinition(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else if (statusCode == ClientResponse.Status.BAD_REQUEST) {
+			throw new GenericActivitiRestException(
+					"Request Body format is wrong:{}" + respStr);
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
 		LOGGER.info("updateCategory end:{}");
-		return processDefinitionResponse;
+		return processDefinition;
 	}
 
 	@Override
-	public ProcessDefinition suspendProcess(String processDefinitionId,
+	public ProcessDefinition suspendProcessDefinition(
+			String processDefinitionId, boolean includeProcessInstances,
 			Date effectiveDate) throws Exception {
 		LOGGER.info("suspendProcess start:{}", processDefinitionId);
-		ProcessDefinition processDefinitionResponse = null;
+		ProcessDefinition processDefinition = null;
 
 		if (effectiveDate == null) {
 			effectiveDate = new Date();
@@ -152,7 +185,9 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId);
 
-		String requestEntity = "{\"action\" : \"suspend\",\"includeProcessInstances\" : \"false\",\"date\" : \""
+		String requestEntity = "{\"action\" : \"suspend\",\"includeProcessInstances\" : \""
+				+ includeProcessInstances
+				+ "\",\"date\" : \""
 				+ effectiveDateStr + "\"}";
 
 		ClientResponse response = webResource
@@ -165,23 +200,29 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("suspendProcess [" + processDefinitionId
-					+ "] failed:{} " + respStr);
-		} else {
-			processDefinitionResponse = processDefinitionJSONConverter
+		if (statusCode == ClientResponse.Status.OK) {
+			processDefinition = processDefinitionJSONConverter
 					.toProcessDefinition(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else if (statusCode == ClientResponse.Status.CONFLICT) {
+			throw new GenericActivitiRestException(
+					"process definition is already suspended:{}" + respStr);
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
-		LOGGER.info("suspendProcess end:{}", processDefinitionResponse);
-		return processDefinitionResponse;
+		LOGGER.info("suspendProcess end:{}", processDefinition);
+		return processDefinition;
 	}
 
 	@Override
-	public ProcessDefinition activeProcess(String processDefinitionId,
+	public ProcessDefinition activeProcessDefinition(
+			String processDefinitionId, boolean includeProcessInstances,
 			Date effectiveDate) throws Exception {
 		LOGGER.info("activeProcess start:{}", processDefinitionId);
-		ProcessDefinition processDefinitionResponse = null;
+		ProcessDefinition processDefinition = null;
 		if (effectiveDate == null) {
 			effectiveDate = new Date();
 		}
@@ -190,7 +231,9 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId);
 
-		String requestEntity = "{\"action\" : \"activate\",\"includeProcessInstances\" : \"true\",\"date\" : \""
+		String requestEntity = "{\"action\" : \"activate\",\"includeProcessInstances\" : \""
+				+ includeProcessInstances
+				+ "\",\"date\" : \""
 				+ effectiveDateStr + "\"}";
 
 		ClientResponse response = webResource
@@ -203,15 +246,20 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("activeProcess [" + processDefinitionId
-					+ "] failed:{} " + respStr);
-		} else {
-			processDefinitionResponse = processDefinitionJSONConverter
+		if (statusCode == ClientResponse.Status.OK) {
+			processDefinition = processDefinitionJSONConverter
 					.toProcessDefinition(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else if (statusCode == ClientResponse.Status.CONFLICT) {
+			throw new GenericActivitiRestException(
+					"process definition is already suspended:{}" + respStr);
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
-		return processDefinitionResponse;
+		return processDefinition;
 	}
 
 	@Override
@@ -232,11 +280,13 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getAllCandidates [" + processDefinitionId
-					+ "] failed:{} " + respStr);
-		} else {
+		if (statusCode == ClientResponse.Status.OK) {
 			candidates = generalModelJSONConverter.toParties(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
 		LOGGER.info("getAllCandidates end:{}");
@@ -244,19 +294,13 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public Party addCandidate(String processDefinitionId, String family,
+	public Party addCandidate(String processDefinitionId, Family family,
 			String name) throws Exception {
 		LOGGER.info("addCandidate start:{} ");
 		LOGGER.info("family:{} ", family);
 		Party candidate = null;
-		String requestBody = null;
-		if (family.equals("users")) {
-			requestBody = "{\"user\" : \"" + name + "\"}";
-		} else if (family.equals("groups")) {
-			requestBody = "{\"group\" : \"" + name + "\"}";
-		} else {
-			throw new Exception("family can not be identified.");
-		}
+		String requestBody = "{\"" + String.valueOf(family) + "\" : \"" + name
+				+ "\"}";
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
@@ -272,24 +316,27 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.CREATED) {
-			throw new Exception("addCandidate [" + processDefinitionId
-					+ "] failed:{} " + respStr);
-		} else {
+		if (statusCode == ClientResponse.Status.CREATED) {
 			candidate = generalModelJSONConverter.toParty(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 		LOGGER.info("addCandidate end:{} ", candidate);
 		return candidate;
 	}
 
 	@Override
-	public void deleteCandidate(String processDefinitionId, String family,
+	public void deleteCandidate(String processDefinitionId, Family family,
 			String identityId) throws Exception {
 		LOGGER.info("deleteCandidate start:{} ");
 		LOGGER.info("family:{} ", family);
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
-						+ "/identitylinks/" + family + "/" + identityId);
+						+ "/identitylinks/" + String.valueOf(family) + "/"
+						+ identityId);
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)
@@ -308,7 +355,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public Party getCandidate(String processDefinitionId, String family,
+	public Party getCandidate(String processDefinitionId, Family family,
 			String identityId) throws Exception {
 		LOGGER.info("getCandidate start:{} ", processDefinitionId);
 		LOGGER.info("family:{} ", family);
@@ -317,7 +364,8 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
-						+ "/identitylinks/" + family + "/" + identityId);
+						+ "/identitylinks/" + String.valueOf(family) + "/"
+						+ identityId);
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)
@@ -328,11 +376,13 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getCandidate [" + processDefinitionId
-					+ "] failed:{} " + respStr);
-		} else {
+		if (statusCode == ClientResponse.Status.OK) {
 			candidate = generalModelJSONConverter.toParty(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("ProcessDefinition not found by id["
+					+ processDefinitionId + "]");
+		} else {
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
 		LOGGER.info("getCandidate end:{} ", candidate);

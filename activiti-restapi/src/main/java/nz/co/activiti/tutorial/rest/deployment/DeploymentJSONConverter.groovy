@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DeploymentJSONConverter {
 
-	Deployment toDeploymentResponse(String jsonText)  throws ConvertException{
+	Deployment toDeployment(String jsonText)  throws ConvertException{
 		log.info "toDeploymentResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -79,7 +79,7 @@ class DeploymentJSONConverter {
 	}
 
 
-	Deployments toDeploymentsResponse(String jsonText) throws ConvertException{
+	Deployments toDeployments(String jsonText) throws ConvertException{
 		log.info "toDeploymentsResponse start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -94,7 +94,7 @@ class DeploymentJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		Deployments deploymentsResponse = new Deployments(total:total,
+		Deployments deployments = new Deployments(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -103,15 +103,15 @@ class DeploymentJSONConverter {
 
 		datajson.each {
 			println "single response:{} "+it
-			Deployment deploymentResponse = new Deployment(id:it.id,
+			Deployment deployment = new Deployment(id:it.id,
 			name:it.name,
 			deploymentTime:it.deploymentTime,
 			category:it.category,
 			url:it.url,
 			tenantId:it.tenantId)
-			deploymentsResponse.addDeployment(deploymentResponse)
+			deployments.addDeployment(deployment)
 		}
-		log.info "after convert:{} $deploymentsResponse"
-		return deploymentsResponse
+		log.info "after convert:{} $deployments"
+		return deployments
 	}
 }

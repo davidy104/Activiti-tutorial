@@ -1,6 +1,6 @@
 package nz.co.activiti.tutorial.ds.user;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
@@ -28,7 +28,7 @@ public interface UserDS {
 	 * @throws Exception
 	 */
 	Users getUsers(Map<UserQueryParameters, String> userQueryParameters,
-			Map<PagingAndSortingParameters, String> paginAndSortParameters)
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
 			throws Exception;
 
 	/**
@@ -60,6 +60,7 @@ public interface UserDS {
 	 * 
 	 * @throws Exception
 	 */
-	void updateUsersPicture(String userId, File picture) throws Exception;
+	void updateUsersPicture(String userId, InputStream pictureStream)
+			throws Exception;
 
 }

@@ -1,5 +1,6 @@
 package nz.co.activiti.tutorial.ds.deployment;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -10,14 +11,13 @@ import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 
 /**
- *
+ * 
  * @author dyuan
- *
+ * 
  */
 public interface DeploymentDS {
 
-	Deployment deployment(String tenantId, String classpathBpmn,
-			String fileName, String fileExtension) throws Exception;
+	Deployment deployment(String tenantId, File uploadFile) throws Exception;
 
 	void undeployment(String deploymentId) throws Exception;
 

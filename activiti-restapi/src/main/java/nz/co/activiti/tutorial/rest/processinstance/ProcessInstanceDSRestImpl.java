@@ -20,7 +20,6 @@ import org.activiti.engine.task.IdentityLinkType;
 import org.apache.cxf.common.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sun.jersey.api.client.ClientResponse;
@@ -35,9 +34,6 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 
 	@Resource
 	private ProcessInstanceJSONConverter processInstanceJSONConverter;
-
-	@Value("${activiti.api.baseurl}")
-	private String baseUrl;
 
 	@Override
 	public ProcessInstance startProcessByProcessDefinitionId(

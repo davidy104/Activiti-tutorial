@@ -5,13 +5,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
+import nz.co.activiti.tutorial.model.Family;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.Party;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 
@@ -37,16 +42,55 @@ public class ProcessDefinitionIntegrationTest {
 
 	private static final String TEST_UPDATE_CATEGORY = "testCategory";
 
+	private static final String TEST_DEPLOYMENT_ID = "23";
+	private static final String TEST_PROCESS_DEFINITION_KEY = "createTimersProcess";
+
 	@Resource
 	private ProcessDefinitionDS processDefinitionDSRest;
 
 	@Test
 	public void testGetAllProcessDefinitions() throws Exception {
+		Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameters, String>();
+		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
 		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
-				.getAllProcessDefinitions();
+				.getProcessDefinitions(processDefinitionQueryParameters,
+						pagingAndSortingParameters);
 		assertNotNull(processDefinitionsResponse);
 		LOGGER.info("processDefinitionsResponse:{} ",
 				processDefinitionsResponse);
+	}
+
+	@Test
+	public void testGetProcessDefinitionByConditions() throws Exception {
+		Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameters, String>();
+		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
+		processDefinitionQueryParameters.put(
+				ProcessDefinitionQueryParameters.deploymentId,
+				TEST_DEPLOYMENT_ID);
+		processDefinitionQueryParameters.put(
+				ProcessDefinitionQueryParameters.key,
+				TEST_PROCESS_DEFINITION_KEY);
+		
+		
+		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
+				.getProcessDefinitions(processDefinitionQueryParameters,
+						pagingAndSortingParameters);
+		assertNotNull(processDefinitionsResponse);
+		assertEquals(1, processDefinitionsResponse.getProcessDefinitionSet()
+				.size());
+		LOGGER.info("processDefinitionsResponse:{} ",
+				processDefinitionsResponse);
+
+//		processDefinitionQueryParameters.clear();
+//		processDefinitionQueryParameters.put(
+//				ProcessDefinitionQueryParameters.key,
+//				TEST_PROCESS_DEFINITION_KEY);
+//		processDefinitionsResponse = processDefinitionDSRest
+//				.getProcessDefinitions(processDefinitionQueryParameters,
+//						pagingAndSortingParameters);
+//		assertNotNull(processDefinitionsResponse);
+//		LOGGER.info("processDefinitionsResponse:{} ",
+//				processDefinitionsResponse);
 	}
 
 	@Test
@@ -82,7 +126,8 @@ public class ProcessDefinitionIntegrationTest {
 	@Ignore("not run all the time")
 	public void testSuspendProcess() throws Exception {
 		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
-				.suspendProcess(TEST_PROCESS_DEFINITION_ID, null);
+				.suspendProcessDefinition(TEST_PROCESS_DEFINITION_ID, false,
+						null);
 		assertNotNull(processDefinitionResponse);
 		LOGGER.info("processDefinitionResponse:{} ", processDefinitionResponse);
 		assertTrue(processDefinitionResponse.getSuspended());
@@ -92,36 +137,32 @@ public class ProcessDefinitionIntegrationTest {
 	@Ignore("not run all the time")
 	public void testActiveProcess() throws Exception {
 		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
-				.activeProcess(TEST_PROCESS_DEFINITION_ID, null);
+				.activeProcessDefinition(TEST_PROCESS_DEFINITION_ID, true, null);
 		assertNotNull(processDefinitionResponse);
 		LOGGER.info("processDefinitionResponse:{} ", processDefinitionResponse);
 		assertFalse(processDefinitionResponse.getSuspended());
 	}
 
 	@Test
-	@Ignore("not run all the time")
-	public void testAddCandidate() throws Exception {
+	public void testAddAndDeleteCandidate() throws Exception {
+		String user = "kermit";
+		String group = "engineering";
 		// add user as candidate
 		Party candidate = processDefinitionDSRest.addCandidate(
-				TEST_PROCESS_DEFINITION_ID, "users", "kermit");
+				TEST_PROCESS_DEFINITION_ID, Family.users, user);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
 
 		// add group as candidate
 		candidate = processDefinitionDSRest.addCandidate(
-				TEST_PROCESS_DEFINITION_ID, "groups", "engineering");
+				TEST_PROCESS_DEFINITION_ID, Family.groups, group);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
-	}
 
-	// family: users or groups
-	@Test
-	// @Ignore("run after testAddCandidate")
-	public void testDeleteCandidate() throws Exception {
 		processDefinitionDSRest.deleteCandidate(TEST_PROCESS_DEFINITION_ID,
-				"users", "kermit");
+				Family.users, user);
 		processDefinitionDSRest.deleteCandidate(TEST_PROCESS_DEFINITION_ID,
-				"groups", "engineering");
+				Family.groups, group);
 	}
 
 	@Test

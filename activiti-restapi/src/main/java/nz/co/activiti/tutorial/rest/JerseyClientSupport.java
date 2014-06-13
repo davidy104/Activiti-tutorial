@@ -24,7 +24,6 @@ public class JerseyClientSupport {
 		com.sun.jersey.api.client.config.ClientConfig config = new com.sun.jersey.api.client.config.DefaultClientConfig();
 		config.getFeatures().put(JSONConfiguration.FEATURE_POJO_MAPPING,
 				Boolean.TRUE);
-
 		config.getClasses().add(MultiPartWriter.class);
 
 		client = Client.create(config);

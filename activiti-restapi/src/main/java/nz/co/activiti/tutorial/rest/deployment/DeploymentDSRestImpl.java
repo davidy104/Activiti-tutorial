@@ -1,14 +1,14 @@
 package nz.co.activiti.tutorial.rest.deployment;
 
 import java.io.File;
-import java.io.InputStream;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
+import nz.co.activiti.tutorial.GenericActivitiRestException;
+import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
@@ -16,18 +16,17 @@ import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameters;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
-import nz.co.activiti.tutorial.rest.ProcessDeploymentMetaDataTest;
-import nz.co.activiti.tutorial.utils.GeneralUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.uri.UriComponent;
+import com.sun.jersey.api.uri.UriComponent.Type;
 import com.sun.jersey.multipart.FormDataMultiPart;
 import com.sun.jersey.multipart.file.FileDataBodyPart;
 
@@ -37,11 +36,46 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(DeploymentDSRestImpl.class);
 
-	@Value("${activiti.api.baseurl}")
-	private String baseUrl;
-
 	@Resource
 	private DeploymentJSONConverter deploymentJSONConverter;
+
+	@Override
+	public Deployment deployment(String tenantId, File uploadFile)
+			throws Exception {
+		LOGGER.info("deployment start:{}", tenantId);
+		Deployment deployment = null;
+
+		FormDataMultiPart multiPart = new FormDataMultiPart();
+		multiPart.field("tenantId", tenantId);
+		multiPart.bodyPart(new FileDataBodyPart("deployment", uploadFile));
+
+		WebResource webResource = client.resource(baseUrl).path(
+				"/repository/deployments");
+
+		ClientResponse response = webResource
+				.type(MediaType.MULTIPART_FORM_DATA)
+				.accept(MediaType.APPLICATION_JSON)
+				.post(ClientResponse.class, multiPart);
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode == ClientResponse.Status.CREATED) {
+			deployment = deploymentJSONConverter.toDeployment(respStr);
+
+		} else if (statusCode == ClientResponse.Status.BAD_REQUEST) {
+			throw new GenericActivitiRestException(
+					"there was no content present in the request body or the content mime-type is not supported for deployment");
+		} else {
+			throw new Exception(
+					"unknown exception when deploy process with tenantId["
+							+ tenantId + "]:" + respStr);
+		}
+
+		LOGGER.info("deployment end:{}", deployment);
+		return deployment;
+	}
 
 	@Override
 	public List<DeploymentResource> getDeploymentResourcesByDeployId(
@@ -60,12 +94,14 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getDeploymentResourcesByDeployId failed:{} "
-					+ respStr);
-		} else {
+		if (statusCode == ClientResponse.Status.OK) {
 			deploymentResources = deploymentJSONConverter
 					.toDeploymentResources(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("deployment not found by id["
+					+ deploymentId + "]");
+		} else {
+			throw new Exception("Unknown exception:{} " + respStr);
 		}
 		LOGGER.info("getDeploymentResourcesByDeployId end:{}");
 		return deploymentResources;
@@ -79,7 +115,8 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		LOGGER.info("resourceId:{}", resourceId);
 		DeploymentResource deploymentResource = null;
 
-		String encodedResourceId = URLEncoder.encode(resourceId, "UTF-8");
+		String encodedResourceId = UriComponent.encode(resourceId,
+				Type.PATH_SEGMENT);
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/deployments/" + deploymentId + "/resources/"
@@ -119,8 +156,8 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 			for (Map.Entry<DeploymentQueryParameters, String> entry : deploymentQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
-					webResource.queryParam(String.valueOf(entry.getKey()),
-							String.valueOf(entry.getValue()));
+					webResource = webResource.queryParam(entry.getKey().name(),
+							entry.getValue());
 				}
 			}
 		}
@@ -129,6 +166,8 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 			this.pagingAndSortQueryParametersUrlBuild(webResource,
 					pagingAndSortingParameters);
 		}
+
+		LOGGER.info("URI:{}", webResource.getURI().toString());
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)
@@ -143,7 +182,7 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 			throw new Exception("getAllDeployments failed:{} " + respStr);
 		} else {
 			deploymentsResponse = deploymentJSONConverter
-					.toDeploymentsResponse(respStr);
+					.toDeployments(respStr);
 		}
 		return deploymentsResponse;
 	}
@@ -152,7 +191,7 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 	public Deployment getDeploymentByDeploymentId(String deploymentId)
 			throws Exception {
 		LOGGER.info("getDeploymentByDeploymentId start:{}", deploymentId);
-		Deployment deploymentResponse = null;
+		Deployment deployment = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/deployments/" + deploymentId);
 
@@ -165,53 +204,15 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.OK) {
-			throw new Exception("getDeploymentByDeploymentId failed:{} "
-					+ respStr);
+		if (statusCode == ClientResponse.Status.OK) {
+			deployment = deploymentJSONConverter.toDeployment(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("deployment not found by id["
+					+ deploymentId + "]");
 		} else {
-			deploymentResponse = deploymentJSONConverter
-					.toDeploymentResponse(respStr);
+			throw new Exception("Unknow exception:{} " + respStr);
 		}
-		return deploymentResponse;
-	}
-
-	@Override
-	public Deployment deployment(String tenantId, String classpathBpmn,
-			String fileName, String fileExtension) throws Exception {
-		LOGGER.info("deploymentSingleBpmn start:{}", classpathBpmn);
-		Deployment deploymentResponse = null;
-
-		InputStream processStream = ProcessDeploymentMetaDataTest.class
-				.getClassLoader().getResourceAsStream(classpathBpmn);
-
-		File processFile = File.createTempFile(fileName, fileExtension);
-		GeneralUtils.inputStreamToFile(processStream, processFile);
-
-		FormDataMultiPart multiPart = new FormDataMultiPart();
-		multiPart.field("tenantId", tenantId);
-		multiPart.bodyPart(new FileDataBodyPart("deployment", processFile));
-
-		WebResource webResource = client.resource(baseUrl).path(
-				"/repository/deployments");
-
-		ClientResponse response = webResource
-				.type(MediaType.MULTIPART_FORM_DATA)
-				.accept(MediaType.APPLICATION_JSON)
-				.post(ClientResponse.class, multiPart);
-		Status statusCode = response.getClientResponseStatus();
-		LOGGER.info("statusCode:{} ", statusCode);
-		String respStr = getResponsePayload(response);
-		LOGGER.info("respStr:{} ", respStr);
-
-		if (statusCode != ClientResponse.Status.CREATED) {
-			throw new Exception("deployment failed:{} " + respStr);
-		} else {
-			deploymentResponse = deploymentJSONConverter
-					.toDeploymentResponse(respStr);
-		}
-
-		LOGGER.info("deploymentSingleBpmn end:{}", deploymentResponse);
-		return deploymentResponse;
+		return deployment;
 	}
 
 	@Override
@@ -229,7 +230,13 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode != ClientResponse.Status.NO_CONTENT) {
-			throw new Exception("undeployment failed:{} " + respStr);
+			throw new GenericActivitiRestException(
+					"deployment has been deleted already:{} " + respStr);
+		} else if (statusCode != ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException("deployment not found by id["
+					+ deploymentId + "]");
+		} else {
+			throw new Exception("Unknown exception:{}" + respStr);
 		}
 	}
 

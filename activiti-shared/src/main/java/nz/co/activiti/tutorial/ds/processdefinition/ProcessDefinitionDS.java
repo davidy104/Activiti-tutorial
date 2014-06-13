@@ -1,33 +1,41 @@
 package nz.co.activiti.tutorial.ds.processdefinition;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
+import nz.co.activiti.tutorial.model.Family;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
 import nz.co.activiti.tutorial.model.Party;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 
 public interface ProcessDefinitionDS {
 
-	ProcessDefinitions getAllProcessDefinitions() throws Exception;
+	ProcessDefinitions getProcessDefinitions(
+			Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters,
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			throws Exception;
 
 	ProcessDefinition getProcessDefinitionByProcessDefinitionId(
 			String processDefinitionId) throws Exception;
 
-	ProcessDefinition updateCategory(String processDefinitionId,
-			String category) throws Exception;
-
-	ProcessDefinition suspendProcess(String processDefinitionId,
-			Date effectiveDate) throws Exception;
-
-	ProcessDefinition activeProcess(String processDefinitionId,
-			Date effectiveDate) throws Exception;
-
-	Set<Party> getAllCandidates(String processDefinitionId)
+	ProcessDefinition updateCategory(String processDefinitionId, String category)
 			throws Exception;
 
-	Party addCandidate(String processDefinitionId, String family,
-			String name) throws Exception;
+	ProcessDefinition suspendProcessDefinition(String processDefinitionId,
+			boolean includeProcessInstances, Date effectiveDate)
+			throws Exception;
+
+	ProcessDefinition activeProcessDefinition(String processDefinitionId,
+			boolean includeProcessInstances, Date effectiveDate)
+			throws Exception;
+
+	Set<Party> getAllCandidates(String processDefinitionId) throws Exception;
+
+	Party addCandidate(String processDefinitionId, Family family, String name)
+			throws Exception;
 
 	/**
 	 * 
@@ -41,9 +49,9 @@ public interface ProcessDefinitionDS {
 	 * @return
 	 * @throws Exception
 	 */
-	void deleteCandidate(String processDefinitionId, String family,
+	void deleteCandidate(String processDefinitionId, Family family,
 			String identityId) throws Exception;
 
-	Party getCandidate(String processDefinitionId, String family,
+	Party getCandidate(String processDefinitionId, Family family,
 			String identityId) throws Exception;
 }

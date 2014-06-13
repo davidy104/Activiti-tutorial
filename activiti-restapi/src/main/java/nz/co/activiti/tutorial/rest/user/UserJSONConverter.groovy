@@ -20,7 +20,7 @@ class UserJSONConverter {
 		String firstName = (String) jsonResult.get("firstName");
 		String lastName = (String) jsonResult.get("lastName");
 		String url = (String) jsonResult.get("url");
-		Integer email = (Integer) jsonResult.get("email");
+		String email = (String) jsonResult.get("email");
 
 		User user = new User(
 				id:id,
