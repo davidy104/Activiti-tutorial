@@ -229,13 +229,10 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode != ClientResponse.Status.NO_CONTENT) {
-			throw new GenericActivitiRestException(
-					"deployment has been deleted already:{} " + respStr);
-		} else if (statusCode != ClientResponse.Status.NOT_FOUND) {
+		if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("deployment not found by id["
 					+ deploymentId + "]");
-		} else {
+		} else if (statusCode != ClientResponse.Status.NO_CONTENT) {
 			throw new Exception("Unknown exception:{}" + respStr);
 		}
 	}

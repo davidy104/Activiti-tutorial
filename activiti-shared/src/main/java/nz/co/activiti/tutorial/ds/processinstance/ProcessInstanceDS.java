@@ -28,27 +28,43 @@ public interface ProcessInstanceDS {
 
 	void deleteProcessInstance(String processInstanceId) throws Exception;
 
-	void suspendProcessInstance(String processInstanceId) throws Exception;
+	ProcessInstance suspendProcessInstance(String processInstanceId)
+			throws Exception;
 
-	void activeProcessInstance(String processInstanceId) throws Exception;
-
-	ProcessInstances getProcessInstances(
-			Map<PagingAndSortingParameters, Object> pagingAndSortingParameters)
+	ProcessInstance activeProcessInstance(String processInstanceId)
 			throws Exception;
 
 	ProcessInstances getProcessInstances(
-			Map<ProcessInstanceQueryParameters, Object> processInstanceQueryParameters,
-			Map<PagingAndSortingParameters, Object> pagingAndSortingParameters)
+			Map<ProcessInstanceQueryParameters, String> processInstanceQueryParameters,
+			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
 			throws Exception;
 
 	Set<Party> getInvolvedPeopleForProcessInstance(String processInstanceId)
 			throws Exception;
 
+	/**
+	 * 
+	 * @param processInstanceId
+	 * @param user
+	 * @param identityType
+	 *            see@IdentityLinkType
+	 *            ["assignee","candidate","owner","participant","starter"]
+	 * @return
+	 * @throws Exception
+	 */
 	Party addInvolvedPeopleToProcess(String processInstanceId, String user,
-			IdentityLinkType identityType) throws Exception;
+			String identityType) throws Exception;
 
+	/**
+	 * 
+	 * @param processInstanceId
+	 * @param user
+	 * @param identityType
+	 *            see@IdentityLinkType
+	 * @throws Exception
+	 */
 	void removeInvolvedPeopleFromProcess(String processInstanceId, String user,
-			IdentityLinkType identityType) throws Exception;
+			String identityType) throws Exception;
 
 	List<Variable> getVariablesFromProcess(String processInstanceId)
 			throws Exception;
@@ -59,10 +75,7 @@ public interface ProcessInstanceDS {
 	List<Variable> createVariablesForProcess(String processInstanceId,
 			List<Variable> addVariables) throws Exception;
 
-	List<Variable> updateVariablesForProcess(String processInstanceId,
-			List<Variable> updateVariables) throws Exception;
-
 	Variable updateVariableForProcess(String processInstanceId,
-			Variable updateVariable) throws Exception;
+			String variableName, Variable updateVariable) throws Exception;
 
 }

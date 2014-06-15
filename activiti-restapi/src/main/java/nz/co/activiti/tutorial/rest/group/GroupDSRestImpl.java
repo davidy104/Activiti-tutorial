@@ -177,7 +177,7 @@ public class GroupDSRestImpl extends ActivitiRestClientAccessor implements
 	@Override
 	public void deleteGroup(String groupId) throws Exception {
 		WebResource webResource = client.resource(baseUrl).path(
-				"/identity/groups" + groupId);
+				"/identity/groups/" + groupId);
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)

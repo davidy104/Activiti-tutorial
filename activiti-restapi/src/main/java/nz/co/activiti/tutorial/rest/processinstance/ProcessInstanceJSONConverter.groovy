@@ -1,7 +1,11 @@
 package nz.co.activiti.tutorial.rest.processinstance
 
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+
+import javax.mail.Address
+
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstances
 
@@ -10,6 +14,31 @@ import org.springframework.stereotype.Component
 @Component
 @Slf4j
 class ProcessInstanceJSONConverter {
+
+	String toStartProcessInstanceByIdJson(
+			String processDefinitionIdParam, String businessKeyParam,
+			Map<String, Object> variablesParam){
+		log.info "toStartProcessInstanceByIdJson start:{}"
+		def builder = new JsonBuilder()
+
+		builder{
+			processDefinitionId "${processDefinitionIdParam}"
+			if(businessKeyParam){
+				businessKey "${businessKeyParam}"
+			}
+			if(variablesParam){
+
+				variables(
+						variablesParam.collect {key, val ->
+							[name:"${key}",value:"${val}"]
+						}
+						)
+			}
+		}
+		return builder.toString()
+	}
+
+
 	ProcessInstance toProcessInstance(String jsonText){
 		log.info "toProcessInstance start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();

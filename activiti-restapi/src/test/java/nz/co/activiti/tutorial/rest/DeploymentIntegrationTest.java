@@ -109,9 +109,9 @@ public class DeploymentIntegrationTest {
 	}
 
 	@Test
-	@Ignore("we need to know exact deploymentId before deleting")
+//	@Ignore("we need to know exact deploymentId before deleting")
 	public void testUnDeployment() throws Exception {
-		String deploymentId = "14501";
+		String deploymentId = "14013";
 		deploymentDSRest.undeployment(deploymentId);
 	}
 }
