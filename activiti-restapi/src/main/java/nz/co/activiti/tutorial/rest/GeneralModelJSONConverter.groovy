@@ -1,39 +1,57 @@
 package nz.co.activiti.tutorial.rest
 
-import groovy.json.JsonBuilder;
+import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-import nz.co.activiti.tutorial.ConvertException;
-import nz.co.activiti.tutorial.model.Party
+import nz.co.activiti.tutorial.ConvertException
+import nz.co.activiti.tutorial.model.Identity
+import nz.co.activiti.tutorial.model.IdentityType
 import nz.co.activiti.tutorial.model.Variable
-import nz.co.activiti.tutorial.model.group.Group;
 
 import org.springframework.stereotype.Component
 @Component
 @Slf4j
 class GeneralModelJSONConverter {
 
-	Set<Party> toParties(String jsonText){
-		log.info "toParties start:{} $jsonText"
-		Set<Party> parties = new HashSet<Party>()
+	Set<Identity> toIdentities(String jsonText){
+		log.info "toIdentities start:{} $jsonText"
+		Set<Identity> parties = new HashSet<Identity>()
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object[] listResult = (Object[])jsonSlurper.parseText(jsonText);
 		listResult.each {
-			println "single party:{} "+it
-			Party candidate = new Party(
+			println "single identity:{} "+it
+			IdentityType identityType
+			switch(it.type){
+				case "assignee":
+					identityType = IdentityType.assignee
+					break
+				case "owner":
+					identityType = IdentityType.owner
+					break
+				case "participant":
+					identityType = IdentityType.participant
+					break
+				case "starter":
+					identityType = IdentityType.starter
+					break
+				default:
+					identityType = IdentityType.candidate
+			}
+
+			Identity candidate = new Identity(
 					url:it.url,
 					user:it.user,
 					group:it.group,
-					type:it.type
+					type:identityType
 					)
 			parties.add(candidate)
 		}
-		log.info "toParties end:{} "
+		log.info "toIdentities end:{} "
 		return parties
 	}
 
-	Party toParty(String jsonText){
-		log.info "toParty start:{} $jsonText"
+	Identity toIdentity(String jsonText){
+		log.info "toIdentity start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
 		Map jsonResult = (Map) result;
@@ -42,14 +60,35 @@ class GeneralModelJSONConverter {
 		String group = (String) jsonResult.get("group");
 		String type = (String) jsonResult.get("type");
 
-		Party party = new Party(
+
+		IdentityType identityType
+		if(type){
+			switch(type){
+				case "assignee":
+					identityType = IdentityType.assignee
+					break
+				case "owner":
+					identityType = IdentityType.owner
+					break
+				case "participant":
+					identityType = IdentityType.participant
+					break
+				case "starter":
+					identityType = IdentityType.starter
+					break
+				default:
+					identityType = IdentityType.candidate
+			}
+		}
+
+		Identity identity = new Identity(
 				url:url,
 				user:user,
 				group:group,
-				type:type
+				type:identityType
 				)
-		log.info "toParty end:{} "
-		return party
+		log.info "toIdentity end:{} "
+		return identity
 	}
 
 	Variable toVariable(String jsonText){
@@ -95,15 +134,15 @@ class GeneralModelJSONConverter {
 	String toVariablesJson(List<Variable> variablesParam)throws ConvertException{
 		def builder = new JsonBuilder()
 		builder(
-			variablesParam.collect { variable->
-				[
-					name:variable.name,
-					scope:variable.scope,
-					value:variable.value,
-					type:variable.type,
-				]
-			}
-		)
+				variablesParam.collect { variable->
+					[
+						name:variable.name,
+						scope:variable.scope,
+						value:variable.value,
+						type:variable.type,
+					]
+				}
+				)
 		return builder.toString()
 	}
 

@@ -13,10 +13,10 @@ import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 
@@ -50,8 +50,8 @@ public class ProcessDefinitionIntegrationTest {
 
 	@Test
 	public void testGetAllProcessDefinitions() throws Exception {
-		Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameters, String>();
-		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
+		Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameter, String>();
+		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
 		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
@@ -62,16 +62,15 @@ public class ProcessDefinitionIntegrationTest {
 
 	@Test
 	public void testGetProcessDefinitionByConditions() throws Exception {
-		Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameters, String>();
-		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
+		Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameter, String>();
+		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
 		processDefinitionQueryParameters.put(
-				ProcessDefinitionQueryParameters.deploymentId,
+				ProcessDefinitionQueryParameter.deploymentId,
 				TEST_DEPLOYMENT_ID);
 		processDefinitionQueryParameters.put(
-				ProcessDefinitionQueryParameters.key,
+				ProcessDefinitionQueryParameter.key,
 				TEST_PROCESS_DEFINITION_KEY);
-		
-		
+
 		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
@@ -81,16 +80,16 @@ public class ProcessDefinitionIntegrationTest {
 		LOGGER.info("processDefinitionsResponse:{} ",
 				processDefinitionsResponse);
 
-//		processDefinitionQueryParameters.clear();
-//		processDefinitionQueryParameters.put(
-//				ProcessDefinitionQueryParameters.key,
-//				TEST_PROCESS_DEFINITION_KEY);
-//		processDefinitionsResponse = processDefinitionDSRest
-//				.getProcessDefinitions(processDefinitionQueryParameters,
-//						pagingAndSortingParameters);
-//		assertNotNull(processDefinitionsResponse);
-//		LOGGER.info("processDefinitionsResponse:{} ",
-//				processDefinitionsResponse);
+		// processDefinitionQueryParameters.clear();
+		// processDefinitionQueryParameters.put(
+		// ProcessDefinitionQueryParameters.key,
+		// TEST_PROCESS_DEFINITION_KEY);
+		// processDefinitionsResponse = processDefinitionDSRest
+		// .getProcessDefinitions(processDefinitionQueryParameters,
+		// pagingAndSortingParameters);
+		// assertNotNull(processDefinitionsResponse);
+		// LOGGER.info("processDefinitionsResponse:{} ",
+		// processDefinitionsResponse);
 	}
 
 	@Test
@@ -148,30 +147,30 @@ public class ProcessDefinitionIntegrationTest {
 		String user = "kermit";
 		String group = "engineering";
 		// add user as candidate
-		Party candidate = processDefinitionDSRest.addCandidate(
+		Identity candidate = processDefinitionDSRest.addIdentity(
 				TEST_PROCESS_DEFINITION_ID, Family.users, user);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
 
 		// add group as candidate
-		candidate = processDefinitionDSRest.addCandidate(
+		candidate = processDefinitionDSRest.addIdentity(
 				TEST_PROCESS_DEFINITION_ID, Family.groups, group);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
 
-		processDefinitionDSRest.deleteCandidate(TEST_PROCESS_DEFINITION_ID,
+		processDefinitionDSRest.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
 				Family.users, user);
-		processDefinitionDSRest.deleteCandidate(TEST_PROCESS_DEFINITION_ID,
+		processDefinitionDSRest.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
 				Family.groups, group);
 	}
 
 	@Test
 	// @Ignore("need specific processDefinitionId, or run after @testAddCandidate")
 	public void testGetCandidates() throws Exception {
-		Set<Party> candidates = processDefinitionDSRest
-				.getAllCandidates(TEST_PROCESS_DEFINITION_ID);
+		Set<Identity> candidates = processDefinitionDSRest
+				.getAllIdentities(TEST_PROCESS_DEFINITION_ID);
 		assertNotNull(candidates);
-		for (Party candidate : candidates) {
+		for (Identity candidate : candidates) {
 			LOGGER.info("candidate:{} ", candidate);
 		}
 	}

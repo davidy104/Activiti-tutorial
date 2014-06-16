@@ -20,11 +20,11 @@ import javax.annotation.Resource;
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
@@ -84,11 +84,11 @@ public class ProcessInstanceIntegrationTest {
 				processFile);
 		deploymentId = deployment.getId();
 		LOGGER.info("deploymentId:{} ", deploymentId);
-		Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameters, String>();
+		Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameter, String>();
 		processDefinitionQueryParameters.put(
-				ProcessDefinitionQueryParameters.deploymentId, deploymentId);
+				ProcessDefinitionQueryParameter.deploymentId, deploymentId);
 		processDefinitionQueryParameters.put(
-				ProcessDefinitionQueryParameters.key, PROCESS_DEFINITION_KEY);
+				ProcessDefinitionQueryParameter.key, PROCESS_DEFINITION_KEY);
 		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters, null);
 		ProcessDefinition processDefinition = processDefinitionsResponse
@@ -141,10 +141,10 @@ public class ProcessInstanceIntegrationTest {
 		assertNotNull(processInstance);
 		processInstanceId = processInstance.getId();
 
-		Set<Party> parties = processInstanceDSRest
+		Set<Identity> parties = processInstanceDSRest
 				.getInvolvedPeopleForProcessInstance(processInstanceId);
 		assertEquals(parties.size(), 1);
-		Party party = parties.iterator().next();
+		Identity party = parties.iterator().next();
 		assertEquals(party.getUser(), USER_ID);
 		LOGGER.info("party:{} ", party);
 
@@ -161,18 +161,16 @@ public class ProcessInstanceIntegrationTest {
 		assertNotNull(processInstance);
 		processInstanceId = processInstance.getId();
 
-//		List<Variable> addVariables = new ArrayList<Variable>();
-//		Variable variable = new Variable();
-//		variable.setName("testVariable");
-//		variable.setType("string");
-//		variable.setValue("123");
-//		variable.setScope("local");
-//		addVariables.add(variable);
-//		processInstanceDSRest.createVariablesForProcess(processInstanceId,
-//				addVariables);
-//		
-//		processInstance = processInstanceDSRest.getProcessInstance(processInstanceId);
-//		LOGGER.info("processInstance:{} ", processInstance);
+		List<Variable> addVariables = new ArrayList<Variable>();
+		Variable variable = new Variable();
+		variable.setName("testVariable");
+		variable.setType("string");
+		variable.setValue("123");
+		variable.setScope("local");
+		addVariables.add(variable);
+		processInstanceDSRest.createVariablesForProcess(processInstanceId,
+				addVariables);
+
 		List<Variable> variables = processInstanceDSRest
 				.getVariablesFromProcess(processInstanceId);
 		assertNotNull(variables);
@@ -193,7 +191,7 @@ public class ProcessInstanceIntegrationTest {
 		variableMap.put("laptopName", "Del");
 		variableMap.put("laptopQuantity", 1);
 		variableMap.put("laptopModelNo", 3420);
-		 variableMap.put("orderDetails", mockOrderDetails());
+		variableMap.put("orderDetails", mockOrderDetails());
 		return variableMap;
 	}
 

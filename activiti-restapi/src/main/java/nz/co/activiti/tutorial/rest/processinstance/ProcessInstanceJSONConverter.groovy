@@ -38,6 +38,29 @@ class ProcessInstanceJSONConverter {
 		return builder.toString()
 	}
 
+	String toStartProcessInstanceByKeyJson(
+			String processDefinitionKeyParam, String businessKeyParam,
+			Map<String, Object> variablesParam){
+		log.info "toStartProcessInstanceByIdJson start:{}"
+		def builder = new JsonBuilder()
+
+		builder{
+			processDefinitionKey "${processDefinitionKeyParam}"
+			if(businessKeyParam){
+				businessKey "${businessKeyParam}"
+			}
+			if(variablesParam){
+
+				variables(
+						variablesParam.collect {key, val ->
+							[name:"${key}",value:"${val}"]
+						}
+						)
+			}
+		}
+		return builder.toString()
+	}
+
 
 	ProcessInstance toProcessInstance(String jsonText){
 		log.info "toProcessInstance start:{} $jsonText"

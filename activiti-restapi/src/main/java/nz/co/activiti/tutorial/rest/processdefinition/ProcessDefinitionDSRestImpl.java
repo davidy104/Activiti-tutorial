@@ -13,10 +13,10 @@ import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
@@ -47,8 +47,8 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 
 	@Override
 	public ProcessDefinitions getProcessDefinitions(
-			Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getAllProcessDefinitions start:{}");
 
@@ -57,7 +57,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 				"/repository/process-definitions");
 
 		if (processDefinitionQueryParameters != null) {
-			for (Map.Entry<ProcessDefinitionQueryParameters, String> entry : processDefinitionQueryParameters
+			for (Map.Entry<ProcessDefinitionQueryParameter, String> entry : processDefinitionQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
 					webResource = webResource.queryParam(entry.getKey().name(),
@@ -263,10 +263,10 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public Set<Party> getAllCandidates(String processDefinitionId)
+	public Set<Identity> getAllIdentities(String processDefinitionId)
 			throws Exception {
 		LOGGER.info("getAllCandidates start:{}", processDefinitionId);
-		Set<Party> candidates = null;
+		Set<Identity> candidates = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
 						+ "/identitylinks");
@@ -281,7 +281,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode == ClientResponse.Status.OK) {
-			candidates = generalModelJSONConverter.toParties(respStr);
+			candidates = generalModelJSONConverter.toIdentities(respStr);
 		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("ProcessDefinition not found by id["
 					+ processDefinitionId + "]");
@@ -294,11 +294,11 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public Party addCandidate(String processDefinitionId, Family family,
+	public Identity addIdentity(String processDefinitionId, Family family,
 			String name) throws Exception {
-		LOGGER.info("addCandidate start:{} ");
+		LOGGER.info("addIdentity start:{} ");
 		LOGGER.info("family:{} ", family);
-		Party candidate = null;
+		Identity identity = null;
 		String requestBody = "{\"" + String.valueOf(family) + "\" : \"" + name
 				+ "\"}";
 
@@ -317,21 +317,21 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode == ClientResponse.Status.CREATED) {
-			candidate = generalModelJSONConverter.toParty(respStr);
+			identity = generalModelJSONConverter.toIdentity(respStr);
 		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("ProcessDefinition not found by id["
 					+ processDefinitionId + "]");
 		} else {
 			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
-		LOGGER.info("addCandidate end:{} ", candidate);
-		return candidate;
+		LOGGER.info("addIdentity end:{} ", identity);
+		return identity;
 	}
 
 	@Override
-	public void deleteCandidate(String processDefinitionId, Family family,
+	public void deleteIdentity(String processDefinitionId, Family family,
 			String identityId) throws Exception {
-		LOGGER.info("deleteCandidate start:{} ");
+		LOGGER.info("deleteIdentity start:{} ");
 		LOGGER.info("family:{} ", family);
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
@@ -348,19 +348,18 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode != ClientResponse.Status.NO_CONTENT) {
-			throw new Exception("deleteCandidate [" + processDefinitionId
-					+ "] failed:{} " + respStr);
+			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
-		LOGGER.info("deleteCandidate end:{} ");
+		LOGGER.info("deleteIdentity end:{} ");
 	}
 
 	@Override
-	public Party getCandidate(String processDefinitionId, Family family,
+	public Identity getIdentity(String processDefinitionId, Family family,
 			String identityId) throws Exception {
-		LOGGER.info("getCandidate start:{} ", processDefinitionId);
+		LOGGER.info("getIdentity start:{} ", processDefinitionId);
 		LOGGER.info("family:{} ", family);
 		LOGGER.info("identityId:{} ", identityId);
-		Party candidate = null;
+		Identity identity = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions/" + processDefinitionId
@@ -377,7 +376,7 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode == ClientResponse.Status.OK) {
-			candidate = generalModelJSONConverter.toParty(respStr);
+			identity = generalModelJSONConverter.toIdentity(respStr);
 		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("ProcessDefinition not found by id["
 					+ processDefinitionId + "]");
@@ -385,8 +384,8 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 			throw new Exception("Unknown excepiton:{} " + respStr);
 		}
 
-		LOGGER.info("getCandidate end:{} ", candidate);
-		return candidate;
+		LOGGER.info("getIdentity end:{} ", identity);
+		return identity;
 	}
 
 }

@@ -3,9 +3,9 @@ package nz.co.activiti.tutorial.ds.user;
 import java.io.InputStream;
 import java.util.Map;
 
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.user.User;
-import nz.co.activiti.tutorial.model.user.UserQueryParameters;
+import nz.co.activiti.tutorial.model.user.UserQueryParameter;
 import nz.co.activiti.tutorial.model.user.Users;
 
 public interface UserDS {
@@ -27,8 +27,8 @@ public interface UserDS {
 	 * @return
 	 * @throws Exception
 	 */
-	Users getUsers(Map<UserQueryParameters, String> userQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+	Users getUsers(Map<UserQueryParameter, String> userQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 
 	/**

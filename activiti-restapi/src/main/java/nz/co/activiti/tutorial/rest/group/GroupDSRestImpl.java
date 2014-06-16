@@ -8,9 +8,9 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.group.GroupDS;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.group.Group;
-import nz.co.activiti.tutorial.model.group.GroupQueryParameters;
+import nz.co.activiti.tutorial.model.group.GroupQueryParameter;
 import nz.co.activiti.tutorial.model.group.Groups;
 import nz.co.activiti.tutorial.model.group.MemberShip;
 import nz.co.activiti.tutorial.rest.ActionType;
@@ -36,15 +36,15 @@ public class GroupDSRestImpl extends ActivitiRestClientAccessor implements
 
 	@Override
 	public Groups getGroups(
-			Map<GroupQueryParameters, String> groupQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<GroupQueryParameter, String> groupQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		Groups groups = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/identity/groups");
 
 		if (groupQueryParameters != null) {
-			for (Map.Entry<GroupQueryParameters, String> entry : groupQueryParameters
+			for (Map.Entry<GroupQueryParameter, String> entry : groupQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
 					webResource = webResource.queryParam(entry.getKey().name(),

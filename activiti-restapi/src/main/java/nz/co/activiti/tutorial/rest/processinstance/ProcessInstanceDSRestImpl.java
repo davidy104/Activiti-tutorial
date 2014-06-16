@@ -10,11 +10,12 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.Identity;
+import nz.co.activiti.tutorial.model.IdentityType;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameters;
+import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameter;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstances;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
@@ -89,21 +90,10 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 				processDefinitionKey);
 		LOGGER.info("businessKey:{}", businessKey);
 		ProcessInstance processInstance = null;
-		String requestBody = null;
-		StringBuilder stringBuilder = new StringBuilder(
-				"{\"processDefinitionKey\":\"" + processDefinitionKey + "\"");
-		if (!StringUtils.isEmpty(businessKey)) {
-			stringBuilder.append(",\"businessKey\":\"" + businessKey + "\"");
-		}
-		if (variables != null) {
-			String variablesJsonText = this.variablesJsonBuild(variables);
-			LOGGER.info("variablesJsonText:{} ", variablesJsonText);
-			if (!StringUtils.isEmpty(variablesJsonText)) {
-				stringBuilder.append("," + variablesJsonText);
-			}
-		}
-		stringBuilder.append("}");
-		requestBody = stringBuilder.toString();
+		String requestBody = this.processInstanceJSONConverter
+				.toStartProcessInstanceByKeyJson(processDefinitionKey,
+						businessKey, variables);
+
 		LOGGER.info("requestBody:{} ", requestBody);
 
 		WebResource webResource = client.resource(baseUrl).path(
@@ -261,8 +251,8 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 
 	@Override
 	public ProcessInstances getProcessInstances(
-			Map<ProcessInstanceQueryParameters, String> processInstanceQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<ProcessInstanceQueryParameter, String> processInstanceQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getProcessInstances start:{}");
 		ProcessInstances processInstances = null;
@@ -270,7 +260,7 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 				"/identity/groups");
 
 		if (processInstanceQueryParameters != null) {
-			for (Map.Entry<ProcessInstanceQueryParameters, String> entry : processInstanceQueryParameters
+			for (Map.Entry<ProcessInstanceQueryParameter, String> entry : processInstanceQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
 					webResource = webResource.queryParam(entry.getKey().name(),
@@ -306,11 +296,11 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public Set<Party> getInvolvedPeopleForProcessInstance(
+	public Set<Identity> getInvolvedPeopleForProcessInstance(
 			String processInstanceId) throws Exception {
 		LOGGER.info("getInvolvedPeopleForProcessInstance start:{}",
 				processInstanceId);
-		Set<Party> parties = null;
+		Set<Identity> identities = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/runtime/process-instances/" + processInstanceId
 						+ "/identitylinks");
@@ -325,7 +315,7 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode == ClientResponse.Status.OK) {
-			parties = this.generalModelJSONConverter.toParties(respStr);
+			identities = this.generalModelJSONConverter.toIdentities(respStr);
 		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("processInstance not found by id["
 					+ processInstanceId + "]");
@@ -333,18 +323,18 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 			throw new Exception("Unknow exception:{} " + respStr);
 		}
 		LOGGER.info("getInvolvedPeopleForProcessInstance end:{}");
-		return parties;
+		return identities;
 	}
 
 	@Override
-	public Party addInvolvedPeopleToProcess(String processInstanceId,
-			String userId, String identityType) throws Exception {
+	public Identity addInvolvedPeopleToProcess(String processInstanceId,
+			String userId, IdentityType identityType) throws Exception {
 		LOGGER.info("addInvolvedPeopleToProcess start:{} ", processInstanceId);
 		LOGGER.info("userId:{} ", userId);
 		LOGGER.info("identityType:{} ", identityType);
-		Party addedParty = null;
+		Identity addedIdentity = null;
 		String jsonRequest = "{\"userId\":\"" + userId + "\",\"type\":\""
-				+ identityType + "\"}";
+				+ identityType.name() + "\"}";
 		WebResource webResource = client.resource(baseUrl).path(
 				"/runtime/process-instances/" + processInstanceId
 						+ "/identitylinks");
@@ -360,7 +350,7 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("respStr:{} ", respStr);
 
 		if (statusCode == ClientResponse.Status.OK) {
-			addedParty = this.generalModelJSONConverter.toParty(respStr);
+			addedIdentity = this.generalModelJSONConverter.toIdentity(respStr);
 		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
 			throw new NotFoundException("processInstance not found by id["
 					+ processInstanceId + "]");
@@ -371,18 +361,18 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 			throw new Exception("Unknow exception:{} " + respStr);
 		}
 
-		return addedParty;
+		return addedIdentity;
 	}
 
 	@Override
 	public void removeInvolvedPeopleFromProcess(String processInstanceId,
-			String userId, String identityType) throws Exception {
+			String userId, IdentityType identityType) throws Exception {
 		LOGGER.info("removeInvolvedPeopleFromProcess start:{} ",
 				processInstanceId);
-		WebResource webResource = client
-				.resource(baseUrl)
-				.path("/runtime/process-instances/" + processInstanceId
-						+ "/identitylinks/users/" + userId + "/" + identityType);
+		WebResource webResource = client.resource(baseUrl).path(
+				"/runtime/process-instances/" + processInstanceId
+						+ "/identitylinks/users/" + userId + "/"
+						+ identityType.name());
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)

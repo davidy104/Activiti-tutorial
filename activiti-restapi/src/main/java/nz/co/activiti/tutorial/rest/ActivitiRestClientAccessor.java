@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,8 +46,8 @@ public class ActivitiRestClientAccessor extends JerseyClientSupport {
 	 */
 	protected void pagingAndSortQueryParametersUrlBuild(
 			WebResource webResource,
-			Map<PagingAndSortingParameters, String> parameters) {
-		for (Map.Entry<PagingAndSortingParameters, String> entry : parameters
+			Map<PagingAndSortingParameter, String> parameters) {
+		for (Map.Entry<PagingAndSortingParameter, String> entry : parameters
 				.entrySet()) {
 			if (!StringUtils.isEmpty(entry.getValue())) {
 				webResource = webResource.queryParam(

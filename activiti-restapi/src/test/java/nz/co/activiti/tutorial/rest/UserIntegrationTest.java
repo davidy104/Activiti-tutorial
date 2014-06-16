@@ -9,9 +9,9 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.user.UserDS;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.user.User;
-import nz.co.activiti.tutorial.model.user.UserQueryParameters;
+import nz.co.activiti.tutorial.model.user.UserQueryParameter;
 import nz.co.activiti.tutorial.model.user.Users;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 
@@ -93,9 +93,9 @@ public class UserIntegrationTest {
 
 	@Test
 	public void testPagingUsers() throws Exception {
-		Map<UserQueryParameters, String> userQueryParameters = new HashMap<UserQueryParameters, String>();
-		Map<PagingAndSortingParameters, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameters, String>();
-		pagingAndSortingParameters.put(PagingAndSortingParameters.size, "4");
+		Map<UserQueryParameter, String> userQueryParameters = new HashMap<UserQueryParameter, String>();
+		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
+		pagingAndSortingParameters.put(PagingAndSortingParameter.size, "4");
 		Users users = userDSRest.getUsers(userQueryParameters,
 				pagingAndSortingParameters);
 		assertNotNull(users);
@@ -104,12 +104,12 @@ public class UserIntegrationTest {
 
 	@Test
 	public void testGetUsersByConditions() throws Exception {
-		Map<UserQueryParameters, String> userQueryParameters = new HashMap<UserQueryParameters, String>();
-		userQueryParameters.put(UserQueryParameters.firstName,
+		Map<UserQueryParameter, String> userQueryParameters = new HashMap<UserQueryParameter, String>();
+		userQueryParameters.put(UserQueryParameter.firstName,
 				TEST_USER_FIRSTNAME);
-		userQueryParameters.put(UserQueryParameters.lastName,
+		userQueryParameters.put(UserQueryParameter.lastName,
 				TEST_USER_LASTNAME);
-		userQueryParameters.put(UserQueryParameters.email, TEST_USER_EMAIL);
+		userQueryParameters.put(UserQueryParameter.email, TEST_USER_EMAIL);
 		Users users = userDSRest.getUsers(userQueryParameters, null);
 		assertNotNull(users);
 		LOGGER.info("users:{} ", users);

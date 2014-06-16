@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.Identity;
+import nz.co.activiti.tutorial.model.IdentityType;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameters;
+import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameter;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstances;
-
-import org.activiti.engine.task.IdentityLinkType;
 
 public interface ProcessInstanceDS {
 
@@ -35,11 +34,11 @@ public interface ProcessInstanceDS {
 			throws Exception;
 
 	ProcessInstances getProcessInstances(
-			Map<ProcessInstanceQueryParameters, String> processInstanceQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<ProcessInstanceQueryParameter, String> processInstanceQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 
-	Set<Party> getInvolvedPeopleForProcessInstance(String processInstanceId)
+	Set<Identity> getInvolvedPeopleForProcessInstance(String processInstanceId)
 			throws Exception;
 
 	/**
@@ -52,8 +51,8 @@ public interface ProcessInstanceDS {
 	 * @return
 	 * @throws Exception
 	 */
-	Party addInvolvedPeopleToProcess(String processInstanceId, String user,
-			String identityType) throws Exception;
+	Identity addInvolvedPeopleToProcess(String processInstanceId, String user,
+			IdentityType identityType) throws Exception;
 
 	/**
 	 * 
@@ -64,7 +63,7 @@ public interface ProcessInstanceDS {
 	 * @throws Exception
 	 */
 	void removeInvolvedPeopleFromProcess(String processInstanceId, String user,
-			String identityType) throws Exception;
+			IdentityType identityType) throws Exception;
 
 	List<Variable> getVariablesFromProcess(String processInstanceId)
 			throws Exception;

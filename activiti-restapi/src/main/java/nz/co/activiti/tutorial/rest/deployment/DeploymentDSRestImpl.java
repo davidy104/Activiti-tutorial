@@ -10,9 +10,9 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
-import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameters;
+import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameter;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
@@ -143,8 +143,8 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 
 	@Override
 	public Deployments getDeployments(
-			Map<DeploymentQueryParameters, String> deploymentQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<DeploymentQueryParameter, String> deploymentQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getDeployments start:{}");
 		Deployments deploymentsResponse = null;
@@ -153,7 +153,7 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 				"/repository/deployments");
 
 		if (deploymentQueryParameters != null) {
-			for (Map.Entry<DeploymentQueryParameters, String> entry : deploymentQueryParameters
+			for (Map.Entry<DeploymentQueryParameter, String> entry : deploymentQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
 					webResource = webResource.queryParam(entry.getKey().name(),

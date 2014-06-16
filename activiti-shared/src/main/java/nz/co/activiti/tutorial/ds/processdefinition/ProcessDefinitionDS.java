@@ -5,17 +5,17 @@ import java.util.Map;
 import java.util.Set;
 
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
-import nz.co.activiti.tutorial.model.Party;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameters;
+import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 
 public interface ProcessDefinitionDS {
 
 	ProcessDefinitions getProcessDefinitions(
-			Map<ProcessDefinitionQueryParameters, String> processDefinitionQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+			Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 
 	ProcessDefinition getProcessDefinitionByProcessDefinitionId(
@@ -32,9 +32,9 @@ public interface ProcessDefinitionDS {
 			boolean includeProcessInstances, Date effectiveDate)
 			throws Exception;
 
-	Set<Party> getAllCandidates(String processDefinitionId) throws Exception;
+	Set<Identity> getAllIdentities(String processDefinitionId) throws Exception;
 
-	Party addCandidate(String processDefinitionId, Family family, String name)
+	Identity addIdentity(String processDefinitionId, Family family, String name)
 			throws Exception;
 
 	/**
@@ -49,9 +49,9 @@ public interface ProcessDefinitionDS {
 	 * @return
 	 * @throws Exception
 	 */
-	void deleteCandidate(String processDefinitionId, Family family,
+	void deleteIdentity(String processDefinitionId, Family family,
 			String identityId) throws Exception;
 
-	Party getCandidate(String processDefinitionId, Family family,
+	Identity getIdentity(String processDefinitionId, Family family,
 			String identityId) throws Exception;
 }

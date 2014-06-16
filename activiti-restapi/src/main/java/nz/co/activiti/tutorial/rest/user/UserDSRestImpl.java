@@ -9,9 +9,9 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.user.UserDS;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameters;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.user.User;
-import nz.co.activiti.tutorial.model.user.UserQueryParameters;
+import nz.co.activiti.tutorial.model.user.UserQueryParameter;
 import nz.co.activiti.tutorial.model.user.Users;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 
@@ -65,8 +65,8 @@ public class UserDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Users getUsers(Map<UserQueryParameters, String> userQueryParameters,
-			Map<PagingAndSortingParameters, String> pagingAndSortingParameters)
+	public Users getUsers(Map<UserQueryParameter, String> userQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getUsers start:{} ");
 		Users users = null;
@@ -75,7 +75,7 @@ public class UserDSRestImpl extends ActivitiRestClientAccessor implements
 				"/identity/users");
 
 		if (userQueryParameters != null) {
-			for (Map.Entry<UserQueryParameters, String> entry : userQueryParameters
+			for (Map.Entry<UserQueryParameter, String> entry : userQueryParameters
 					.entrySet()) {
 				if (!StringUtils.isEmpty(entry.getValue())) {
 					webResource = webResource.queryParam(entry.getKey().name(),
