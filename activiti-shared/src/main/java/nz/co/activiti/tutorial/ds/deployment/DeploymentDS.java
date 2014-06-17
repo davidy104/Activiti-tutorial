@@ -4,11 +4,11 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
 import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameter;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
-import nz.co.activiti.tutorial.model.deployment.Deployments;
 
 /**
  * 
@@ -21,7 +21,7 @@ public interface DeploymentDS {
 
 	void undeployment(String deploymentId) throws Exception;
 
-	Deployments getDeployments(
+	GenericCollectionModel<Deployment> getDeployments(
 			Map<DeploymentQueryParameter, String> deploymentQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;

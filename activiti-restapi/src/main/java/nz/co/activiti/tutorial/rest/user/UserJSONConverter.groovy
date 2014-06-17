@@ -3,8 +3,8 @@ package nz.co.activiti.tutorial.rest.user
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import nz.co.activiti.tutorial.ConvertException
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.user.User
-import nz.co.activiti.tutorial.model.user.Users
 
 import org.springframework.stereotype.Component
 @Component
@@ -34,7 +34,7 @@ class UserJSONConverter {
 		return user
 	}
 
-	Users toUsers(String jsonText)throws ConvertException {
+	GenericCollectionModel<User>  toUsers(String jsonText)throws ConvertException {
 		log.info "toUsers start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -50,7 +50,7 @@ class UserJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		Users users = new Users(total:total,
+		GenericCollectionModel<User>  users = new GenericCollectionModel<User>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -68,7 +68,7 @@ class UserJSONConverter {
 					)
 
 
-			users.addUser(user)
+			users.addModel(user)
 		}
 		log.info "toUsers end:{}"
 		return users

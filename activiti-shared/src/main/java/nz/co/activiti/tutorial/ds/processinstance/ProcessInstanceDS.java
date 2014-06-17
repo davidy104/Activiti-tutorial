@@ -4,13 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.IdentityType;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameter;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstances;
 
 public interface ProcessInstanceDS {
 
@@ -33,7 +33,7 @@ public interface ProcessInstanceDS {
 	ProcessInstance activeProcessInstance(String processInstanceId)
 			throws Exception;
 
-	ProcessInstances getProcessInstances(
+	GenericCollectionModel<ProcessInstance> getProcessInstances(
 			Map<ProcessInstanceQueryParameter, String> processInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;

@@ -3,13 +3,13 @@ package nz.co.activiti.tutorial.ds.execution;
 import java.util.List;
 import java.util.Map;
 
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.VariableScope;
 import nz.co.activiti.tutorial.model.execution.Execution;
 import nz.co.activiti.tutorial.model.execution.ExecutionActionRequest;
 import nz.co.activiti.tutorial.model.execution.ExecutionQueryParameter;
-import nz.co.activiti.tutorial.model.execution.Executions;
 
 public interface ExecutionDS {
 
@@ -20,7 +20,7 @@ public interface ExecutionDS {
 
 	String[] getActiveActivities(String executionId) throws Exception;
 
-	Executions getExecutions(
+	GenericCollectionModel<Execution> getExecutions(
 			Map<ExecutionQueryParameter, String> executionQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;

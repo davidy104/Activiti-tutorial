@@ -11,11 +11,11 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
 import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameter;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
-import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@Ignore("not run all the time")
 public class DeploymentIntegrationTest {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(DeploymentIntegrationTest.class);
@@ -70,10 +71,11 @@ public class DeploymentIntegrationTest {
 				"tenantId7890");
 
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
-//		pagingAndSortingParameters.put(PagingAndSortingParameters.size, "2");
+		// pagingAndSortingParameters.put(PagingAndSortingParameters.size, "2");
 
-		Deployments deploymentsResponse = deploymentDSRest.getDeployments(deploymentQueryParameters,
-				pagingAndSortingParameters);
+		GenericCollectionModel<Deployment> deploymentsResponse = deploymentDSRest
+				.getDeployments(deploymentQueryParameters,
+						pagingAndSortingParameters);
 		assertNotNull(deploymentsResponse);
 		LOGGER.info("deploymentsResponse:{} ", deploymentsResponse);
 	}
@@ -98,7 +100,7 @@ public class DeploymentIntegrationTest {
 	}
 
 	@Test
-//	@Ignore("try to resolve it later, for sending encoding parameter")
+	// @Ignore("try to resolve it later, for sending encoding parameter")
 	public void testGetDeploymentResource() throws Exception {
 		DeploymentResource deploymentResource = deploymentDSRest
 				.getDeploymentResource(TEST_DEPLOYMENT_ID,
@@ -109,7 +111,7 @@ public class DeploymentIntegrationTest {
 	}
 
 	@Test
-//	@Ignore("we need to know exact deploymentId before deleting")
+	// @Ignore("we need to know exact deploymentId before deleting")
 	public void testUnDeployment() throws Exception {
 		String deploymentId = "14013";
 		deploymentDSRest.undeployment(deploymentId);

@@ -10,13 +10,13 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.IdentityType;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstanceQueryParameter;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstances;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
@@ -250,12 +250,12 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
-	public ProcessInstances getProcessInstances(
+	public GenericCollectionModel<ProcessInstance> getProcessInstances(
 			Map<ProcessInstanceQueryParameter, String> processInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getProcessInstances start:{}");
-		ProcessInstances processInstances = null;
+		GenericCollectionModel<ProcessInstance> processInstances = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/identity/groups");
 

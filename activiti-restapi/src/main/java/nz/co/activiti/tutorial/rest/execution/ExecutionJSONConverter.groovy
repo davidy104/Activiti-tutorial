@@ -1,7 +1,5 @@
 package nz.co.activiti.tutorial.rest.execution
 
-import java.util.List;
-
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -9,9 +7,9 @@ import groovy.util.logging.Slf4j
 import javax.annotation.Resource
 
 import nz.co.activiti.tutorial.ConvertException
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.execution.Execution
 import nz.co.activiti.tutorial.model.execution.ExecutionActionRequest
-import nz.co.activiti.tutorial.model.execution.Executions
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter
 
 import org.springframework.stereotype.Component
@@ -76,7 +74,7 @@ class ExecutionJSONConverter {
 		return execution
 	}
 
-	Executions toExecutions(String jsonText) throws ConvertException{
+	GenericCollectionModel<Execution> toExecutions(String jsonText) throws ConvertException{
 		log.info "toExecutions start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -91,7 +89,7 @@ class ExecutionJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		Executions executions = new Executions(total:total,
+		GenericCollectionModel<Execution> executions = new GenericCollectionModel<Execution>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -110,7 +108,7 @@ class ExecutionJSONConverter {
 					activityId:it.activityId,
 					suspended:it.suspended,
 					tenantId:it.tenantId)
-			executions.addExecution(execution)
+			executions.addModel(execution)
 		}
 		log.info "toExecutions end:{} $executions"
 		return executions

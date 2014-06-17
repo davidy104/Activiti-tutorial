@@ -5,15 +5,15 @@ import java.util.Map;
 import java.util.Set;
 
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 
 public interface ProcessDefinitionDS {
 
-	ProcessDefinitions getProcessDefinitions(
+	GenericCollectionModel<ProcessDefinition> getProcessDefinitions(
 			Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;

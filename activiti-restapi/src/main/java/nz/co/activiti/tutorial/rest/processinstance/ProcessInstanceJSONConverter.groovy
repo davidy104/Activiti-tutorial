@@ -3,11 +3,8 @@ package nz.co.activiti.tutorial.rest.processinstance
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
-
-import javax.mail.Address
-
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstances
 
 import org.springframework.stereotype.Component
 
@@ -89,7 +86,7 @@ class ProcessInstanceJSONConverter {
 		return processInstance
 	}
 
-	ProcessInstances toProcessInstances(String jsonText){
+	GenericCollectionModel<ProcessInstance> toProcessInstances(String jsonText){
 		log.info "toProcessInstances start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -105,7 +102,7 @@ class ProcessInstanceJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		ProcessInstances processInstances = new ProcessInstances(total:total,
+		GenericCollectionModel<ProcessInstance> processInstances = new GenericCollectionModel<ProcessInstance>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -124,7 +121,7 @@ class ProcessInstanceJSONConverter {
 					tenantId:it.tenantId)
 
 
-			processInstances.addProcessInstance(processInstance)
+			processInstances.addModel(processInstance)
 		}
 		log.info "toProcessInstances end:{}"
 		return processInstances

@@ -9,10 +9,10 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.user.UserDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.user.User;
 import nz.co.activiti.tutorial.model.user.UserQueryParameter;
-import nz.co.activiti.tutorial.model.user.Users;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,11 +65,12 @@ public class UserDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Users getUsers(Map<UserQueryParameter, String> userQueryParameters,
+	public GenericCollectionModel<User> getUsers(
+			Map<UserQueryParameter, String> userQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getUsers start:{} ");
-		Users users = null;
+		GenericCollectionModel<User> users = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/identity/users");

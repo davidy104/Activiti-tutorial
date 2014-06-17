@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 
 import nz.co.activiti.tutorial.model.Family;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.IdentityType;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
@@ -15,13 +16,12 @@ import nz.co.activiti.tutorial.model.task.TaskActionRequest;
 import nz.co.activiti.tutorial.model.task.TaskComment;
 import nz.co.activiti.tutorial.model.task.TaskEvent;
 import nz.co.activiti.tutorial.model.task.TaskQueryParameter;
-import nz.co.activiti.tutorial.model.task.Tasks;
 
 public interface TaskDS {
 
 	Task getTaskById(String taskId) throws Exception;
 
-	Tasks getTasks(Map<TaskQueryParameter, String> taskQueryParameters,
+	GenericCollectionModel<Task> getTasks(Map<TaskQueryParameter, String> taskQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 

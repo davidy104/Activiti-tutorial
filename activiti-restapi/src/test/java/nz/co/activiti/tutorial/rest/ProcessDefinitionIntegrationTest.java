@@ -13,11 +13,11 @@ import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 
 import org.junit.Ignore;
@@ -52,7 +52,7 @@ public class ProcessDefinitionIntegrationTest {
 	public void testGetAllProcessDefinitions() throws Exception {
 		Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameter, String>();
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
-		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
 		assertNotNull(processDefinitionsResponse);
@@ -71,12 +71,11 @@ public class ProcessDefinitionIntegrationTest {
 				ProcessDefinitionQueryParameter.key,
 				TEST_PROCESS_DEFINITION_KEY);
 
-		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
 		assertNotNull(processDefinitionsResponse);
-		assertEquals(1, processDefinitionsResponse.getProcessDefinitionSet()
-				.size());
+		assertEquals(1, processDefinitionsResponse.getModelList().size());
 		LOGGER.info("processDefinitionsResponse:{} ",
 				processDefinitionsResponse);
 

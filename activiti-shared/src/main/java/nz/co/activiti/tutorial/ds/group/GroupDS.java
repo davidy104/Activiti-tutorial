@@ -2,14 +2,15 @@ package nz.co.activiti.tutorial.ds.group;
 
 import java.util.Map;
 
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.group.Group;
 import nz.co.activiti.tutorial.model.group.GroupQueryParameter;
-import nz.co.activiti.tutorial.model.group.Groups;
 import nz.co.activiti.tutorial.model.group.MemberShip;
 
 public interface GroupDS {
-	Groups getGroups(Map<GroupQueryParameter, String> groupQueryParameters,
+	GenericCollectionModel<Group> getGroups(
+			Map<GroupQueryParameter, String> groupQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 

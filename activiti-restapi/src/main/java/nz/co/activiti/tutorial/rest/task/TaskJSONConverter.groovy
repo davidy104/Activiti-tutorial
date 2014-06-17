@@ -7,13 +7,11 @@ import groovy.util.logging.Slf4j
 import javax.annotation.Resource
 
 import nz.co.activiti.tutorial.ConvertException
-import nz.co.activiti.tutorial.model.group.Group;
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.task.Task
 import nz.co.activiti.tutorial.model.task.TaskActionRequest
 import nz.co.activiti.tutorial.model.task.TaskComment
 import nz.co.activiti.tutorial.model.task.TaskEvent
-import nz.co.activiti.tutorial.model.task.Tasks
-import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter
 
 import org.springframework.stereotype.Component
@@ -197,7 +195,7 @@ class TaskJSONConverter {
 		return task
 	}
 
-	Tasks toTasks(String jsonText)throws ConvertException{
+	GenericCollectionModel<Task> toTasks(String jsonText)throws ConvertException{
 		log.info "toTasks start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -213,7 +211,7 @@ class TaskJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		Tasks tasks = new Tasks(total:total,
+		GenericCollectionModel<Task> tasks = new GenericCollectionModel<Task>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -240,7 +238,7 @@ class TaskJSONConverter {
 					taskDefinitionKey:it.taskDefinitionKey,
 					url:it.url,
 					tenantId:it.tenantId)
-			tasks.addTask(task)
+			tasks.addModel(task)
 		}
 		log.info "toTasks end:{}"
 		return tasks

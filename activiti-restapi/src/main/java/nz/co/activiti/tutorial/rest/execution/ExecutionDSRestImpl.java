@@ -9,13 +9,13 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.execution.ExecutionDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.Variable;
 import nz.co.activiti.tutorial.model.VariableScope;
 import nz.co.activiti.tutorial.model.execution.Execution;
 import nz.co.activiti.tutorial.model.execution.ExecutionActionRequest;
 import nz.co.activiti.tutorial.model.execution.ExecutionQueryParameter;
-import nz.co.activiti.tutorial.model.execution.Executions;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
@@ -41,8 +41,6 @@ public class ExecutionDSRestImpl extends ActivitiRestClientAccessor implements
 
 	@Resource
 	private GeneralModelJSONConverter generalModelJSONConverter;
-	
-	
 
 	@Override
 	public Execution getExecutionById(String executionId) throws Exception {
@@ -139,12 +137,12 @@ public class ExecutionDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Executions getExecutions(
+	public GenericCollectionModel<Execution> getExecutions(
 			Map<ExecutionQueryParameter, String> executionQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getExecutions start:{}");
-		Executions executions = null;
+		GenericCollectionModel<Execution> executions = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/executions");

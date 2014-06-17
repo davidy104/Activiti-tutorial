@@ -9,10 +9,10 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.user.UserDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.user.User;
 import nz.co.activiti.tutorial.model.user.UserQueryParameter;
-import nz.co.activiti.tutorial.model.user.Users;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 
 import org.junit.Ignore;
@@ -96,8 +96,8 @@ public class UserIntegrationTest {
 		Map<UserQueryParameter, String> userQueryParameters = new HashMap<UserQueryParameter, String>();
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
 		pagingAndSortingParameters.put(PagingAndSortingParameter.size, "4");
-		Users users = userDSRest.getUsers(userQueryParameters,
-				pagingAndSortingParameters);
+		GenericCollectionModel<User> users = userDSRest.getUsers(
+				userQueryParameters, pagingAndSortingParameters);
 		assertNotNull(users);
 		LOGGER.info("users:{} ", users);
 	}
@@ -107,10 +107,11 @@ public class UserIntegrationTest {
 		Map<UserQueryParameter, String> userQueryParameters = new HashMap<UserQueryParameter, String>();
 		userQueryParameters.put(UserQueryParameter.firstName,
 				TEST_USER_FIRSTNAME);
-		userQueryParameters.put(UserQueryParameter.lastName,
-				TEST_USER_LASTNAME);
+		userQueryParameters
+				.put(UserQueryParameter.lastName, TEST_USER_LASTNAME);
 		userQueryParameters.put(UserQueryParameter.email, TEST_USER_EMAIL);
-		Users users = userDSRest.getUsers(userQueryParameters, null);
+		GenericCollectionModel<User> users = userDSRest.getUsers(
+				userQueryParameters, null);
 		assertNotNull(users);
 		LOGGER.info("users:{} ", users);
 	}

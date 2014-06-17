@@ -13,11 +13,11 @@ import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
+import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
 
@@ -46,13 +46,13 @@ public class ProcessDefinitionDSRestImpl extends ActivitiRestClientAccessor
 	private GeneralModelJSONConverter generalModelJSONConverter;
 
 	@Override
-	public ProcessDefinitions getProcessDefinitions(
+	public GenericCollectionModel<ProcessDefinition> getProcessDefinitions(
 			Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getAllProcessDefinitions start:{}");
 
-		ProcessDefinitions processDefinitions = null;
+		GenericCollectionModel<ProcessDefinition> processDefinitions = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/process-definitions");
 

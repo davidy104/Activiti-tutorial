@@ -4,8 +4,8 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import nz.co.activiti.tutorial.ConvertException
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.group.Group
-import nz.co.activiti.tutorial.model.group.Groups
 import nz.co.activiti.tutorial.model.group.MemberShip
 import nz.co.activiti.tutorial.rest.ActionType
 
@@ -66,7 +66,7 @@ class GroupJSONConverter {
 		return group
 	}
 
-	Groups toGroups(String jsonText) throws ConvertException{
+	GenericCollectionModel<Group> toGroups(String jsonText) throws ConvertException{
 		log.info "toGroups start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
@@ -81,7 +81,7 @@ class GroupJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		Groups groups = new Groups(total:total,
+		GenericCollectionModel<Group> groups = new GenericCollectionModel<Group>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -94,7 +94,7 @@ class GroupJSONConverter {
 			name:it.name,
 			type:it.type,
 			url:it.url)
-			groups.addGroup(group)
+			groups.addModel(group)
 		}
 		log.info "toGroups end:{} $groups"
 		return groups

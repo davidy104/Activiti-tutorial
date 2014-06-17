@@ -8,10 +8,10 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.group.GroupDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.group.Group;
 import nz.co.activiti.tutorial.model.group.GroupQueryParameter;
-import nz.co.activiti.tutorial.model.group.Groups;
 import nz.co.activiti.tutorial.model.group.MemberShip;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
@@ -35,11 +35,11 @@ public class GroupDSRestImpl extends ActivitiRestClientAccessor implements
 	private GroupJSONConverter groupJSONConverter;
 
 	@Override
-	public Groups getGroups(
+	public GenericCollectionModel<Group> getGroups(
 			Map<GroupQueryParameter, String> groupQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
-		Groups groups = null;
+		GenericCollectionModel<Group> groups = null;
 		WebResource webResource = client.resource(baseUrl).path(
 				"/identity/groups");
 

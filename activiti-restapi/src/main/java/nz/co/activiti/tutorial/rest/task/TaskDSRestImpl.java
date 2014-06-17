@@ -11,6 +11,7 @@ import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.task.TaskDS;
 import nz.co.activiti.tutorial.model.Family;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.Identity;
 import nz.co.activiti.tutorial.model.IdentityType;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
@@ -21,7 +22,6 @@ import nz.co.activiti.tutorial.model.task.TaskActionRequest;
 import nz.co.activiti.tutorial.model.task.TaskComment;
 import nz.co.activiti.tutorial.model.task.TaskEvent;
 import nz.co.activiti.tutorial.model.task.TaskQueryParameter;
-import nz.co.activiti.tutorial.model.task.Tasks;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
@@ -75,11 +75,12 @@ public class TaskDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Tasks getTasks(Map<TaskQueryParameter, String> taskQueryParameters,
+	public GenericCollectionModel<Task> getTasks(
+			Map<TaskQueryParameter, String> taskQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getTasks start:{}");
-		Tasks tasks = null;
+		GenericCollectionModel<Task> tasks = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/runtime/tasks");

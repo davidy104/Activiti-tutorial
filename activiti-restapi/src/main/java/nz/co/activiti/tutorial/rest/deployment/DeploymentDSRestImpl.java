@@ -10,11 +10,11 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
 import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameter;
 import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
-import nz.co.activiti.tutorial.model.deployment.Deployments;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -142,12 +142,12 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Deployments getDeployments(
+	public GenericCollectionModel<Deployment> getDeployments(
 			Map<DeploymentQueryParameter, String> deploymentQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
 		LOGGER.info("getDeployments start:{}");
-		Deployments deploymentsResponse = null;
+		GenericCollectionModel<Deployment> deployments = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/repository/deployments");
@@ -181,10 +181,9 @@ public class DeploymentDSRestImpl extends ActivitiRestClientAccessor implements
 		if (statusCode != ClientResponse.Status.OK) {
 			throw new Exception("getAllDeployments failed:{} " + respStr);
 		} else {
-			deploymentsResponse = deploymentJSONConverter
-					.toDeployments(respStr);
+			deployments = deploymentJSONConverter.toDeployments(respStr);
 		}
-		return deploymentsResponse;
+		return deployments;
 	}
 
 	@Override

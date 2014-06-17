@@ -2,8 +2,8 @@ package nz.co.activiti.tutorial.rest.processdefinition
 
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
+import nz.co.activiti.tutorial.model.GenericCollectionModel
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions
 
 import org.springframework.stereotype.Component
 
@@ -55,7 +55,7 @@ class ProcessDefinitionJSONConverter {
 		return processDefinition
 	}
 
-	ProcessDefinitions toProcessDefinitions(String jsonText){
+	GenericCollectionModel<ProcessDefinition> toProcessDefinitions(String jsonText){
 		log.info "toProcessDefinitions start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -71,7 +71,7 @@ class ProcessDefinitionJSONConverter {
 		String ssort =  (String)jsonResult.get("sort")
 		String order =  (String)jsonResult.get("order")
 
-		ProcessDefinitions processDefinitions = new ProcessDefinitions(total:total,
+		GenericCollectionModel<ProcessDefinition> processDefinitions = new GenericCollectionModel<ProcessDefinition>(total:total,
 		start:start,
 		size:ssize,
 		sort:ssort,
@@ -99,7 +99,7 @@ class ProcessDefinitionJSONConverter {
 					startFormDefined:it.startFormDefined)
 
 
-			processDefinitions.addProcessDefinition(processDefinition)
+			processDefinitions.addModel(processDefinition)
 		}
 		log.info "toProcessDefinitions end:{}"
 		return processDefinitions

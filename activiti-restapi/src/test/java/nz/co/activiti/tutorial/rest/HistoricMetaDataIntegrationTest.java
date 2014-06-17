@@ -16,10 +16,10 @@ import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
 import nz.co.activiti.tutorial.ds.task.TaskDS;
+import nz.co.activiti.tutorial.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.model.deployment.Deployment;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitions;
 import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
@@ -95,10 +95,10 @@ public class HistoricMetaDataIntegrationTest {
 				ProcessDefinitionQueryParameter.deploymentId, deploymentId);
 		processDefinitionQueryParameters.put(
 				ProcessDefinitionQueryParameter.key, PROCESS_DEFINITION_KEY);
-		ProcessDefinitions processDefinitionsResponse = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitions = processDefinitionDSRest
 				.getProcessDefinitions(processDefinitionQueryParameters, null);
-		ProcessDefinition processDefinition = processDefinitionsResponse
-				.getProcessDefinitionSet().iterator().next();
+		ProcessDefinition processDefinition = processDefinitions.getModelList()
+				.get(0);
 		LOGGER.info("processDefinition:{} ", processDefinition);
 		processDefinitionId = processDefinition.getId();
 	}
@@ -131,7 +131,7 @@ public class HistoricMetaDataIntegrationTest {
 		processInstanceId = processInstance.getId();
 		printQueryHistoricTaskInstance();
 		printHistoricTaskInstances(processInstanceId);
-		
+
 		printHistoryVariableInstances();
 
 	}
