@@ -27,7 +27,7 @@
           <activiti:expression>${trainerMailId}</activiti:expression>
         </activiti:field>
         <activiti:field name="from">
-          <activiti:string><![CDATA[contact@attuneuniversity.com]]></activiti:string>
+          <activiti:string>contact@attuneuniversity.com</activiti:string>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:expression>Training Schedule for ${trainingTopic}</activiti:expression>
@@ -56,7 +56,7 @@ Regards&lt;br/&gt;
           <activiti:expression>${customerEamil}</activiti:expression>
         </activiti:field>
         <activiti:field name="from">
-          <activiti:string><![CDATA[contact@attuneuniversity.com]]></activiti:string>
+          <activiti:string>contact@attuneuniversity.com</activiti:string>
         </activiti:field>
         <activiti:field name="subject">
           <activiti:expression>Training Schedule for ${trainingTopic}</activiti:expression>
