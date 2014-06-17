@@ -8,12 +8,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ds.user.UserDS;
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.user.User;
-import nz.co.activiti.tutorial.model.user.UserQueryParameter;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.rest.ds.user.UserRestDS;
+import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.rest.model.user.User;
+import nz.co.activiti.tutorial.rest.model.user.UserQueryParameter;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class UserIntegrationTest {
 			.getLogger(UserIntegrationTest.class);
 
 	@Resource
-	private UserDS userDSRest;
+	private UserRestDS userRestDS;
 
 	private static final String TEST_USER_PICTURE = "davidy.png";
 	private static final String TEST_USER_ID = "fozzie";
@@ -46,14 +46,14 @@ public class UserIntegrationTest {
 	// public void initialize() throws Exception {
 	// User addUser = mockUser();
 	// addUser.setId(TEST_USER_ID);
-	// addUser = userDSRest.createUser(addUser);
+	// addUser = userRestDS.createUser(addUser);
 	// LOGGER.info("addUser:{} ", addUser);
 	// }
 	//
 	// @After
 	// public void clean() throws Exception {
 	// if (ifCleanUser) {
-	// userDSRest.deleteUser(TEST_USER_ID);
+	// userRestDS.deleteUser(TEST_USER_ID);
 	// }
 	// }
 
@@ -61,15 +61,15 @@ public class UserIntegrationTest {
 	public void testCreateAndDeleteUser() throws Exception {
 		User addUser = mockUser();
 		addUser.setId("davidy");
-		addUser = userDSRest.createUser(addUser);
+		addUser = userRestDS.createUser(addUser);
 		assertNotNull(addUser);
 		LOGGER.info("addUser:{} ", addUser);
-		userDSRest.deleteUser(addUser.getId());
+		userRestDS.deleteUser(addUser.getId());
 	}
 
 	@Test
 	public void testGetUserById() throws Exception {
-		User foundUser = userDSRest.getUserById(TEST_USER_ID);
+		User foundUser = userRestDS.getUserById(TEST_USER_ID);
 		assertNotNull(foundUser);
 		LOGGER.info("foundUser:{} ", foundUser);
 	}
@@ -78,17 +78,17 @@ public class UserIntegrationTest {
 	public void testUpdateUser() throws Exception {
 		User addUser = mockUser();
 		addUser.setId("davidy");
-		addUser = userDSRest.createUser(addUser);
+		addUser = userRestDS.createUser(addUser);
 		assertNotNull(addUser);
 		LOGGER.info("addUser:{} ", addUser);
 
 		User updateUser = new User();
 		updateUser.setEmail("david.yuan124@gmail.com");
-		updateUser = userDSRest.updateUser("davidy", updateUser);
+		updateUser = userRestDS.updateUser("davidy", updateUser);
 		assertNotNull(updateUser);
 		LOGGER.info("updated users:{} ", updateUser);
 
-		userDSRest.deleteUser("davidy");
+		userRestDS.deleteUser("davidy");
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class UserIntegrationTest {
 		Map<UserQueryParameter, String> userQueryParameters = new HashMap<UserQueryParameter, String>();
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
 		pagingAndSortingParameters.put(PagingAndSortingParameter.size, "4");
-		GenericCollectionModel<User> users = userDSRest.getUsers(
+		GenericCollectionModel<User> users = userRestDS.getUsers(
 				userQueryParameters, pagingAndSortingParameters);
 		assertNotNull(users);
 		LOGGER.info("users:{} ", users);
@@ -110,7 +110,7 @@ public class UserIntegrationTest {
 		userQueryParameters
 				.put(UserQueryParameter.lastName, TEST_USER_LASTNAME);
 		userQueryParameters.put(UserQueryParameter.email, TEST_USER_EMAIL);
-		GenericCollectionModel<User> users = userDSRest.getUsers(
+		GenericCollectionModel<User> users = userRestDS.getUsers(
 				userQueryParameters, null);
 		assertNotNull(users);
 		LOGGER.info("users:{} ", users);
@@ -121,7 +121,7 @@ public class UserIntegrationTest {
 	public void testUpdateUsersPicture() throws Exception {
 		User addUser = mockUser();
 		addUser.setId("davidy");
-		addUser = userDSRest.createUser(addUser);
+		addUser = userRestDS.createUser(addUser);
 		assertNotNull(addUser);
 		LOGGER.info("addUser:{} ", addUser);
 
@@ -130,7 +130,7 @@ public class UserIntegrationTest {
 		// File picture = File.createTempFile("davidy", ".png");
 		// GeneralUtils.inputStreamToFile(processStream, picture);
 
-		userDSRest.updateUsersPicture("davidy", processStream);
+		userRestDS.updateUsersPicture("davidy", processStream);
 	}
 
 	private User mockUser() {

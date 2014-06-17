@@ -10,13 +10,13 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.deployment.Deployment;
-import nz.co.activiti.tutorial.model.deployment.DeploymentQueryParameter;
-import nz.co.activiti.tutorial.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
+import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
+import nz.co.activiti.tutorial.rest.model.deployment.DeploymentQueryParameter;
+import nz.co.activiti.tutorial.rest.model.deployment.DeploymentResource;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
 import org.junit.Ignore;
@@ -38,7 +38,7 @@ public class DeploymentIntegrationTest {
 			.getLogger(DeploymentIntegrationTest.class);
 
 	@Resource
-	private DeploymentDS deploymentDSRest;
+	private DeploymentRestDS deploymentRestDS;
 
 	private static final String PROCESS_LOCATION = "process/laptopOrderHumanProcess.bpmn20.xml";
 
@@ -58,7 +58,7 @@ public class DeploymentIntegrationTest {
 				".bpmn20.xml");
 		GeneralUtils.inputStreamToFile(processStream, processFile);
 
-		Deployment deployment = deploymentDSRest.deployment(TENANT_ID,
+		Deployment deployment = deploymentRestDS.deployment(TENANT_ID,
 				processFile);
 		assertNotNull(deployment);
 		LOGGER.info("deployment:{} ", deployment);
@@ -73,7 +73,7 @@ public class DeploymentIntegrationTest {
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
 		// pagingAndSortingParameters.put(PagingAndSortingParameters.size, "2");
 
-		GenericCollectionModel<Deployment> deploymentsResponse = deploymentDSRest
+		GenericCollectionModel<Deployment> deploymentsResponse = deploymentRestDS
 				.getDeployments(deploymentQueryParameters,
 						pagingAndSortingParameters);
 		assertNotNull(deploymentsResponse);
@@ -82,7 +82,7 @@ public class DeploymentIntegrationTest {
 
 	@Test
 	public void testGetDeploymentByDeploymentId() throws Exception {
-		Deployment deploymentResponse = deploymentDSRest
+		Deployment deploymentResponse = deploymentRestDS
 				.getDeploymentByDeploymentId(TEST_DEPLOYMENT_ID);
 		assertNotNull(deploymentResponse);
 		LOGGER.info("deploymentResponse:{} ", deploymentResponse);
@@ -90,7 +90,7 @@ public class DeploymentIntegrationTest {
 
 	@Test
 	public void testGetDeploymentResourcesByDeployId() throws Exception {
-		List<DeploymentResource> deploymentResources = deploymentDSRest
+		List<DeploymentResource> deploymentResources = deploymentRestDS
 				.getDeploymentResourcesByDeployId(TEST_DEPLOYMENT_ID);
 		assertNotNull(deploymentResources);
 
@@ -102,7 +102,7 @@ public class DeploymentIntegrationTest {
 	@Test
 	// @Ignore("try to resolve it later, for sending encoding parameter")
 	public void testGetDeploymentResource() throws Exception {
-		DeploymentResource deploymentResource = deploymentDSRest
+		DeploymentResource deploymentResource = deploymentRestDS
 				.getDeploymentResource(TEST_DEPLOYMENT_ID,
 						TEST_DEPLOYMENT_RESOURCE_ID);
 		assertNotNull(deploymentResource);
@@ -114,6 +114,6 @@ public class DeploymentIntegrationTest {
 	// @Ignore("we need to know exact deploymentId before deleting")
 	public void testUnDeployment() throws Exception {
 		String deploymentId = "14013";
-		deploymentDSRest.undeployment(deploymentId);
+		deploymentRestDS.undeployment(deploymentId);
 	}
 }

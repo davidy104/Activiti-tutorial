@@ -4,9 +4,9 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import nz.co.activiti.tutorial.ConvertException
-import nz.co.activiti.tutorial.model.Identity
-import nz.co.activiti.tutorial.model.IdentityType
-import nz.co.activiti.tutorial.model.Variable
+import nz.co.activiti.tutorial.rest.model.Identity
+import nz.co.activiti.tutorial.rest.model.IdentityType
+import nz.co.activiti.tutorial.rest.model.Variable
 
 import org.springframework.stereotype.Component
 @Component

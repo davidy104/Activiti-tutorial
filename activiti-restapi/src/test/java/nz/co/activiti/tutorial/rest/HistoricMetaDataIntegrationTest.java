@@ -12,16 +12,16 @@ import java.util.UUID;
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
-import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
-import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
-import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
 import nz.co.activiti.tutorial.ds.task.TaskDS;
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.deployment.Deployment;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
+import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
+import nz.co.activiti.tutorial.rest.ds.processinstance.ProcessInstanceRestDS;
+import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinitionQueryParameter;
+import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
 import org.junit.After;
@@ -54,13 +54,13 @@ public class HistoricMetaDataIntegrationTest {
 	private static final String PROCESS_LOCATION = "process/laptopOrderHumanProcess.bpmn20.xml";
 
 	@Resource
-	private DeploymentDS deploymentDSRest;
+	private DeploymentRestDS deploymentRestDS;
 
 	@Resource
-	private ProcessInstanceDS processInstanceDSRest;
+	private ProcessInstanceRestDS processInstanceRestDS;
 
 	@Resource
-	private ProcessDefinitionDS processDefinitionDSRest;
+	private ProcessDefinitionRestDS processDefinitionRestDS;
 
 	@Resource
 	private TaskDS taskDSRest;
@@ -86,7 +86,7 @@ public class HistoricMetaDataIntegrationTest {
 				".bpmn20.xml");
 		GeneralUtils.inputStreamToFile(processStream, processFile);
 
-		Deployment deployment = deploymentDSRest.deployment(TENANT_ID,
+		Deployment deployment = deploymentRestDS.deployment(TENANT_ID,
 				processFile);
 		deploymentId = deployment.getId();
 		LOGGER.info("deploymentId:{} ", deploymentId);
@@ -95,7 +95,7 @@ public class HistoricMetaDataIntegrationTest {
 				ProcessDefinitionQueryParameter.deploymentId, deploymentId);
 		processDefinitionQueryParameters.put(
 				ProcessDefinitionQueryParameter.key, PROCESS_DEFINITION_KEY);
-		GenericCollectionModel<ProcessDefinition> processDefinitions = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitions = processDefinitionRestDS
 				.getProcessDefinitions(processDefinitionQueryParameters, null);
 		ProcessDefinition processDefinition = processDefinitions.getModelList()
 				.get(0);
@@ -106,9 +106,9 @@ public class HistoricMetaDataIntegrationTest {
 	@After
 	public void clean() throws Exception {
 		if (processInstanceId != null) {
-			processInstanceDSRest.deleteProcessInstance(processInstanceId);
+			processInstanceRestDS.deleteProcessInstance(processInstanceId);
 		}
-		deploymentDSRest.undeployment(deploymentId);
+		deploymentRestDS.undeployment(deploymentId);
 	}
 
 	@Test
@@ -233,7 +233,7 @@ public class HistoricMetaDataIntegrationTest {
 	}
 
 	private ProcessInstance startProcess() throws Exception {
-		return processInstanceDSRest.startProcessByProcessDefinitionId(
+		return processInstanceRestDS.startProcessByProcessDefinitionId(
 				processDefinitionId, orderNo, mockVariables());
 	}
 

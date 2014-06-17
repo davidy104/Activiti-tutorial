@@ -1,18 +1,8 @@
 package nz.co.activiti.tutorial.ds.group;
 
-import java.util.Map;
-
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.group.Group;
-import nz.co.activiti.tutorial.model.group.GroupQueryParameter;
-import nz.co.activiti.tutorial.model.group.MemberShip;
+import org.activiti.engine.identity.Group;
 
 public interface GroupDS {
-	GenericCollectionModel<Group> getGroups(
-			Map<GroupQueryParameter, String> groupQueryParameters,
-			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
-			throws Exception;
 
 	Group getGroupById(String groupId) throws Exception;
 
@@ -29,8 +19,7 @@ public interface GroupDS {
 
 	void deleteGroup(String groupId) throws Exception;
 
-	MemberShip createMemberToGroup(String groupId, String userId)
-			throws Exception;
+	void createMemberToGroup(String groupId, String userId) throws Exception;
 
 	void deleteMemberFromGroup(String groupId, String userId) throws Exception;
 

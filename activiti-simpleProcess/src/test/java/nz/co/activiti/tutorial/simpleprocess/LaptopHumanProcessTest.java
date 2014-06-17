@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.model.processinstance.ProcessActivityDto;
+import nz.co.activiti.tutorial.ProcessActivityDto;
 import nz.co.activiti.tutorial.simpleprocess.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.ActivitiFacade;
 

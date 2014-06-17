@@ -11,14 +11,14 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
-import nz.co.activiti.tutorial.model.Family;
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.Identity;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
+import nz.co.activiti.tutorial.rest.model.Family;
+import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.Identity;
+import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinitionQueryParameter;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,13 +46,13 @@ public class ProcessDefinitionIntegrationTest {
 	private static final String TEST_PROCESS_DEFINITION_KEY = "createTimersProcess";
 
 	@Resource
-	private ProcessDefinitionDS processDefinitionDSRest;
+	private ProcessDefinitionRestDS processDefinitionRestDS;
 
 	@Test
 	public void testGetAllProcessDefinitions() throws Exception {
 		Map<ProcessDefinitionQueryParameter, String> processDefinitionQueryParameters = new HashMap<ProcessDefinitionQueryParameter, String>();
 		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = new HashMap<PagingAndSortingParameter, String>();
-		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionRestDS
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
 		assertNotNull(processDefinitionsResponse);
@@ -71,7 +71,7 @@ public class ProcessDefinitionIntegrationTest {
 				ProcessDefinitionQueryParameter.key,
 				TEST_PROCESS_DEFINITION_KEY);
 
-		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitionsResponse = processDefinitionRestDS
 				.getProcessDefinitions(processDefinitionQueryParameters,
 						pagingAndSortingParameters);
 		assertNotNull(processDefinitionsResponse);
@@ -83,7 +83,7 @@ public class ProcessDefinitionIntegrationTest {
 		// processDefinitionQueryParameters.put(
 		// ProcessDefinitionQueryParameters.key,
 		// TEST_PROCESS_DEFINITION_KEY);
-		// processDefinitionsResponse = processDefinitionDSRest
+		// processDefinitionsResponse = processDefinitionRestDS
 		// .getProcessDefinitions(processDefinitionQueryParameters,
 		// pagingAndSortingParameters);
 		// assertNotNull(processDefinitionsResponse);
@@ -93,7 +93,7 @@ public class ProcessDefinitionIntegrationTest {
 
 	@Test
 	public void testGetProcessDefinition() throws Exception {
-		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
+		ProcessDefinition processDefinitionResponse = processDefinitionRestDS
 				.getProcessDefinitionByProcessDefinitionId(TEST_PROCESS_DEFINITION_ID);
 		assertNotNull(processDefinitionResponse);
 		LOGGER.info("processDefinitionResponse:{} ", processDefinitionResponse);
@@ -102,7 +102,7 @@ public class ProcessDefinitionIntegrationTest {
 	// Examples (its original category)
 	@Test
 	public void testUpdateCategory() throws Exception {
-		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
+		ProcessDefinition processDefinitionResponse = processDefinitionRestDS
 				.updateCategory(TEST_PROCESS_DEFINITION_ID,
 						TEST_UPDATE_CATEGORY);
 		assertNotNull(processDefinitionResponse);
@@ -113,7 +113,7 @@ public class ProcessDefinitionIntegrationTest {
 
 		Thread.sleep(500);
 
-		processDefinitionResponse = processDefinitionDSRest.updateCategory(
+		processDefinitionResponse = processDefinitionRestDS.updateCategory(
 				TEST_PROCESS_DEFINITION_ID, "Examples");
 
 		updatedCategory = processDefinitionResponse.getCategory();
@@ -123,7 +123,7 @@ public class ProcessDefinitionIntegrationTest {
 	@Test
 	@Ignore("not run all the time")
 	public void testSuspendProcess() throws Exception {
-		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
+		ProcessDefinition processDefinitionResponse = processDefinitionRestDS
 				.suspendProcessDefinition(TEST_PROCESS_DEFINITION_ID, false,
 						null);
 		assertNotNull(processDefinitionResponse);
@@ -134,7 +134,7 @@ public class ProcessDefinitionIntegrationTest {
 	@Test
 	@Ignore("not run all the time")
 	public void testActiveProcess() throws Exception {
-		ProcessDefinition processDefinitionResponse = processDefinitionDSRest
+		ProcessDefinition processDefinitionResponse = processDefinitionRestDS
 				.activeProcessDefinition(TEST_PROCESS_DEFINITION_ID, true, null);
 		assertNotNull(processDefinitionResponse);
 		LOGGER.info("processDefinitionResponse:{} ", processDefinitionResponse);
@@ -146,27 +146,27 @@ public class ProcessDefinitionIntegrationTest {
 		String user = "kermit";
 		String group = "engineering";
 		// add user as candidate
-		Identity candidate = processDefinitionDSRest.addIdentity(
+		Identity candidate = processDefinitionRestDS.addIdentity(
 				TEST_PROCESS_DEFINITION_ID, Family.users, user);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
 
 		// add group as candidate
-		candidate = processDefinitionDSRest.addIdentity(
+		candidate = processDefinitionRestDS.addIdentity(
 				TEST_PROCESS_DEFINITION_ID, Family.groups, group);
 		assertNotNull(candidate);
 		LOGGER.info("candidate:{} ", candidate);
 
-		processDefinitionDSRest.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
+		processDefinitionRestDS.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
 				Family.users, user);
-		processDefinitionDSRest.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
+		processDefinitionRestDS.deleteIdentity(TEST_PROCESS_DEFINITION_ID,
 				Family.groups, group);
 	}
 
 	@Test
 	// @Ignore("need specific processDefinitionId, or run after @testAddCandidate")
 	public void testGetCandidates() throws Exception {
-		Set<Identity> candidates = processDefinitionDSRest
+		Set<Identity> candidates = processDefinitionRestDS
 				.getAllIdentities(TEST_PROCESS_DEFINITION_ID);
 		assertNotNull(candidates);
 		for (Identity candidate : candidates) {

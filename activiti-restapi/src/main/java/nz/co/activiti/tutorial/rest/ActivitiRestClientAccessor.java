@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
+import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;

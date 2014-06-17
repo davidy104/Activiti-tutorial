@@ -17,17 +17,17 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
-import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
-import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.Identity;
-import nz.co.activiti.tutorial.model.Variable;
-import nz.co.activiti.tutorial.model.deployment.Deployment;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinition;
-import nz.co.activiti.tutorial.model.processdefinition.ProcessDefinitionQueryParameter;
-import nz.co.activiti.tutorial.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
+import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
+import nz.co.activiti.tutorial.rest.ds.processinstance.ProcessInstanceRestDS;
+import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.Identity;
+import nz.co.activiti.tutorial.rest.model.Variable;
+import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinition;
+import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinitionQueryParameter;
+import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
 
 import org.junit.After;
@@ -50,13 +50,13 @@ public class ProcessInstanceIntegrationTest {
 			.getLogger(ProcessInstanceIntegrationTest.class);
 
 	@Resource
-	private DeploymentDS deploymentDSRest;
+	private DeploymentRestDS deploymentRestDS;
 
 	@Resource
-	private ProcessInstanceDS processInstanceDSRest;
+	private ProcessInstanceRestDS processInstanceRestDS;
 
 	@Resource
-	private ProcessDefinitionDS processDefinitionDSRest;
+	private ProcessDefinitionRestDS processDefinitionRestDS;
 
 	private static final String PROCESS_LOCATION = "process/laptopOrderHumanProcess.bpmn20.xml";
 	private static final String TENANT_ID = "tenantId7890";
@@ -80,7 +80,7 @@ public class ProcessInstanceIntegrationTest {
 				".bpmn20.xml");
 		GeneralUtils.inputStreamToFile(processStream, processFile);
 
-		Deployment deployment = deploymentDSRest.deployment(TENANT_ID,
+		Deployment deployment = deploymentRestDS.deployment(TENANT_ID,
 				processFile);
 		deploymentId = deployment.getId();
 		LOGGER.info("deploymentId:{} ", deploymentId);
@@ -89,7 +89,7 @@ public class ProcessInstanceIntegrationTest {
 				ProcessDefinitionQueryParameter.deploymentId, deploymentId);
 		processDefinitionQueryParameters.put(
 				ProcessDefinitionQueryParameter.key, PROCESS_DEFINITION_KEY);
-		GenericCollectionModel<ProcessDefinition> processDefinitions = processDefinitionDSRest
+		GenericCollectionModel<ProcessDefinition> processDefinitions = processDefinitionRestDS
 				.getProcessDefinitions(processDefinitionQueryParameters, null);
 		ProcessDefinition processDefinition = processDefinitions.getModelList()
 				.get(0);
@@ -100,9 +100,9 @@ public class ProcessInstanceIntegrationTest {
 	@After
 	public void clean() throws Exception {
 		if (processInstanceId != null) {
-			processInstanceDSRest.deleteProcessInstance(processInstanceId);
+			processInstanceRestDS.deleteProcessInstance(processInstanceId);
 		}
-		deploymentDSRest.undeployment(deploymentId);
+		deploymentRestDS.undeployment(deploymentId);
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class ProcessInstanceIntegrationTest {
 		assertNotNull(processInstance);
 		LOGGER.info("after start:{}", processInstance);
 		processInstanceId = processInstance.getId();
-		ProcessInstance foundProcessInstance = processInstanceDSRest
+		ProcessInstance foundProcessInstance = processInstanceRestDS
 				.getProcessInstance(processInstanceId);
 		assertNotNull(foundProcessInstance);
 		assertEquals(foundProcessInstance, processInstance);
@@ -124,12 +124,12 @@ public class ProcessInstanceIntegrationTest {
 		assertNotNull(processInstance);
 		processInstanceId = processInstance.getId();
 
-		processInstance = processInstanceDSRest
+		processInstance = processInstanceRestDS
 				.suspendProcessInstance(processInstanceId);
 		assertNotNull(processInstance);
 		assertTrue(processInstance.getSuspended());
 
-		processInstance = processInstanceDSRest
+		processInstance = processInstanceRestDS
 				.activeProcessInstance(processInstanceId);
 		assertNotNull(processInstance);
 		assertFalse(processInstance.getSuspended());
@@ -141,7 +141,7 @@ public class ProcessInstanceIntegrationTest {
 		assertNotNull(processInstance);
 		processInstanceId = processInstance.getId();
 
-		Set<Identity> parties = processInstanceDSRest
+		Set<Identity> parties = processInstanceRestDS
 				.getInvolvedPeopleForProcessInstance(processInstanceId);
 		assertEquals(parties.size(), 1);
 		Identity party = parties.iterator().next();
@@ -149,7 +149,7 @@ public class ProcessInstanceIntegrationTest {
 		LOGGER.info("party:{} ", party);
 
 		// need further check add people function
-		// Party addedParty = processInstanceDSRest.addInvolvedPeopleToProcess(
+		// Party addedParty = processInstanceRestDS.addInvolvedPeopleToProcess(
 		// processInstanceId, "fozzie", "participant");
 		// assertEquals(addedParty.getUser(), "fozzie");
 		// LOGGER.info("addedParty:{} ", addedParty);
@@ -168,10 +168,10 @@ public class ProcessInstanceIntegrationTest {
 		variable.setValue("123");
 		variable.setScope("local");
 		addVariables.add(variable);
-		processInstanceDSRest.createVariablesForProcess(processInstanceId,
+		processInstanceRestDS.createVariablesForProcess(processInstanceId,
 				addVariables);
 
-		List<Variable> variables = processInstanceDSRest
+		List<Variable> variables = processInstanceRestDS
 				.getVariablesFromProcess(processInstanceId);
 		assertNotNull(variables);
 
@@ -181,7 +181,7 @@ public class ProcessInstanceIntegrationTest {
 	}
 
 	private ProcessInstance startProcess() throws Exception {
-		return processInstanceDSRest.startProcessByProcessDefinitionId(
+		return processInstanceRestDS.startProcessByProcessDefinitionId(
 				processDefinitionId, orderNo, mockVariables());
 	}
 

@@ -1,39 +1,28 @@
 package nz.co.activiti.tutorial.ds.execution;
 
-import java.util.List;
 import java.util.Map;
 
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.Variable;
-import nz.co.activiti.tutorial.model.VariableScope;
-import nz.co.activiti.tutorial.model.execution.Execution;
-import nz.co.activiti.tutorial.model.execution.ExecutionActionRequest;
-import nz.co.activiti.tutorial.model.execution.ExecutionQueryParameter;
+import org.activiti.engine.runtime.Execution;
 
 public interface ExecutionDS {
 
 	Execution getExecutionById(String executionId) throws Exception;
 
-	Execution actionOnExecution(String executionId,
-			ExecutionActionRequest executionActionRequest) throws Exception;
-
-	String[] getActiveActivities(String executionId) throws Exception;
-
-	GenericCollectionModel<Execution> getExecutions(
-			Map<ExecutionQueryParameter, String> executionQueryParameters,
-			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
+	void signal(String executionId, Map<String, Object> variables)
 			throws Exception;
 
-	List<Variable> getVariablesOnExecution(String executionId,
-			VariableScope scope) throws Exception;
+	Map<String, Object> getVariablesOnExecution(String executionId)
+			throws Exception;
 
-	Variable getVariableOnExecution(String executionId, String variableName,
-			VariableScope scope) throws Exception;
+	Object getVariableOnExecution(String executionId, String variableName)
+			throws Exception;
 
-	List<Variable> createVariablesOnExecution(String executionId,
-			List<Variable> addVariables) throws Exception;
+	void createVariablesOnExecution(String executionId,
+			Map<String, Object> addVariables) throws Exception;
 
-	Variable updateVariableOnExecution(String executionId, String variableName,
-			Variable updateVariable) throws Exception;
+	void updateVariableOnExecution(String executionId, String variableName,
+			Object updateVariable) throws Exception;
+
+	void removeVariable(String executionId, String variableName)
+			throws Exception;
 }
