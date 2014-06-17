@@ -20,18 +20,6 @@ public interface UserDS {
 	User getUserById(String userId) throws Exception;
 
 	/**
-	 * Get a list of users
-	 * 
-	 * @param userQueryParameters
-	 * @param paginAndSort
-	 * @return
-	 * @throws Exception
-	 */
-	Users getUsers(Map<UserQueryParameter, String> userQueryParameters,
-			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
-			throws Exception;
-
-	/**
 	 * Create a user
 	 * 
 	 * @param userId
@@ -55,6 +43,18 @@ public interface UserDS {
 	 * @throws Exception
 	 */
 	void deleteUser(String userId) throws Exception;
+
+	/**
+	 * Get a list of users
+	 * 
+	 * @param userQueryParameters
+	 * @param paginAndSort
+	 * @return
+	 * @throws Exception
+	 */
+	Users getUsers(Map<UserQueryParameter, String> userQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
+			throws Exception;
 
 	/**
 	 * 

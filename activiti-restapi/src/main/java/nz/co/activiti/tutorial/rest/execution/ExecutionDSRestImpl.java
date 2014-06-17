@@ -41,6 +41,8 @@ public class ExecutionDSRestImpl extends ActivitiRestClientAccessor implements
 
 	@Resource
 	private GeneralModelJSONConverter generalModelJSONConverter;
+	
+	
 
 	@Override
 	public Execution getExecutionById(String executionId) throws Exception {

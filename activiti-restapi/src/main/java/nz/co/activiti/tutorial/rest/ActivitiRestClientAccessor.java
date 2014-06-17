@@ -56,19 +56,19 @@ public class ActivitiRestClientAccessor extends JerseyClientSupport {
 		}
 	}
 
-	protected String variablesJsonBuild(Map<String, Object> variables) {
-		StringBuilder stringBuilder = new StringBuilder("\"variables\": [");
-		int variablesSize = variables.size();
-		int count = 0;
-		for (Map.Entry<String, Object> entry : variables.entrySet()) {
-			stringBuilder.append("{\"name\":\"" + entry.getKey()
-					+ "\",\"value\":\"" + String.valueOf(entry.getValue())
-					+ "\"}");
-			if (count != variablesSize) {
-				stringBuilder.append(",");
-			}
-		}
-		stringBuilder.append("]");
-		return stringBuilder.toString();
-	}
+	// protected String variablesJsonBuild(Map<String, Object> variables) {
+	// StringBuilder stringBuilder = new StringBuilder("\"variables\": [");
+	// int variablesSize = variables.size();
+	// int count = 0;
+	// for (Map.Entry<String, Object> entry : variables.entrySet()) {
+	// stringBuilder.append("{\"name\":\"" + entry.getKey()
+	// + "\",\"value\":\"" + String.valueOf(entry.getValue())
+	// + "\"}");
+	// if (count != variablesSize) {
+	// stringBuilder.append(",");
+	// }
+	// }
+	// stringBuilder.append("]");
+	// return stringBuilder.toString();
+	// }
 }
