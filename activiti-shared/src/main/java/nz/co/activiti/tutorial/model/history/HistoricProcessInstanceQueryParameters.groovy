@@ -1,7 +1,0 @@
-package nz.co.activiti.tutorial.model.history
-
-enum HistoricProcessInstanceQueryParameters {
-	processInstanceId,processDefinitionKey,processDefinitionId,businessKey,involvedUser,finished,
-	superProcessInstanceId,excludeSubprocesses,finishedAfter,finishedBefore,startedAfter,
-	startedBefore,startedBy,includeProcessVariables,tenantId,tenantIdLike,withoutTenantId
-}
