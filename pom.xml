@@ -12,7 +12,7 @@
 	<url>http://activiti.tutorial.co.nz</url>
 
 	<properties>
-		<activiti.version>5.14</activiti.version>
+		<activiti.version>5.15</activiti.version>
 		<drools.version>5.5.0.Final</drools.version>
 		<spring.version>3.2.4.RELEASE</spring.version>
 		<spring-security.version>3.1.4.RELEASE</spring-security.version>

@@ -1,8 +1,8 @@
 package nz.co.activiti.tutorial.ds.history;
 
-import java.util.List;
 import java.util.Set;
 
+import org.activiti.engine.history.HistoricIdentityLink;
 import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.history.HistoricTaskInstance;
 
@@ -14,17 +14,8 @@ public interface HistoricDS {
 	void deleteHistoricProcessInstance(String processInstanceId)
 			throws Exception;
 
-	Set<HistoricProcessIdentity> getHistoricProcessInstanceIdentities(
+	Set<HistoricIdentityLink> getHistoricProcessInstanceIdentities(
 			String processInstanceId) throws Exception;
-
-	List<HistoricProcessInstanceComment> getHistoricProcessInstanceComments(
-			String processInstanceId) throws Exception;
-
-	HistoricProcessInstanceComment createHistoricProcessInstanceComment(
-			String processInstanceId, String message) throws Exception;
-
-	HistoricProcessInstanceComment getHistoricProcessInstanceComment(
-			String processInstanceId, String commentId) throws Exception;
 
 	void deleteHistoricProcessInstanceComment(String processInstanceId,
 			String commentId) throws Exception;
@@ -32,12 +23,9 @@ public interface HistoricDS {
 	HistoricTaskInstance getHistoricTaskInstance(String processInstanceId,
 			String taskId) throws Exception;
 
-	
-
 	void deleteHistoricTaskInstance(String taskId) throws Exception;
 
-	Set<HistoricProcessIdentity> getHistoricTaskInstanceIdentities(String taskId)
+	Set<HistoricIdentityLink> getHistoricTaskInstanceIdentities(String taskId)
 			throws Exception;
 
-	
 }
