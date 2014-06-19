@@ -1,5 +1,6 @@
 package nz.co.activiti.tutorial.rest.model
 
+import nz.co.activiti.tutorial.ds.IdentityType;
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 

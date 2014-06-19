@@ -11,9 +11,9 @@ import java.util.Set;
 
 import javax.annotation.Resource;
 
+import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
-import nz.co.activiti.tutorial.rest.model.Family;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.Identity;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import nz.co.activiti.tutorial.ds.IdentityType;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.Identity;
-import nz.co.activiti.tutorial.rest.model.IdentityType;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.rest.model.Variable;
 import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;

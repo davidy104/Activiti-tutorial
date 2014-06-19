@@ -8,13 +8,13 @@ import javax.ws.rs.core.MediaType;
 
 import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
+import nz.co.activiti.tutorial.ds.VariableScope;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.rest.model.Variable;
-import nz.co.activiti.tutorial.rest.model.VariableScope;
 import nz.co.activiti.tutorial.rest.model.execution.Execution;
 import nz.co.activiti.tutorial.rest.model.execution.ExecutionActionRequest;
 import nz.co.activiti.tutorial.rest.model.execution.ExecutionQueryParameter;

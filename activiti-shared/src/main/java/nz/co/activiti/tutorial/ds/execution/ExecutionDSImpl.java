@@ -4,8 +4,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import nz.co.activiti.tutorial.NotFoundException;
+
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.Execution;
+import org.activiti.engine.runtime.ExecutionQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -20,9 +24,27 @@ public class ExecutionDSImpl implements ExecutionDS {
 	private RuntimeService runtimeService;
 
 	@Override
-	public Execution getExecutionById(String executionId) throws Exception {
-		return runtimeService.createExecutionQuery().executionId(executionId)
-				.singleResult();
+	public Execution getExecutionById(String executionId,
+			String processInstanceBusinessKey) throws Exception {
+		LOGGER.info("getExecutionById start:{} ", executionId);
+		LOGGER.info("processInstanceBusinessKey:{} ",
+				processInstanceBusinessKey);
+		Execution execution = null;
+		ExecutionQuery executionQuery = runtimeService.createExecutionQuery()
+				.executionId(executionId);
+
+		if (!StringUtils.isEmpty(processInstanceBusinessKey)) {
+			executionQuery = executionQuery.processInstanceBusinessKey(
+					processInstanceBusinessKey, true);
+		}
+		execution = executionQuery.singleResult();
+
+		if (execution == null) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
+		LOGGER.info("getExecutionById end:{} ");
+		return execution;
 	}
 
 	@Override

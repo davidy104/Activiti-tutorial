@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import nz.co.activiti.tutorial.rest.model.Family;
+import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.Identity;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;

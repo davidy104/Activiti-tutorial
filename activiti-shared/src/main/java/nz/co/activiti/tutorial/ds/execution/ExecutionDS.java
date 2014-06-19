@@ -6,7 +6,8 @@ import org.activiti.engine.runtime.Execution;
 
 public interface ExecutionDS {
 
-	Execution getExecutionById(String executionId) throws Exception;
+	Execution getExecutionById(String executionId,
+			String processInstanceBusinessKey) throws Exception;
 
 	void signal(String executionId, Map<String, Object> variables)
 			throws Exception;

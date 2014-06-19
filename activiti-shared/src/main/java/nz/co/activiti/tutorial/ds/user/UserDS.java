@@ -1,12 +1,6 @@
 package nz.co.activiti.tutorial.ds.user;
 
-import java.io.InputStream;
-import java.util.Map;
-
-import nz.co.activiti.tutorial.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.model.user.User;
-import nz.co.activiti.tutorial.model.user.UserQueryParameter;
+import org.activiti.engine.identity.User;
 
 public interface UserDS {
 
@@ -44,23 +38,6 @@ public interface UserDS {
 	 */
 	void deleteUser(String userId) throws Exception;
 
-	/**
-	 * Get a list of users
-	 * 
-	 * @param userQueryParameters
-	 * @param paginAndSort
-	 * @return
-	 * @throws Exception
-	 */
-	GenericCollectionModel<User> getUsers(Map<UserQueryParameter, String> userQueryParameters,
-			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
-			throws Exception;
-
-	/**
-	 * 
-	 * @throws Exception
-	 */
-	void updateUsersPicture(String userId, InputStream pictureStream)
-			throws Exception;
+	boolean checkIfUserExisted(String userId);
 
 }
