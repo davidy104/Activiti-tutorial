@@ -21,7 +21,7 @@ public interface ExecutionDS {
 	void createVariablesOnExecution(String executionId,
 			Map<String, Object> addVariables) throws Exception;
 
-	void updateVariableOnExecution(String executionId, String variableName,
+	void createOrUpdateVariableOnExecution(String executionId, String variableName,
 			Object updateVariable) throws Exception;
 
 	void removeVariable(String executionId, String variableName)

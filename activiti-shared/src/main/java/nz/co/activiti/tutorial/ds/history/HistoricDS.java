@@ -2,6 +2,8 @@ package nz.co.activiti.tutorial.ds.history;
 
 import java.util.List;
 
+import nz.co.activiti.tutorial.DuplicatedException;
+
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricIdentityLink;
@@ -12,7 +14,10 @@ import org.activiti.engine.history.HistoricVariableUpdate;
 public interface HistoricDS {
 
 	HistoricProcessInstance getHistoricProcessInstanceById(
-			String processInstanceId) throws Exception;
+			String processInstanceId, String processDefinitionId)
+			throws Exception;
+
+	boolean checkIfHistoricProcessInstanceExisted(String processInstanceId);
 
 	HistoricProcessInstance getHistoricProcessInstance(String bizKey,
 			String processDefinitionId) throws Exception;
@@ -22,6 +27,9 @@ public interface HistoricDS {
 
 	List<HistoricIdentityLink> getHistoricProcessInstanceIdentities(
 			String processInstanceId) throws Exception;
+
+	List<HistoricTaskInstance> getHistoricTaskInstances(
+			String processInstanceId, String businessKey) throws Exception;
 
 	HistoricTaskInstance getHistoricTaskInstance(String processInstanceId,
 			String taskId) throws Exception;

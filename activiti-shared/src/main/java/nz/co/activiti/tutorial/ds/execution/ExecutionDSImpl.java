@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.NotFoundException;
 
+import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ExecutionQuery;
@@ -50,32 +51,57 @@ public class ExecutionDSImpl implements ExecutionDS {
 	@Override
 	public void signal(String executionId, Map<String, Object> variables)
 			throws Exception {
-		runtimeService.signal(executionId, variables);
+		try {
+			runtimeService.signal(executionId, variables);
+		} catch (ActivitiObjectNotFoundException e) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
 	}
 
 	@Override
 	public Map<String, Object> getVariablesOnExecution(String executionId)
 			throws Exception {
-		return runtimeService.getVariables(executionId);
+		try {
+			return runtimeService.getVariables(executionId);
+		} catch (ActivitiObjectNotFoundException e) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
 	}
 
 	@Override
 	public Object getVariableOnExecution(String executionId, String variableName)
 			throws Exception {
-		return runtimeService.getVariable(executionId, variableName);
+		try {
+			return runtimeService.getVariable(executionId, variableName);
+		} catch (ActivitiObjectNotFoundException e) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
 	}
 
 	@Override
 	public void createVariablesOnExecution(String executionId,
 			Map<String, Object> variables) throws Exception {
-		runtimeService.setVariables(executionId, variables);
+		try {
+			runtimeService.setVariables(executionId, variables);
+		} catch (ActivitiObjectNotFoundException e) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
 	}
 
 	@Override
-	public void updateVariableOnExecution(String executionId,
+	public void createOrUpdateVariableOnExecution(String executionId,
 			String variableName, Object updateVariable) throws Exception {
-		runtimeService.removeVariable(executionId, variableName);
-		runtimeService.setVariable(executionId, variableName, updateVariable);
+		try {
+			runtimeService.setVariable(executionId, variableName,
+					updateVariable);
+		} catch (ActivitiObjectNotFoundException e) {
+			throw new NotFoundException("Execution not found by id["
+					+ executionId + "]");
+		}
 	}
 
 	@Override
