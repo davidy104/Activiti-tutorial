@@ -3,11 +3,10 @@ package nz.co.activiti.tutorial.ds.group;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.DuplicatedException;
-import nz.co.activiti.tutorial.NotFoundException;
 
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.identity.Group;
-import org.apache.commons.lang3.StringUtils;
+import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,31 +20,23 @@ public class GroupDSImpl implements GroupDS {
 	private IdentityService identityService;
 
 	@Override
-	public Group getGroupById(String groupId) throws Exception {
+	public Group getGroupById(String groupId) {
 		return identityService.createGroupQuery().groupId(groupId)
 				.singleResult();
 	}
 
 	@Override
 	public void updateGroup(String groupId, String name, String type)
-			throws Exception {
+			throws DuplicatedException {
 		LOGGER.info("updateGroup start:{}", groupId);
 		LOGGER.info("name:{}", name);
 		LOGGER.info("type:{}", type);
-		Group existedGroup = this.getGroupById(groupId);
-		if (existedGroup == null) {
-			throw new NotFoundException("group not found by id[" + groupId
-					+ "]");
-		}
-
-		if (!StringUtils.isEmpty(name)) {
-			existedGroup.setName(name);
-		}
-		if (!StringUtils.isEmpty(type)) {
-			existedGroup.setType(type);
-		}
+		Group updateGroup = new GroupEntity();
+		updateGroup.setName(name);
+		updateGroup.setType(type);
+		updateGroup.setId(groupId);
 		try {
-			identityService.saveGroup(existedGroup);
+			identityService.saveGroup(updateGroup);
 		} catch (RuntimeException e) {
 			throw new DuplicatedException(e);
 		}
@@ -54,7 +45,7 @@ public class GroupDSImpl implements GroupDS {
 
 	@Override
 	public void createGroup(String groupId, String name, String type)
-			throws Exception {
+			throws DuplicatedException {
 		Group newGroup = identityService.newGroup(groupId);
 		newGroup.setName(name);
 		newGroup.setType(type);
@@ -66,28 +57,18 @@ public class GroupDSImpl implements GroupDS {
 	}
 
 	@Override
-	public void deleteGroup(String groupId) throws Exception {
+	public void deleteGroup(String groupId) {
 		identityService.deleteGroup(groupId);
 	}
 
 	@Override
-	public void createMemberToGroup(String groupId, String userId)
-			throws Exception {
-		try {
-			identityService.createMembership(userId, groupId);
-		} catch (RuntimeException e) {
-			throw new Exception(e);
-		}
+	public void createMemberToGroup(String groupId, String userId) {
+		identityService.createMembership(userId, groupId);
 	}
 
 	@Override
-	public void deleteMemberFromGroup(String groupId, String userId)
-			throws Exception {
-		try {
-			identityService.deleteMembership(userId, groupId);
-		} catch (RuntimeException e) {
-			throw new Exception(e);
-		}
+	public void deleteMemberFromGroup(String groupId, String userId) {
+		identityService.deleteMembership(userId, groupId);
 	}
 
 	@Override

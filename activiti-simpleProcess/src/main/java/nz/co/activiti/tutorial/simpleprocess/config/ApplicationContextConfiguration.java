@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 @Configuration
-@ComponentScan(basePackages = "nz.co.activiti.tutorial.simpleprocess")
+@ComponentScan({ "nz.co.activiti.tutorial.simpleprocess",
+		"nz.co.activiti.tutorial.ds" })
 @Import({ ActivitiContextConfiguration.class,
 		InfrastructureContextConfiguration.class })
 public class ApplicationContextConfiguration {

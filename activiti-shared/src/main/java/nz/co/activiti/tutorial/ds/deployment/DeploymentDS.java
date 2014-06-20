@@ -13,14 +13,13 @@ import org.activiti.engine.repository.Deployment;
 public interface DeploymentDS {
 
 	Deployment deployment(String name, String category,
-			InputStream resourceStream) throws Exception;
+			InputStream resourceStream);
 
-	void undeployment(String deploymentId) throws Exception;
+	void undeployment(String deploymentId);
 
-	Deployment getDeploymentByDeploymentId(String deploymentId)
-			throws Exception;
+	Deployment getDeploymentByDeploymentId(String deploymentId);
 
-	List<Deployment> getDeployments(String name, String category)
-			throws Exception;
+	List<Deployment> getDeployments(String name, String category);
 
+	boolean checkIfDeploymentExisted(String name, String category);
 }

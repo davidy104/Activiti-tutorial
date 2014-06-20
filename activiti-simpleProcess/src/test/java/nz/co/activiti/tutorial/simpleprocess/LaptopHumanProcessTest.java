@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +13,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.ActivitiFacade;
+import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.simpleprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.utils.ActivitiFacade;
 
-import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -53,17 +52,29 @@ public class LaptopHumanProcessTest {
 	// processKey
 	private String orderNo = UUID.randomUUID().toString();
 
+	private static final String PROCESS_LOCATION = "process/laptopOrderHumanProcess.bpmn20.xml";
+	private static final String PROCESS_NAME = "laptopOrderProcess";
+	private static final String PROCESS_CATEGORY = "order";
+
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
+		InputStream processStream = LaptopHumanProcessTest.class
+				.getClassLoader().getResourceAsStream(PROCESS_LOCATION);
 
-		deployId = activitiFacade.deployProcessesFromClasspath(
-				"process/laptopOrderHumanProcess.bpmn20.xml").get(0);
+		deployId = activitiFacade.deployment(PROCESS_NAME, PROCESS_CATEGORY,
+				processStream).getId();
+
+		// deployId = activitiFacade
+		// .deployProcessesFromClasspath(PROCESS_LOCATION).get(0);
+
+		LOGGER.info("deployId:{} ", deployId);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinitionByDeployId(deployId);
+				.getProcessDefinition(PROCESS_NAME, PROCESS_CATEGORY, deployId);
+
 		processDefinitionId = processDefinition.getId();
-		LOGGER.info("deployId:{}", deployId);
+
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
 		initialUsers();
 		LOGGER.info("initialize end:{}");
@@ -73,7 +84,7 @@ public class LaptopHumanProcessTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-		activitiFacade.unDeploy(deployId, true);
+		activitiFacade.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
@@ -83,19 +94,19 @@ public class LaptopHumanProcessTest {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinishted(orderNo,
+		assertFalse(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
-		ProcessActivityDto pendingActivity = activitiFacade
-				.getExecutionActivityBasicInfo(orderNo, processDefinitionId,
-						processInstanceId, true, true);
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, orderNo);
+
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
 
 		assertEquals("userTask", pendingActivity.getType());
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				pendingActivity.getName(), orderNo);
+		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
+				orderNo);
 		String assignee = pendingTask.getAssignee();
 		String taskName = pendingTask.getName();
 		assertNotNull(pendingTask);
@@ -105,19 +116,18 @@ public class LaptopHumanProcessTest {
 
 	@Test
 	public void testOrderRejectStatus() throws Exception {
+		startProcess();
 
-		String processInstanceId = startProcess();
-		ActivityImpl activity = activitiFacade.getExecutionActivity(
-				processDefinitionId, orderNo, processInstanceId);
-		String activityName = (String) activity.getProperty("name");
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, orderNo);
+
+		String activityName = pendingActivity.getName();
 		assertEquals("Order Approval", activityName);
 
-		List<Task> taskList = activitiFacade.getAllTasksForUser(String
-				.valueOf(USER1_ID));
+		List<Task> taskList = activitiFacade.getTasksForUser(USER1_ID);
 		assertEquals(1, taskList.size());
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				activityName, orderNo);
+		Task pendingTask = activitiFacade.getTask(activityName, orderNo);
 
 		boolean ifHasRight = activitiFacade.checkIfUserHasRightForGivenTask(
 				orderNo, pendingTask.getName(), pendingTask.getAssignee());
@@ -147,9 +157,8 @@ public class LaptopHumanProcessTest {
 
 		Map<String, Object> variableMap = new HashMap<String, Object>();
 		variableMap.put("acceptOrder", false);
-		activitiFacade.getTaskService().complete(pendingTask.getId(),
-				variableMap);
-		assertTrue(activitiFacade.ifProcessFinishted(orderNo,
+		activitiFacade.completeTask(pendingTask.getId(), variableMap);
+		assertTrue(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
 	}
@@ -157,32 +166,31 @@ public class LaptopHumanProcessTest {
 	@Test
 	public void testOrderApprovalStatus() throws Exception {
 		String processInstanceId = startProcess();
-		ActivityImpl activity = activitiFacade.getExecutionActivity(
-				processDefinitionId, orderNo, processInstanceId);
-		String activityName = (String) activity.getProperty("name");
+
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, orderNo);
+
+		String activityName = pendingActivity.getName();
+		assertEquals("userTask", pendingActivity.getType());
 		assertEquals("Order Approval", activityName);
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				activityName, orderNo);
+		Task pendingTask = activitiFacade.getTask(activityName, orderNo);
 
 		Map<String, Object> variableMap = new HashMap<String, Object>();
 		variableMap.put("acceptOrder", true);
-		activitiFacade.getTaskService().complete(pendingTask.getId(),
-				variableMap);
-		assertFalse(activitiFacade.ifProcessFinishted(orderNo,
+		activitiFacade.completeTask(pendingTask.getId(), variableMap);
+		assertFalse(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
 		// check next pending activity
-		ProcessActivityDto pendingActivity = activitiFacade
-				.getExecutionActivityBasicInfo(orderNo, processDefinitionId,
-						processInstanceId, true, true);
+		pendingActivity = activitiFacade.getActiveActivity(orderNo,
+				processDefinitionId);
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
-
 		assertEquals("userTask", pendingActivity.getType());
 
-		pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				pendingActivity.getName(), orderNo);
+		pendingTask = activitiFacade
+				.getTask(pendingActivity.getName(), orderNo);
 		String assignee = pendingTask.getAssignee();
 		String taskName = pendingTask.getName();
 		assertNotNull(pendingTask);
@@ -190,27 +198,27 @@ public class LaptopHumanProcessTest {
 		assertEquals(USER2_ID, assignee);
 	}
 
-	private String startProcess() {
+	private String startProcess() throws Exception {
 		Map<String, Object> variableMap = new HashMap<String, Object>();
 		variableMap.put("customerName", USER2_ID);
 		variableMap.put("laptopName", "Del");
 		variableMap.put("laptopQuantity", 1);
 		variableMap.put("laptopModelNo", 3420);
 
-		ProcessInstance processInstance = activitiFacade.startProcessInstance(
-				orderNo, processDefinitionId, variableMap);
+		ProcessInstance processInstance = activitiFacade.startProcess(
+				processDefinitionId, orderNo, variableMap);
 		return processInstance.getId();
 	}
 
-	private void initialUsers() {
-		User user1 = activitiFacade.getIdentityService().newUser(USER1_ID);
-		User user2 = activitiFacade.getIdentityService().newUser(USER2_ID);
-		activitiFacade.getIdentityService().saveUser(user1);
-		activitiFacade.getIdentityService().saveUser(user2);
+	private void initialUsers() throws Exception {
+		activitiFacade.createUser(USER1_ID, "kermit", "", "kermit@test.com",
+				"123456");
+		activitiFacade.createUser(USER2_ID, "Attune", "", "Attune@test.com",
+				"123456");
 	}
 
-	private void removeUsers() {
-		activitiFacade.getIdentityService().deleteUser(USER1_ID);
-		activitiFacade.getIdentityService().deleteUser(USER2_ID);
+	private void removeUsers() throws Exception {
+		activitiFacade.deleteUser(USER1_ID);
+		activitiFacade.deleteUser(USER2_ID);
 	}
 }

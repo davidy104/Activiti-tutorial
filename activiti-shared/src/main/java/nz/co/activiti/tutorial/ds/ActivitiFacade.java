@@ -1,32 +1,43 @@
 package nz.co.activiti.tutorial.ds;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
+import nz.co.activiti.tutorial.DuplicatedException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
+import nz.co.activiti.tutorial.ds.execution.ExecutionDS;
+import nz.co.activiti.tutorial.ds.group.GroupDS;
+import nz.co.activiti.tutorial.ds.history.HistoricDS;
+import nz.co.activiti.tutorial.ds.processdefinition.ProcessDefinitionDS;
 import nz.co.activiti.tutorial.ds.processinstance.ProcessInstanceDS;
 import nz.co.activiti.tutorial.ds.task.TaskDS;
 import nz.co.activiti.tutorial.ds.user.UserDS;
 
-import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmActivity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.repository.Deployment;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
 import org.activiti.engine.task.TaskQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -44,7 +55,22 @@ public class ActivitiFacade {
 	private UserDS userDs;
 
 	@Resource
+	private GroupDS groupDs;
+
+	@Resource
+	private DeploymentDS deploymentDs;
+
+	@Resource
 	private ProcessInstanceDS processInstanceDs;
+
+	@Resource
+	private ProcessDefinitionDS processDefinitionDs;
+
+	@Resource
+	private ExecutionDS executionDs;
+
+	@Resource
+	private HistoricDS historicDs;
 
 	@Resource
 	private RepositoryService repositoryService;
@@ -55,7 +81,96 @@ public class ActivitiFacade {
 	@Resource
 	private IdentityService identityService;
 
+	// --------------deployment-----------
+	public Deployment deployment(String name, String category,
+			InputStream resourceStream) throws DuplicatedException {
+		if (deploymentDs.checkIfDeploymentExisted(name, category)) {
+			throw new DuplicatedException(
+					"Duplicated Deployment with same name[" + name
+							+ "] and category[" + category + "]");
+		}
+		return deploymentDs.deployment(name, category, resourceStream);
+	}
+
+	public void undeployment(String deploymentId) throws NotFoundException {
+		if (deploymentDs.getDeploymentByDeploymentId(deploymentId) == null) {
+			throw new NotFoundException("Deployment not found by id["
+					+ deploymentId + "]");
+		}
+		deploymentDs.undeployment(deploymentId);
+	}
+
+	public List<String> deployProcessesFromClasspath(String... resources) {
+		List<String> deployIds = new ArrayList<String>();
+		for (String resource : resources) {
+			deployIds.add(repositoryService.createDeployment()
+					.addClasspathResource(resource).deploy().getId());
+		}
+		return deployIds;
+	}
+
+	// --------------execution-----------
+	public Object getVariableOnExecution(String executionId, String variableName)
+			throws NotFoundException {
+		return executionDs.getVariableOnExecution(executionId, variableName);
+	}
+
+	// --------------processInstance-----------
+	public ProcessInstance startProcess(String processDefinitionId,
+			String businessKey, Map<String, Object> variables)
+			throws NotFoundException {
+		if (StringUtils.isEmpty(processDefinitionId)
+				|| StringUtils.isEmpty(businessKey)) {
+			throw new IllegalArgumentException(
+					"processDefinitionId and businessKey must be provided");
+		}
+		return processInstanceDs.startProcessByProcessDefinitionId(
+				processDefinitionId, businessKey, variables);
+	}
+
+	public ProcessInstance getProcessInstance(String businessKey,
+			String processDefinitionId) {
+		return processInstanceDs.getProcessInstance(businessKey,
+				processDefinitionId);
+	}
+
+	public void addInvolvedPeopleToProcess(String processInstanceId,
+			String userId, IdentityType identityType) throws Exception {
+		if (!userDs.checkIfUserExisted(userId)) {
+			throw new NotFoundException("User not found by id[" + userId + "]");
+		}
+		processInstanceDs.addInvolvedPeopleToProcess(processInstanceId, userId,
+				identityType);
+	}
+
+	// ----------processDefinition---------
+	public ProcessDefinition getProcessDefinition(String processDefinitionName,
+			String processDefinitionCategory, String deploymentId) {
+		LOGGER.info("getProcessDefinition start:{} ");
+		LOGGER.info("deploymentId:{} ", deploymentId);
+		LOGGER.info("processDefinitionName:{} ", processDefinitionName);
+		LOGGER.info("processDefinitionCategory:{} ", processDefinitionCategory);
+		ProcessDefinition processDefinition = processDefinitionDs
+				.getProcessDefinition(processDefinitionName,
+						processDefinitionCategory, deploymentId);
+		LOGGER.info("getProcessDefinition end:{} ", processDefinition);
+		return processDefinition;
+	}
+
 	// -----------------tasks-----------------
+	public Task getTask(String taskName, String businessKey) throws Exception {
+		LOGGER.info("getTask start:{}");
+		LOGGER.info("taskName:{}", taskName);
+		LOGGER.info("businessKey:{}", businessKey);
+		if (StringUtils.isEmpty(taskName) || StringUtils.isEmpty(businessKey)) {
+			throw new IllegalArgumentException(
+					"taskName and businessKey must be provided");
+		}
+		Task task = taskDs.getTask(taskName, businessKey);
+		LOGGER.info("getTask end:{}", task);
+		return task;
+	}
+
 	public Task updateTask(String businessKey, String taskName,
 			TaskEntity updateTask) throws Exception {
 		LOGGER.info("updateTask start:{} ");
@@ -73,102 +188,26 @@ public class ActivitiFacade {
 		return task;
 	}
 
-	/**
-	 * Delete the given task
-	 * 
-	 * @param taskId
-	 * @throws Exception
-	 */
-	public void deleteTask(String taskId) throws Exception {
-		try {
-			taskDs.deleteTask(taskId, true);
-		} catch (ActivitiObjectNotFoundException e) {
-			throw new NotFoundException("Task not found with id[" + taskId
-					+ "]:{}" + e.getMessage());
-		}
-	}
-
-	/**
-	 * 
-	 * @param taskId
-	 * @return
-	 * @throws Exception
-	 */
-	public Map<String, Object> getVariablesOnTask(String taskId)
+	public Task completeTask(String taskId, Map<String, Object> variables)
 			throws Exception {
-		if (taskDs.checkIfTaskExisted(taskId)) {
-			throw new NotFoundException("Task not found by id[" + taskId + "]");
-		}
-		return taskDs.getVariablesOnTask(taskId, true);
+		taskDs.actionOnTask(taskId, TaskAction.complete, null, variables);
+		return taskDs.getTaskById(taskId);
 	}
 
-	/**
-	 * 
-	 * @param taskId
-	 * @param variableName
-	 * @return
-	 * @throws Exception
-	 */
-	public Object getVariableOnTask(String taskId, String variableName)
+	public Task claimTask(String taskId, String userId) throws Exception {
+		taskDs.actionOnTask(taskId, TaskAction.claim, userId, null);
+		return taskDs.getTaskById(taskId);
+	}
+
+	public Task delegateTask(String taskId, String userId) throws Exception {
+		taskDs.actionOnTask(taskId, TaskAction.delegate, userId, null);
+		return taskDs.getTaskById(taskId);
+	}
+
+	public Task resolveTask(String taskId, Map<String, Object> variables)
 			throws Exception {
-		if (taskDs.checkIfTaskExisted(taskId)) {
-			throw new NotFoundException("Task not found by id[" + taskId + "]");
-		}
-		return taskDs.getVariableOnTask(taskId, variableName, true);
-	}
-
-	/**
-	 * 
-	 * @param taskId
-	 * @param groupId
-	 * @throws Exception
-	 */
-	public void addCandidateGroup(String taskId, String groupId)
-			throws Exception {
-		try {
-			taskDs.addIdentity(taskId, groupId, Family.groups,
-					IdentityType.candidate);
-		} catch (ActivitiObjectNotFoundException e) {
-			throw new NotFoundException(e);
-		}
-	}
-
-	/**
-	 * 
-	 * @param taskId
-	 * @param userId
-	 * @throws Exception
-	 */
-	public void addCandidateUser(String taskId, String userId) throws Exception {
-		try {
-			taskDs.addIdentity(taskId, userId, Family.users,
-					IdentityType.candidate);
-		} catch (ActivitiObjectNotFoundException e) {
-			// the given taskId or userId not existed
-			throw new NotFoundException(e);
-		}
-	}
-
-	public void deleteCandidateUser(String taskId, String userId)
-			throws Exception {
-		try {
-			taskDs.deleteIdentity(taskId, userId, Family.users,
-					IdentityType.candidate);
-		} catch (ActivitiObjectNotFoundException e) {
-			// the given taskId or userId not existed
-			throw new NotFoundException(e);
-		}
-	}
-
-	public void deleteCandidateGroup(String taskId, String userId)
-			throws Exception {
-		try {
-			taskDs.deleteIdentity(taskId, userId, Family.groups,
-					IdentityType.candidate);
-		} catch (ActivitiObjectNotFoundException e) {
-			// the given taskId or userId not existed
-			throw new NotFoundException(e);
-		}
+		taskDs.actionOnTask(taskId, TaskAction.resolve, null, variables);
+		return taskDs.getTaskById(taskId);
 	}
 
 	/**
@@ -180,9 +219,6 @@ public class ActivitiFacade {
 	public List<IdentityLink> getAllCandidatesOnTask(String taskId)
 			throws Exception {
 		List<IdentityLink> identityList = new ArrayList<IdentityLink>();
-		if (taskDs.checkIfTaskExisted(taskId)) {
-			throw new NotFoundException("Task not found by id[" + taskId + "]");
-		}
 		List<IdentityLink> allIdentities = taskDs.getAllIdentities(taskId);
 		if (allIdentities != null) {
 			for (IdentityLink identityLink : allIdentities) {
@@ -203,8 +239,8 @@ public class ActivitiFacade {
 	 * @param maxResults
 	 * @return
 	 */
-	public List<Task> getTasksForUser(String userId, Integer firstResult,
-			Integer maxResults) {
+	public List<Task> getPaginatedTasksForUser(String userId,
+			Integer firstResult, Integer maxResults) {
 		LOGGER.info("getAllTasksForUser start:{} ", userId);
 		List<Task> tasks = null;
 		TaskQuery taskQuery = taskService.createTaskQuery()
@@ -217,6 +253,10 @@ public class ActivitiFacade {
 		}
 		LOGGER.info("getAllTasksForUser end:{} ");
 		return tasks;
+	}
+
+	public List<Task> getTasksForUser(String userId) {
+		return this.getPaginatedTasksForUser(userId, null, null);
 	}
 
 	/**
@@ -238,8 +278,62 @@ public class ActivitiFacade {
 		return true;
 	}
 
-	// --------------------------------general
-	// methods-----------------------------------
+	// --------------identity-----------
+	public User updateUser(String userId, String firstName, String lastName,
+			String email, String password) throws Exception {
+		if (!userDs.checkIfUserExisted(userId)) {
+			throw new NotFoundException("User not found by id[" + userId + "]");
+		}
+		userDs.updateUser(userId, firstName, lastName, email, password);
+		return userDs.getUserById(userId);
+	}
+
+	public User createUser(String userId, String firstName, String lastName,
+			String email, String password) throws Exception {
+		if (userDs.checkIfUserExisted(userId)) {
+			throw new DuplicatedException("User[" + userId
+					+ "] already existed");
+		}
+		userDs.createUser(userId, firstName, lastName, email, password);
+		return userDs.getUserById(userId);
+	}
+
+	public void deleteUser(String userId) throws Exception {
+		if (!userDs.checkIfUserExisted(userId)) {
+			throw new NotFoundException("User not found by id[" + userId + "]");
+		}
+		userDs.deleteUser(userId);
+	}
+
+	public Group createGroup(String groupId, String name, String type)
+			throws Exception {
+		if (groupDs.checkIfGroupExisted(groupId)) {
+			throw new DuplicatedException("Group[" + groupId
+					+ "] already existed");
+		}
+		groupDs.createGroup(groupId, name, type);
+		return groupDs.getGroupById(groupId);
+	}
+
+	public Group updateGroup(String groupId, String name, String type)
+			throws Exception {
+		if (!groupDs.checkIfGroupExisted(groupId)) {
+			throw new NotFoundException("Group not found by id[" + groupId
+					+ "]");
+		}
+		groupDs.updateGroup(groupId, name, type);
+		return groupDs.getGroupById(groupId);
+	}
+
+	public void deleteGroup(String groupId) throws Exception {
+		if (!groupDs.checkIfGroupExisted(groupId)) {
+			throw new NotFoundException("Group not found by id[" + groupId
+					+ "]");
+		}
+		groupDs.deleteGroup(groupId);
+	}
+
+	// ----------------generalmethods-------------------
 
 	/**
 	 * Get Current Active activity
@@ -343,6 +437,22 @@ public class ActivitiFacade {
 			}
 		}
 		return groupIds;
+	}
+
+	public boolean ifProcessFinished(String businessKey,
+			String processDefinitionId) throws NotFoundException {
+		HistoricProcessInstance historicProcessInstance = this.historicDs
+				.getHistoricProcessInstance(businessKey, processDefinitionId);
+		if (historicProcessInstance == null) {
+			throw new NotFoundException(
+					"HistoricProcessInstance not found with businessKey["
+							+ businessKey + "] and processDefinitionId["
+							+ processDefinitionId + "]");
+		}
+		if (historicProcessInstance.getEndTime() != null) {
+			return true;
+		}
+		return false;
 	}
 
 }

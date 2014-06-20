@@ -1,43 +1,21 @@
 package nz.co.activiti.tutorial.ds.user;
 
+import nz.co.activiti.tutorial.DuplicatedException;
+
 import org.activiti.engine.identity.User;
 
 public interface UserDS {
 
-	/**
-	 * Get a single user
-	 * 
-	 * @param userId
-	 * @return
-	 * @throws Exception
-	 */
-	User getUserById(String userId) throws Exception;
+	User getUserById(String userId);
 
-	/**
-	 * Create a user
-	 * 
-	 * @param userId
-	 * @param updateUser
-	 * @return
-	 * @throws Exception
-	 */
-	User updateUser(String userId, User updateUser) throws Exception;
+	void updateUser(String userId, String firstName, String lastName,
+			String email, String password) throws DuplicatedException;
 
-	/**
-	 * 
-	 * @param addUser
-	 * @return
-	 * @throws Exception
-	 */
-	User createUser(User addUser) throws Exception;
+	void createUser(String userId, String firstName, String lastName,
+			String email, String password) throws DuplicatedException;
 
-	/**
-	 * 
-	 * @param userId
-	 * @throws Exception
-	 */
-	void deleteUser(String userId) throws Exception;
+	void deleteUser(String userId);
 
-	boolean checkIfUserExisted(String userId);
+	boolean checkIfUserExisted(String userId) throws DuplicatedException;
 
 }

@@ -26,7 +26,7 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public Execution getExecutionById(String executionId,
-			String processInstanceBusinessKey) throws Exception {
+			String processInstanceBusinessKey) {
 		LOGGER.info("getExecutionById start:{} ", executionId);
 		LOGGER.info("processInstanceBusinessKey:{} ",
 				processInstanceBusinessKey);
@@ -40,17 +40,13 @@ public class ExecutionDSImpl implements ExecutionDS {
 		}
 		execution = executionQuery.singleResult();
 
-		if (execution == null) {
-			throw new NotFoundException("Execution not found by id["
-					+ executionId + "]");
-		}
 		LOGGER.info("getExecutionById end:{} ");
 		return execution;
 	}
 
 	@Override
 	public void signal(String executionId, Map<String, Object> variables)
-			throws Exception {
+			throws NotFoundException {
 		try {
 			runtimeService.signal(executionId, variables);
 		} catch (ActivitiObjectNotFoundException e) {
@@ -61,7 +57,7 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public Map<String, Object> getVariablesOnExecution(String executionId)
-			throws Exception {
+			throws NotFoundException {
 		try {
 			return runtimeService.getVariables(executionId);
 		} catch (ActivitiObjectNotFoundException e) {
@@ -72,7 +68,7 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public Object getVariableOnExecution(String executionId, String variableName)
-			throws Exception {
+			throws NotFoundException {
 		try {
 			return runtimeService.getVariable(executionId, variableName);
 		} catch (ActivitiObjectNotFoundException e) {
@@ -83,7 +79,7 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public void createVariablesOnExecution(String executionId,
-			Map<String, Object> variables) throws Exception {
+			Map<String, Object> variables) throws NotFoundException {
 		try {
 			runtimeService.setVariables(executionId, variables);
 		} catch (ActivitiObjectNotFoundException e) {
@@ -94,7 +90,8 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public void createOrUpdateVariableOnExecution(String executionId,
-			String variableName, Object updateVariable) throws Exception {
+			String variableName, Object updateVariable)
+			throws NotFoundException {
 		try {
 			runtimeService.setVariable(executionId, variableName,
 					updateVariable);
@@ -106,8 +103,15 @@ public class ExecutionDSImpl implements ExecutionDS {
 
 	@Override
 	public void removeVariable(String executionId, String variableName)
-			throws Exception {
+			throws NotFoundException {
 		runtimeService.removeVariable(executionId, variableName);
+	}
+
+	@Override
+	public Execution getExecution(String processInstanceId, String businessKey) {
+		return runtimeService.createExecutionQuery()
+				.processInstanceBusinessKey(businessKey)
+				.processInstanceId(processInstanceId).singleResult();
 	}
 
 }

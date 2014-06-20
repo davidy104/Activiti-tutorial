@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.NotFoundException;
-
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
@@ -26,7 +24,7 @@ public class DeploymentDSImpl implements DeploymentDS {
 
 	@Override
 	public Deployment deployment(String name, String category,
-			InputStream resourceStream) throws Exception {
+			InputStream resourceStream) {
 		LOGGER.info("deployment start:{}");
 		LOGGER.info("name:{}", name);
 		LOGGER.info("category:{}", category);
@@ -44,31 +42,18 @@ public class DeploymentDSImpl implements DeploymentDS {
 	}
 
 	@Override
-	public void undeployment(String deploymentId) throws Exception {
-		long count = repositoryService.createDeploymentQuery()
-				.deploymentId(deploymentId).count();
-		if (count == 0) {
-			throw new NotFoundException("Deployment not found by id["
-					+ deploymentId + "]");
-		}
+	public void undeployment(String deploymentId) {
 		repositoryService.deleteDeployment(deploymentId, true);
 	}
 
 	@Override
-	public Deployment getDeploymentByDeploymentId(String deploymentId)
-			throws Exception {
-		Deployment result = repositoryService.createDeploymentQuery()
+	public Deployment getDeploymentByDeploymentId(String deploymentId) {
+		return repositoryService.createDeploymentQuery()
 				.deploymentId(deploymentId).singleResult();
-		if (result == null) {
-			throw new NotFoundException("Deployment not found by id["
-					+ deploymentId + "]");
-		}
-		return result;
 	}
 
 	@Override
-	public List<Deployment> getDeployments(String name, String category)
-			throws Exception {
+	public List<Deployment> getDeployments(String name, String category) {
 		LOGGER.info("getDeployments start:{} ");
 		LOGGER.info("name:{} ", name);
 		LOGGER.info("category:{} ", category);
@@ -82,6 +67,16 @@ public class DeploymentDSImpl implements DeploymentDS {
 		}
 		LOGGER.info("getDeployments end:{} ");
 		return deploymentQuery.list();
+	}
+
+	@Override
+	public boolean checkIfDeploymentExisted(String name, String category) {
+		long count = repositoryService.createDeploymentQuery()
+				.deploymentName(name).deploymentCategory(category).count();
+		if (count == 1) {
+			return true;
+		}
+		return false;
 	}
 
 }

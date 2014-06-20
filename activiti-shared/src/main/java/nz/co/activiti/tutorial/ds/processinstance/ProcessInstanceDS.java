@@ -3,6 +3,7 @@ package nz.co.activiti.tutorial.ds.processinstance;
 import java.util.List;
 import java.util.Map;
 
+import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.IdentityType;
 
 import org.activiti.engine.runtime.ProcessInstance;
@@ -12,20 +13,19 @@ public interface ProcessInstanceDS {
 
 	ProcessInstance startProcessByProcessDefinitionId(
 			String processDefinitionId, String businessKey,
-			Map<String, Object> variables) throws Exception;
+			Map<String, Object> variables) throws NotFoundException;
 
 	ProcessInstance startProcessByProcessDefinitionKey(
 			String processDefinitionKey, String businessKey,
-			Map<String, Object> variables) throws Exception;
+			Map<String, Object> variables) throws NotFoundException;
 
-	ProcessInstance getProcessInstance(String processInstanceId)
-			throws Exception;
+	ProcessInstance getProcessInstance(String processInstanceId);
 
 	ProcessInstance getProcessInstance(String businessKey,
-			String processDefinitionId) throws Exception;
+			String processDefinitionId);
 
 	void deleteProcessInstance(String processInstanceId, String deleteReason)
-			throws Exception;
+			throws NotFoundException;
 
 	void suspendProcessInstance(String processInstanceId) throws Exception;
 
@@ -35,6 +35,6 @@ public interface ProcessInstanceDS {
 			String processInstanceId) throws Exception;
 
 	void addInvolvedPeopleToProcess(String processInstanceId, String user,
-			IdentityType identityType) throws Exception;
+			IdentityType identityType) throws NotFoundException;
 
 }

@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.DuplicatedException;
-import nz.co.activiti.tutorial.NotFoundException;
-
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricActivityInstanceQuery;
@@ -33,28 +30,26 @@ public class HistoricDSImpl implements HistoricDS {
 
 	@Override
 	public HistoricProcessInstance getHistoricProcessInstanceById(
-			String processInstanceId, String processDefinitionId)
-			throws Exception {
+			String processInstanceId) {
 		LOGGER.info("getHistoricProcessInstanceById start:{}",
 				processInstanceId);
 		HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService
 				.createHistoricProcessInstanceQuery().processInstanceId(
 						processInstanceId);
-		if (!StringUtils.isEmpty(processDefinitionId)) {
-			historicProcessInstanceQuery = historicProcessInstanceQuery
-					.processDefinitionId(processDefinitionId);
-		}
 
 		HistoricProcessInstance historicProcessInstance = historicProcessInstanceQuery
 				.singleResult();
 
-		if (historicProcessInstance == null) {
-			throw new NotFoundException(
-					"HistoricProcessInstance not found by id["
-							+ processInstanceId + "]");
-		}
 		LOGGER.info("getHistoricProcessInstanceById end:{}");
 		return historicProcessInstance;
+	}
+
+	@Override
+	public HistoricProcessInstance getHistoricProcessInstance(
+			String businessKey, String processDefinitionId) {
+		return historyService.createHistoricProcessInstanceQuery()
+				.processInstanceBusinessKey(businessKey)
+				.processDefinitionId(processDefinitionId).singleResult();
 	}
 
 	@Override
@@ -69,55 +64,49 @@ public class HistoricDSImpl implements HistoricDS {
 	}
 
 	@Override
-	public void deleteHistoricProcessInstance(String processInstanceId)
-			throws Exception {
+	public void deleteHistoricProcessInstance(String processInstanceId) {
 		LOGGER.info("deleteHistoricProcessInstance start:{}", processInstanceId);
-		if (!checkIfHistoricProcessInstanceExisted(processInstanceId)) {
-			throw new NotFoundException("ProcessInstance not found by id");
-		}
 		historyService.deleteHistoricProcessInstance(processInstanceId);
 		LOGGER.info("deleteHistoricProcessInstance end:{}");
 	}
 
 	@Override
 	public List<HistoricIdentityLink> getHistoricProcessInstanceIdentities(
-			String processInstanceId) throws Exception {
+			String processInstanceId) {
 		return historyService
 				.getHistoricIdentityLinksForProcessInstance(processInstanceId);
 	}
 
 	@Override
 	public List<HistoricTaskInstance> getHistoricTaskInstances(
-			String processInstanceId) throws Exception {
-		historyService.createHistoricTaskInstanceQuery()
+			String processInstanceId) {
+		return historyService.createHistoricTaskInstanceQuery()
 				.processInstanceId(processInstanceId).list();
-		return null;
 	}
 
 	@Override
 	public HistoricTaskInstance getHistoricTaskInstance(
-			String processInstanceId, String taskId) throws Exception {
+			String processInstanceId, String taskId) {
 		return historyService.createHistoricTaskInstanceQuery()
 				.processInstanceId(processInstanceId).taskId(taskId)
 				.singleResult();
 	}
 
 	@Override
-	public void deleteHistoricTaskInstance(String taskId) throws Exception {
+	public void deleteHistoricTaskInstance(String taskId) {
 		historyService.deleteHistoricTaskInstance(taskId);
 
 	}
 
 	@Override
 	public List<HistoricIdentityLink> getHistoricTaskInstanceIdentities(
-			String taskId) throws Exception {
+			String taskId) {
 		return historyService.getHistoricIdentityLinksForTask(taskId);
 	}
 
 	@Override
 	public List<HistoricActivityInstance> getHistoricActivityInstances(
-			String processInstanceId, String processDefinitionId)
-			throws Exception {
+			String processInstanceId, String processDefinitionId) {
 		LOGGER.info("getHistoricActivityInstances start:{} ");
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
 		LOGGER.info("processDefinitionId:{} ", processDefinitionId);
@@ -133,38 +122,44 @@ public class HistoricDSImpl implements HistoricDS {
 		}
 		LOGGER.info("getHistoricActivityInstances end:{} ");
 		return historicActivityInstanceQuery
-				.orderByHistoricActivityInstanceEndTime().desc().list();
+				.orderByHistoricActivityInstanceEndTime().asc().list();
 
 	}
 
 	@Override
-	public List<HistoricVariableUpdate> getHistoricVariablesOnProcess(
-			String processInstanceId) throws Exception {
-		List<HistoricVariableUpdate> historicVariableUpdateList = null;
+	public List<Object> getHistoricVariablesOnProcess(String processInstanceId) {
+		LOGGER.info("getHistoricVariablesOnProcess start:{}", processInstanceId);
+		List<Object> objectList = null;
 		List<HistoricDetail> details = historyService
 				.createHistoricDetailQuery().variableUpdates()
 				.processInstanceId(processInstanceId).orderByVariableName()
-				.asc().list();
+				.list();
 
 		if (details != null) {
-			historicVariableUpdateList = new ArrayList<HistoricVariableUpdate>();
+			objectList = new ArrayList<Object>();
 			for (HistoricDetail detail : details) {
-				historicVariableUpdateList.add((HistoricVariableUpdate) detail);
+				HistoricVariableUpdate historicVariableUpdate = (HistoricVariableUpdate) detail;
+				objectList.add(historicVariableUpdate.getValue());
 			}
 		}
-		return historicVariableUpdateList;
+		LOGGER.info("getHistoricVariablesOnProcess end:{}");
+		return objectList;
 	}
 
 	@Override
-	public HistoricVariableUpdate getHistoricVariableOnProcess(
-			String processInstanceId, String variableName) throws Exception {
-		List<HistoricVariableUpdate> historicVariableUpdateList = this
-				.getHistoricVariablesOnProcess(processInstanceId);
-		if (historicVariableUpdateList != null) {
-			for (HistoricVariableUpdate historicVariableUpdate : historicVariableUpdateList) {
+	public Object getHistoricVariableOnProcess(String processInstanceId,
+			String variableName) {
+		List<HistoricDetail> details = historyService
+				.createHistoricDetailQuery().variableUpdates()
+				.processInstanceId(processInstanceId).orderByVariableName()
+				.list();
+
+		if (details != null) {
+			for (HistoricDetail detail : details) {
+				HistoricVariableUpdate historicVariableUpdate = (HistoricVariableUpdate) detail;
 				String vName = historicVariableUpdate.getVariableName();
 				if (vName.equalsIgnoreCase(variableName)) {
-					return historicVariableUpdate;
+					return historicVariableUpdate.getValue();
 				}
 			}
 		}
@@ -172,17 +167,9 @@ public class HistoricDSImpl implements HistoricDS {
 	}
 
 	@Override
-	public List<HistoricDetail> getHistoricDetails(String processInstanceId)
-			throws Exception {
+	public List<HistoricDetail> getHistoricDetails(String processInstanceId) {
 		return historyService.createHistoricDetailQuery()
 				.processInstanceId(processInstanceId).list();
-	}
-
-	@Override
-	public HistoricProcessInstance getHistoricProcessInstance(String bizKey,
-			String processDefinitionId) throws Exception {
-
-		return null;
 	}
 
 }

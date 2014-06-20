@@ -1,7 +1,10 @@
 package nz.co.activiti.tutorial.ds.processdefinition;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
+
+import nz.co.activiti.tutorial.NotFoundException;
+import nz.co.activiti.tutorial.ds.Family;
 
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.task.IdentityLink;
@@ -9,27 +12,31 @@ import org.activiti.engine.task.IdentityLink;
 public interface ProcessDefinitionDS {
 
 	ProcessDefinition getProcessDefinitionByProcessDefinitionId(
-			String processDefinitionId) throws Exception;
+			String processDefinitionId);
 
-	ProcessDefinition updateCategory(String processDefinitionId, String category)
-			throws Exception;
+	ProcessDefinition getProcessDefinition(String processDefinitionName,
+			String processDefinitionCategory, String deploymentId);
 
-	ProcessDefinition suspendProcessDefinition(String processDefinitionId,
+	void updateCategory(String processDefinitionId, String category)
+			throws NotFoundException;
+
+	void suspendProcessDefinition(String processDefinitionId,
 			boolean includeProcessInstances, Date effectiveDate)
 			throws Exception;
 
-	ProcessDefinition activeProcessDefinition(String processDefinitionId,
+	void activeProcessDefinition(String processDefinitionId,
 			boolean includeProcessInstances, Date effectiveDate)
 			throws Exception;
 
-	Set<IdentityLink> getAllIdentities(String processDefinitionId)
+	List<IdentityLink> getAllIdentities(String processDefinitionId)
 			throws Exception;
 
-	void addIdentity(String processDefinitionId, String name) throws Exception;
+	void addCandidateStarter(String processDefinitionId, Family family,
+			String identityId) throws NotFoundException;
 
-	void deleteIdentity(String processDefinitionId, String identityId)
-			throws Exception;
+	void deleteCandidateStarter(String processDefinitionId, Family family,
+			String identityId) throws NotFoundException;
 
-	IdentityLink getIdentity(String processDefinitionId, String identityId)
-			throws Exception;
+	IdentityLink getIdentity(String processDefinitionId, Family family,
+			String identityId) throws Exception;
 }

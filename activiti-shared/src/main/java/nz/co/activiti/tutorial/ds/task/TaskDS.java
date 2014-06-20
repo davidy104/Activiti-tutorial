@@ -3,6 +3,8 @@ package nz.co.activiti.tutorial.ds.task;
 import java.util.List;
 import java.util.Map;
 
+import nz.co.activiti.tutorial.DuplicatedException;
+import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.ds.IdentityType;
 import nz.co.activiti.tutorial.ds.TaskAction;
@@ -21,56 +23,56 @@ import org.activiti.engine.task.Task;
  */
 public interface TaskDS {
 
-	Task getTaskById(String taskId) throws Exception;
+	Task getTaskById(String taskId);
 
-	Task getTask(String taskName, String businessKey) throws Exception;
+	Task getTask(String taskName, String businessKey);
 
 	void updateTask(String taskId, TaskEntity updateTask) throws Exception;
 
 	void actionOnTask(String taskId, TaskAction action, String userId,
-			Map<String, Object> variables) throws Exception;
+			Map<String, Object> variables) throws NotFoundException;
 
 	void deleteTask(String taskId, boolean cascadeHistory) throws Exception;
 
-	Map<String, Object> getVariablesOnTask(String taskId, boolean localScope)
-			throws Exception;
+	Map<String, Object> getVariablesOnTask(String taskId, boolean localScope);
 
 	Object getVariableOnTask(String taskId, String variableName,
-			boolean localScope) throws Exception;
+			boolean localScope);
 
 	void createVariablesOnTask(String taskId, Map<String, Object> addVariables,
-			boolean localScope) throws Exception;
+			boolean localScope);
 
 	void updateVariableOnTask(String taskId, String variableName,
-			Object updateVariable, boolean localScope) throws Exception;
+			Object updateVariable, boolean localScope);
 
 	void deleteVariableOnTask(String taskId, String variableName,
-			boolean localScope) throws Exception;
+			boolean localScope);
 
-	List<IdentityLink> getAllIdentities(String taskId) throws Exception;
+	List<IdentityLink> getAllIdentities(String taskId);
 
 	IdentityLink getIdentity(String taskId, String identityId, Family family,
-			IdentityType identityType) throws Exception;
+			IdentityType identityType);
 
 	void addIdentity(String taskId, String identityId, Family family,
-			IdentityType identityType) throws Exception;
+			IdentityType identityType) throws NotFoundException;
 
 	void deleteIdentity(String taskId, String identityId, Family family,
-			IdentityType identityType) throws Exception;
+			IdentityType identityType) throws NotFoundException;
 
 	Comment createCommentOnTask(String taskId, String processInstanceId,
-			String message) throws Exception;
+			String message);
 
-	List<Comment> getAllCommentsOnTask(String taskId) throws Exception;
+	List<Comment> getAllCommentsOnTask(String taskId);
 
-	Comment getCommentOnTask(String taskId, String commentId) throws Exception;
+	Comment getCommentOnTask(String taskId, String commentId);
 
-	void deleteCommentOnTask(String taskId, String commentId) throws Exception;
+	void deleteCommentOnTask(String taskId, String commentId)
+			throws NotFoundException;
 
-	List<Event> getAllEventsOnTask(String taskId) throws Exception;
+	List<Event> getAllEventsOnTask(String taskId);
 
-	Event getEventOnTask(String taskId, String eventId) throws Exception;
+	Event getEventOnTask(String taskId, String eventId);
 
-	boolean checkIfTaskExisted(String taskId);
+	boolean checkIfTaskExisted(String taskId) throws DuplicatedException;
 
 }
