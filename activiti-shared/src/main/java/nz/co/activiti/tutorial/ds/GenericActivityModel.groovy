@@ -2,7 +2,6 @@ package nz.co.activiti.tutorial.ds;
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
-import nz.co.activiti.tutorial.ProcessActivityDto
 @ToString(includeNames = true, includeFields=true)
 @EqualsAndHashCode(includes=["activityId","name","type"])
 public class GenericActivityModel implements Serializable {
@@ -32,14 +31,14 @@ public class GenericActivityModel implements Serializable {
 		}
 	}
 
-	void addOutgoingActivity(String transition, ProcessActivityDto outgoingActivity){
+	void addOutgoingActivity(String transition, GenericActivityModel outgoingActivity){
 		if(!outgoingActivityMap){
 			outgoingActivityMap = [:]
 		}
 		outgoingActivityMap.put(transition,outgoingActivity)
 	}
 
-	void addIncomingActivity(String transition, ProcessActivityDto incomingActivity){
+	void addIncomingActivity(String transition, GenericActivityModel incomingActivity){
 		if(!incomeActivityMap){
 			incomeActivityMap = [:]
 		}

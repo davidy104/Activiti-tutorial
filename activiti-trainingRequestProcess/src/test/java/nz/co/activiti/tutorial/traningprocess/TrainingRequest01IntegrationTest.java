@@ -11,8 +11,8 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.utils.ActivitiFacade;
 
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
@@ -59,7 +59,7 @@ public class TrainingRequest01IntegrationTest {
 				"process/trainingRequest.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinitionByDeployId(deployId);
+				.getProcessDefinitionByDeploymentId(deployId);
 		processDefinitionId = processDefinition.getId();
 		LOGGER.info("deployId:{}", deployId);
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
@@ -71,7 +71,7 @@ public class TrainingRequest01IntegrationTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-		activitiFacade.unDeploy(deployId, true);
+		activitiFacade.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
@@ -80,7 +80,7 @@ public class TrainingRequest01IntegrationTest {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinishted(requestNo,
+		assertFalse(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
 		ProcessActivityDto pendingActivity = activitiFacade
@@ -102,7 +102,7 @@ public class TrainingRequest01IntegrationTest {
 		List<Task> taskList = activitiFacade.getAllTasksForUser(USER1_ID);
 		assertEquals(1, taskList.size());
 
-		//with declared assignee, can not find task in his group
+		// with declared assignee, can not find task in his group
 		taskList = activitiFacade.getAllTasksForGroup(GROUP_ID);
 		assertEquals(0, taskList.size());
 	}

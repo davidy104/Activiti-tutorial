@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.DuplicatedException;
 import nz.co.activiti.tutorial.NotFoundException;
-import nz.co.activiti.tutorial.ProcessActivityDto;
 import nz.co.activiti.tutorial.ds.deployment.DeploymentDS;
 import nz.co.activiti.tutorial.ds.execution.ExecutionDS;
 import nz.co.activiti.tutorial.ds.group.GroupDS;
@@ -375,12 +374,12 @@ public class ActivitiFacade {
 						.getProperty("type");
 				String incomingActivityName = (String) incomingActivity
 						.getProperty("name");
-				ProcessActivityDto incomingActivityDto = ProcessActivityDto
+				GenericActivityModel incomingActivityModel = GenericActivityModel
 						.getBuilder(incomingActivity.getId(),
 								incomingActivityName, incomingActivityType)
 						.build();
 				genericActivityModel.addIncomingActivity(transition,
-						incomingActivityDto);
+						incomingActivityModel);
 			}
 
 			List<PvmTransition> outgoingTransitions = activityImpl
@@ -392,12 +391,12 @@ public class ActivitiFacade {
 						.getProperty("type");
 				String outgoingActivityName = (String) outgoingActivity
 						.getProperty("name");
-				ProcessActivityDto outgoingActivityDto = ProcessActivityDto
+				GenericActivityModel outgoingActivityModel = GenericActivityModel
 						.getBuilder(outgoingActivity.getId(),
 								outgoingActivityName, outgoingActivityType)
 						.build();
 				genericActivityModel.addOutgoingActivity(transition,
-						outgoingActivityDto);
+						outgoingActivityModel);
 			}
 		}
 		LOGGER.info("getActiveActivity end:{} ", genericActivityModel);
