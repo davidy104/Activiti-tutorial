@@ -37,19 +37,19 @@ public class ProcessDefinitionDSImpl implements ProcessDefinitionDS {
 	}
 
 	@Override
-	public ProcessDefinition getProcessDefinition(String processDefinitionName,
-			String processDefinitionCategory, String deploymentId) {
+	public ProcessDefinition getProcessDefinitionByDeploymentId(
+			String deploymentId) {
 		ProcessDefinitionQuery processDefinitionQuery = repositoryService
-				.createProcessDefinitionQuery().processDefinitionTenantId(processDefinitionName);
+				.createProcessDefinitionQuery();
 
-		if (!StringUtils.isEmpty(processDefinitionName)) {
-			processDefinitionQuery = processDefinitionQuery
-					.processDefinitionName(processDefinitionName);
-		}
-		if (!StringUtils.isEmpty(processDefinitionCategory)) {
-			processDefinitionQuery = processDefinitionQuery
-					.processDefinitionCategory(processDefinitionCategory);
-		}
+		// if (!StringUtils.isEmpty(processDefinitionName)) {
+		// processDefinitionQuery = processDefinitionQuery
+		// .processDefinitionName(processDefinitionName);
+		// }
+		// if (!StringUtils.isEmpty(processDefinitionCategory)) {
+		// processDefinitionQuery = processDefinitionQuery
+		// .processDefinitionCategory(processDefinitionCategory);
+		// }
 
 		if (!StringUtils.isEmpty(deploymentId)) {
 			processDefinitionQuery = processDefinitionQuery

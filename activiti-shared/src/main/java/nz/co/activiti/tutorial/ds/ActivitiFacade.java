@@ -144,15 +144,13 @@ public class ActivitiFacade {
 	}
 
 	// ----------processDefinition---------
-	public ProcessDefinition getProcessDefinition(String processDefinitionName,
-			String processDefinitionCategory, String deploymentId) {
+	public ProcessDefinition getProcessDefinitionByDeploymentId(
+			String deploymentId) {
 		LOGGER.info("getProcessDefinition start:{} ");
 		LOGGER.info("deploymentId:{} ", deploymentId);
-		LOGGER.info("processDefinitionName:{} ", processDefinitionName);
-		LOGGER.info("processDefinitionCategory:{} ", processDefinitionCategory);
+
 		ProcessDefinition processDefinition = processDefinitionDs
-				.getProcessDefinition(processDefinitionName,
-						processDefinitionCategory, deploymentId);
+				.getProcessDefinitionByDeploymentId(deploymentId);
 		LOGGER.info("getProcessDefinition end:{} ", processDefinition);
 		return processDefinition;
 	}

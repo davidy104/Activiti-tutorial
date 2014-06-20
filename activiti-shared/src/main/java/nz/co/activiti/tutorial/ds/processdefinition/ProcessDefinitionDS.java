@@ -14,8 +14,7 @@ public interface ProcessDefinitionDS {
 	ProcessDefinition getProcessDefinitionByProcessDefinitionId(
 			String processDefinitionId);
 
-	ProcessDefinition getProcessDefinition(String processDefinitionName,
-			String processDefinitionCategory, String deploymentId);
+	ProcessDefinition getProcessDefinitionByDeploymentId(String deploymentId);
 
 	void updateCategory(String processDefinitionId, String category)
 			throws NotFoundException;

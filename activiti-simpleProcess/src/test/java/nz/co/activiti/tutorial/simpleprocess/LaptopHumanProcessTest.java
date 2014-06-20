@@ -59,19 +59,19 @@ public class LaptopHumanProcessTest {
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
-		InputStream processStream = LaptopHumanProcessTest.class
-				.getClassLoader().getResourceAsStream(PROCESS_LOCATION);
+		// InputStream processStream = LaptopHumanProcessTest.class
+		// .getClassLoader().getResourceAsStream(PROCESS_LOCATION);
+		//
+		// deployId = activitiFacade.deployment(PROCESS_NAME, PROCESS_CATEGORY,
+		// processStream).getId();
 
-		deployId = activitiFacade.deployment(PROCESS_NAME, PROCESS_CATEGORY,
-				processStream).getId();
-
-		// deployId = activitiFacade
-		// .deployProcessesFromClasspath(PROCESS_LOCATION).get(0);
+		 deployId = activitiFacade
+		 .deployProcessesFromClasspath(PROCESS_LOCATION).get(0);
 
 		LOGGER.info("deployId:{} ", deployId);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinition(PROCESS_NAME, PROCESS_CATEGORY, deployId);
+				.getProcessDefinitionByDeploymentId(deployId);
 
 		processDefinitionId = processDefinition.getId();
 
