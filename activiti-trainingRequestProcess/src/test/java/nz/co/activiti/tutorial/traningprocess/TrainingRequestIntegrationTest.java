@@ -16,10 +16,9 @@ import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
 
+import org.activiti.engine.FormService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -50,6 +49,9 @@ public class TrainingRequestIntegrationTest {
 	private String deployId;
 
 	private static final String USER_ID = "gonzo";
+
+	@Resource
+	private FormService formService;
 
 	// processKey
 	private String requestNo = UUID.randomUUID().toString();
@@ -104,7 +106,7 @@ public class TrainingRequestIntegrationTest {
 
 	@Test
 	public void testCompleteTask() throws Exception {
-		String processInstanceId = startProcess();
+		startProcess();
 		GenericActivityModel pendingActivity = activitiFacade
 				.getActiveActivity(processDefinitionId, requestNo);
 		String activityName = pendingActivity.getName();
@@ -112,8 +114,8 @@ public class TrainingRequestIntegrationTest {
 
 		Task pendingTask = activitiFacade.getTask(activityName, requestNo);
 
-		TaskFormData taskFormData = activitiFacade.getFormService()
-				.getTaskFormData(pendingTask.getId());
+		TaskFormData taskFormData = formService.getTaskFormData(pendingTask
+				.getId());
 
 		assertNotNull(taskFormData);
 
@@ -130,29 +132,28 @@ public class TrainingRequestIntegrationTest {
 		Map<String, String> variableMap = new HashMap<String, String>();
 		variableMap.put("trainerName", "Jun Yuan");
 		variableMap.put("trainerMailId", "david.yuan124@gmail.com");
-		activitiFacade.getFormService().submitTaskFormData(pendingTask.getId(),
-				variableMap);
+		formService.submitTaskFormData(pendingTask.getId(), variableMap);
 
-		assertTrue(activitiFacade.ifProcessFinishted(requestNo,
+		assertTrue(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
 	}
 
-	private String startProcess() {
+	private String startProcess() throws Exception {
 		Map<String, Object> variableMap = TrainingRequestProcessTestUtils
 				.getRequestVariables();
-		ProcessInstance processInstance = activitiFacade.startProcessInstance(
-				requestNo, processDefinitionId, variableMap);
+		ProcessInstance processInstance = activitiFacade.startProcess(
+				processDefinitionId, requestNo, variableMap);
 		return processInstance.getId();
 	}
 
-	private void initialUsers() {
-		User user = activitiFacade.getIdentityService().newUser(USER_ID);
-		activitiFacade.getIdentityService().saveUser(user);
+	private void initialUsers() throws Exception {
+		activitiFacade.createUser(USER_ID, USER_ID, "", USER_ID + "@test.com",
+				"123456");
 	}
 
-	private void removeUsers() {
-		activitiFacade.getIdentityService().deleteUser(USER_ID);
+	private void removeUsers() throws Exception {
+		activitiFacade.deleteUser(USER_ID);
 	}
 
 }

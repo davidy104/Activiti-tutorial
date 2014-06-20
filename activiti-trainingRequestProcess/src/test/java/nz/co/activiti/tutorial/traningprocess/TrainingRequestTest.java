@@ -13,12 +13,12 @@ import java.util.UUID;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.ActivitiFacade;
+import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
 
+import org.activiti.engine.FormService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -50,6 +50,9 @@ public class TrainingRequestTest {
 
 	private static final String USER_ID = "gonzo";
 
+	@Resource
+	private FormService formService;
+
 	// processKey
 	private String requestNo = UUID.randomUUID().toString();
 
@@ -61,7 +64,7 @@ public class TrainingRequestTest {
 				"process/trainingRequest.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinitionByDeployId(deployId);
+				.getProcessDefinitionByDeploymentId(deployId);
 		processDefinitionId = processDefinition.getId();
 		LOGGER.info("deployId:{}", deployId);
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
@@ -73,7 +76,7 @@ public class TrainingRequestTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-		activitiFacade.unDeploy(deployId, true);
+		activitiFacade.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
@@ -82,19 +85,18 @@ public class TrainingRequestTest {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinishted(requestNo,
+		assertFalse(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
-		ProcessActivityDto pendingActivity = activitiFacade
-				.getExecutionActivityBasicInfo(requestNo, processDefinitionId,
-						processInstanceId, true, true);
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, requestNo);
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
 
 		assertEquals("userTask", pendingActivity.getType());
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				pendingActivity.getName(), requestNo);
+		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
+				requestNo);
 		String assignee = pendingTask.getAssignee();
 		String taskName = pendingTask.getName();
 		assertNotNull(pendingTask);
@@ -105,16 +107,15 @@ public class TrainingRequestTest {
 	@Test
 	public void testCompleteTask() throws Exception {
 		String processInstanceId = startProcess();
-		ActivityImpl activity = activitiFacade.getExecutionActivity(
-				processDefinitionId, requestNo, processInstanceId);
-		String activityName = (String) activity.getProperty("name");
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, requestNo);
+		String activityName = pendingActivity.getName();
 		assertEquals("Business Development Executive", activityName);
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				activityName, requestNo);
+		Task pendingTask = activitiFacade.getTask(activityName, requestNo);
 
-		TaskFormData taskFormData = activitiFacade.getFormService()
-				.getTaskFormData(pendingTask.getId());
+		TaskFormData taskFormData = formService.getTaskFormData(pendingTask
+				.getId());
 
 		assertNotNull(taskFormData);
 
@@ -131,29 +132,28 @@ public class TrainingRequestTest {
 		Map<String, String> variableMap = new HashMap<String, String>();
 		variableMap.put("trainerName", "Jun Yuan");
 		variableMap.put("trainerMailId", "david.yuan124@gmail.com");
-		activitiFacade.getFormService().submitTaskFormData(pendingTask.getId(),
-				variableMap);
+		formService.submitTaskFormData(pendingTask.getId(), variableMap);
 
-		assertTrue(activitiFacade.ifProcessFinishted(requestNo,
+		assertTrue(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
 	}
 
-	private String startProcess() {
+	private String startProcess() throws Exception {
 		Map<String, Object> variableMap = TrainingRequestProcessTestUtils
 				.getRequestVariables();
-		ProcessInstance processInstance = activitiFacade.startProcessInstance(
-				requestNo, processDefinitionId, variableMap);
+		ProcessInstance processInstance = activitiFacade.startProcess(
+				processDefinitionId, requestNo, variableMap);
 		return processInstance.getId();
 	}
 
-	private void initialUsers() {
-		User user = activitiFacade.getIdentityService().newUser(USER_ID);
-		activitiFacade.getIdentityService().saveUser(user);
+	private void initialUsers() throws Exception {
+		activitiFacade.createUser(USER_ID, USER_ID, "", USER_ID + "@test.com",
+				"123456");
 	}
 
-	private void removeUsers() {
-		activitiFacade.getIdentityService().deleteUser(USER_ID);
+	private void removeUsers() throws Exception {
+		activitiFacade.deleteUser(USER_ID);
 	}
 
 }
