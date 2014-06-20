@@ -1,9 +1,9 @@
 package nz.co.activiti.tutorial.traningprocess;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +12,9 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.ActivitiFacade;
+import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.utils.ActivitiFacade;
 
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
@@ -62,7 +62,7 @@ public class TrainingRequestIntegrationTest {
 				"process/trainingRequest.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinitionByDeployId(deployId);
+				.getProcessDefinitionByDeploymentId(deployId);
 		processDefinitionId = processDefinition.getId();
 		LOGGER.info("deployId:{}", deployId);
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
@@ -74,7 +74,7 @@ public class TrainingRequestIntegrationTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-		activitiFacade.unDeploy(deployId, true);
+		activitiFacade.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
@@ -83,19 +83,18 @@ public class TrainingRequestIntegrationTest {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinishted(requestNo,
+		assertFalse(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
-		ProcessActivityDto pendingActivity = activitiFacade
-				.getExecutionActivityBasicInfo(requestNo, processDefinitionId,
-						processInstanceId, true, true);
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, requestNo);
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
 
 		assertEquals("userTask", pendingActivity.getType());
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				pendingActivity.getName(), requestNo);
+		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
+				requestNo);
 		String assignee = pendingTask.getAssignee();
 		String taskName = pendingTask.getName();
 		assertNotNull(pendingTask);
@@ -106,13 +105,12 @@ public class TrainingRequestIntegrationTest {
 	@Test
 	public void testCompleteTask() throws Exception {
 		String processInstanceId = startProcess();
-		ActivityImpl activity = activitiFacade.getExecutionActivity(
-				processDefinitionId, requestNo, processInstanceId);
-		String activityName = (String) activity.getProperty("name");
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, requestNo);
+		String activityName = pendingActivity.getName();
 		assertEquals("Business Development Executive", activityName);
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				activityName, requestNo);
+		Task pendingTask = activitiFacade.getTask(activityName, requestNo);
 
 		TaskFormData taskFormData = activitiFacade.getFormService()
 				.getTaskFormData(pendingTask.getId());
@@ -120,9 +118,7 @@ public class TrainingRequestIntegrationTest {
 		assertNotNull(taskFormData);
 
 		List<FormProperty> formProperties = taskFormData.getFormProperties();
-//		assertEquals(formProperties.size(),4);
-
-
+		// assertEquals(formProperties.size(),4);
 
 		for (FormProperty formProperty : formProperties) {
 			LOGGER.info("formName:{} ", formProperty.getName());

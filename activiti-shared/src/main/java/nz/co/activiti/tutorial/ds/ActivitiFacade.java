@@ -241,7 +241,7 @@ public class ActivitiFacade {
 		LOGGER.info("getAllTasksForUser start:{} ", userId);
 		List<Task> tasks = null;
 		TaskQuery taskQuery = taskService.createTaskQuery()
-				.taskCandidateOrAssigned(userId).orderByTaskCreateTime().desc();
+				.taskCandidateOrAssigned(userId).orderByTaskCreateTime().asc();
 
 		if (firstResult != null && maxResults != null) {
 			tasks = taskQuery.listPage(firstResult, maxResults);
@@ -254,6 +254,11 @@ public class ActivitiFacade {
 
 	public List<Task> getTasksForUser(String userId) {
 		return this.getPaginatedTasksForUser(userId, null, null);
+	}
+
+	public List<Task> getTasksForGroup(String groupId) {
+		return taskService.createTaskQuery().taskCandidateGroup(groupId)
+				.orderByTaskCreateTime().asc().list();
 	}
 
 	/**
@@ -328,6 +333,35 @@ public class ActivitiFacade {
 					+ "]");
 		}
 		groupDs.deleteGroup(groupId);
+	}
+
+	public void createMembership(String userId, String groupId)
+			throws Exception {
+		if (!userDs.checkIfUserExisted(userId)) {
+			throw new NotFoundException("User not found by id[" + userId + "]");
+		}
+		if (!groupDs.checkIfGroupExisted(groupId)) {
+			throw new NotFoundException("Group not found by id[" + groupId
+					+ "]");
+		}
+
+		try {
+			groupDs.createMemberToGroup(groupId, userId);
+		} catch (RuntimeException e) {
+			throw new DuplicatedException(e);
+		}
+	}
+
+	public void deleteMemberFromGroup(String groupId, String userId)
+			throws Exception {
+		if (!userDs.checkIfUserExisted(userId)) {
+			throw new NotFoundException("User not found by id[" + userId + "]");
+		}
+		if (!groupDs.checkIfGroupExisted(groupId)) {
+			throw new NotFoundException("Group not found by id[" + groupId
+					+ "]");
+		}
+		groupDs.deleteMemberFromGroup(groupId, userId);
 	}
 
 	// ----------------generalmethods-------------------

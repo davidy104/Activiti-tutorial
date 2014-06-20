@@ -12,9 +12,8 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.utils.ActivitiFacade;
 
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;

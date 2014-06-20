@@ -10,12 +10,10 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import nz.co.activiti.tutorial.ProcessActivityDto;
+import nz.co.activiti.tutorial.ds.ActivitiFacade;
+import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.utils.ActivitiFacade;
 
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -59,7 +57,7 @@ public class TrainingRequest01Test {
 				"process/trainingRequest.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
-				.getProcessDefinitionByDeployId(deployId);
+				.getProcessDefinitionByDeploymentId(deployId);
 		processDefinitionId = processDefinition.getId();
 		LOGGER.info("deployId:{}", deployId);
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
@@ -71,7 +69,7 @@ public class TrainingRequest01Test {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-		activitiFacade.unDeploy(deployId, true);
+		activitiFacade.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
@@ -80,65 +78,60 @@ public class TrainingRequest01Test {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinishted(requestNo,
+		assertFalse(activitiFacade.ifProcessFinished(requestNo,
 				processDefinitionId));
 
-		ProcessActivityDto pendingActivity = activitiFacade
-				.getExecutionActivityBasicInfo(requestNo, processDefinitionId,
-						processInstanceId, true, true);
+		GenericActivityModel pendingActivity = activitiFacade
+				.getActiveActivity(processDefinitionId, requestNo);
+
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
 
 		assertEquals("userTask", pendingActivity.getType());
 
-		Task pendingTask = activitiFacade.getActiveTaskByNameAndBizKey(
-				pendingActivity.getName(), requestNo);
+		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
+				requestNo);
 		String assignee = pendingTask.getAssignee();
 		String taskName = pendingTask.getName();
 		assertNotNull(pendingTask);
 		assertEquals("Business Development Executive", taskName);
 		assertEquals(USER1_ID, assignee);
 
-		List<Task> taskList = activitiFacade.getAllTasksForUser(USER1_ID);
+		List<Task> taskList = activitiFacade.getTasksForUser(USER1_ID);
 		assertEquals(1, taskList.size());
 
-		//with declared assignee, can not find task in his group
-		taskList = activitiFacade.getAllTasksForGroup(GROUP_ID);
+		// with declared assignee, can not find task in his group
+		taskList = activitiFacade.getTasksForGroup(GROUP_ID);
 		assertEquals(0, taskList.size());
 	}
 
-	private String startProcess() {
+	private String startProcess() throws Exception {
 		Map<String, Object> variableMap = TrainingRequestProcessTestUtils
 				.getRequestVariables();
-		ProcessInstance processInstance = activitiFacade.startProcessInstance(
-				requestNo, processDefinitionId, variableMap);
+		ProcessInstance processInstance = activitiFacade.startProcess(
+				processDefinitionId, requestNo, variableMap);
 		return processInstance.getId();
 	}
 
-	private void initialUsers() {
-		Group group = activitiFacade.getIdentityService().newGroup(GROUP_ID);
-		activitiFacade.getIdentityService().saveGroup(group);
+	private void initialUsers() throws Exception {
+		activitiFacade.createGroup(GROUP_ID, GROUP_ID, null);
 
-		User user1 = activitiFacade.getIdentityService().newUser(USER1_ID);
-		activitiFacade.getIdentityService().saveUser(user1);
+		activitiFacade.createUser(USER1_ID, USER1_ID, "", USER1_ID
+				+ "@test.com", "123456");
 
-		User user2 = activitiFacade.getIdentityService().newUser(USER2_ID);
-		activitiFacade.getIdentityService().saveUser(user2);
-
-		activitiFacade.getIdentityService().createMembership(user1.getId(),
-				group.getId());
-		activitiFacade.getIdentityService().createMembership(user2.getId(),
-				group.getId());
+		activitiFacade.createUser(USER2_ID, USER2_ID, "", USER2_ID
+				+ "@test.com", "123456");
+		activitiFacade.createMembership(USER1_ID, GROUP_ID);
+		activitiFacade.createMembership(USER2_ID, GROUP_ID);
 	}
 
-	private void removeUsers() {
-		activitiFacade.getIdentityService()
-				.deleteMembership(USER1_ID, GROUP_ID);
-		activitiFacade.getIdentityService()
-				.deleteMembership(USER2_ID, GROUP_ID);
-		activitiFacade.getIdentityService().deleteUser(USER1_ID);
-		activitiFacade.getIdentityService().deleteUser(USER2_ID);
-		activitiFacade.getIdentityService().deleteGroup(GROUP_ID);
-	}
+	private void removeUsers() throws Exception {
+		activitiFacade.deleteMemberFromGroup(GROUP_ID, USER1_ID);
+		activitiFacade.deleteMemberFromGroup(GROUP_ID, USER2_ID);
 
+		activitiFacade.deleteUser(USER1_ID);
+		activitiFacade.deleteUser(USER2_ID);
+		activitiFacade.deleteGroup(GROUP_ID);
+
+	}
 }
