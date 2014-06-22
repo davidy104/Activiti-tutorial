@@ -4,15 +4,15 @@
     <startEvent id="startevent1" name="Start">
       <extensionElements>
         <activiti:formProperty id="orderNo" name="Order Number" type="string" expression="#{order.orderNo}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="shipAddr" name="Ship Address" type="string" expression="#{order.address}" required="true"></activiti:formProperty>
+        <activiti:formProperty id="ordertime" name="Order Time" type="date" expression="#{order.orderTime}" required="true"></activiti:formProperty>
       </extensionElements>
     </startEvent>
     <userTask id="orderDataEntryTask" name="Order Data Entry" activiti:assignee="kermit">
       <extensionElements>
-        <activiti:formProperty id="orderNumber" name="Order Number" type="string" expression="#{order.orderNo}" writable="false" required="true"></activiti:formProperty>
-        <activiti:formProperty id="customerName" name="Customer Name" type="string " expression="#{customer.customerName}" required="true"></activiti:formProperty>
-        <activiti:formProperty id="customerEmail" name="Customer Email" type="string" expression="#{customer.customerEmail}" required="true"></activiti:formProperty>
-        <activiti:formProperty id="shipAddress" name="Ship Address" type="string" expression="#{order.address}" required="true"></activiti:formProperty>
-        <activiti:formProperty id="orderTime" name="Order Time" type="date" expression="#{order.orderTime}" datePattern="yyyy-MM-dd hh:mm:ss" required="true"></activiti:formProperty>
+        <activiti:formProperty id="orderNumber" name="Order Number" type="string" expression="${orderNo}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="shipAddress" name="Ship Address" type="string" expression="${shipAddr}" required="true"></activiti:formProperty>
+        <activiti:formProperty id="orderTime" name="Order Time" type="date" expression="${ordertime}" datePattern="yyyy-MM-dd hh:mm:ss" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <userTask id="orderApprovalTask" name="Order Approval " activiti:candidateGroups="orderAdmin">
