@@ -1,22 +1,22 @@
-package nz.co.activiti.tutorial.traningprocess;
+package nz.co.activiti.tutorial.taskprocess;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.ds.GenericActivityModel;
-import nz.co.activiti.tutorial.traningprocess.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguration;
+import nz.co.activiti.tutorial.taskprocess.model.CustomerModel;
+import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +31,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class TrainingRequest01IntegrationTest {
+public class LaptopOrderProcessTest {
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(TrainingRequestIntegrationTest.class);
+			.getLogger(LaptopOrderProcessTest.class);
 
 	@Resource
 	private ActivitiFacade activitiFacade;
@@ -44,23 +44,30 @@ public class TrainingRequest01IntegrationTest {
 
 	private static final String USER1_ID = "gonzo";
 	private static final String USER2_ID = "kermit";
-	private static final String GROUP_ID = "engineering";
+	private static final String USER3_ID = "fozzie";
+	private static final String GROUP_ID = "orderAdmin";
 
 	// processKey
-	private String requestNo = UUID.randomUUID().toString();
+	private String orderNo;
+
+	private OrderModel order;
 
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
 
 		deployId = activitiFacade.deployProcessesFromClasspath(
-				"process/trainingRequest.bpmn20.xml").get(0);
+				"process/TasksTestProcess.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
 				.getProcessDefinitionByDeploymentId(deployId);
 		processDefinitionId = processDefinition.getId();
 		LOGGER.info("deployId:{}", deployId);
 		LOGGER.info("processDefinitionId:{}", processDefinitionId);
+
+		order = TestUtils.initOrder();
+		orderNo = order.getOrderNo();
+
 		initialUsers();
 		LOGGER.info("initialize end:{}");
 	}
@@ -74,42 +81,29 @@ public class TrainingRequest01IntegrationTest {
 	}
 
 	@Test
-	public void testPendingBusinessDevelopmentTaskStatus() throws Exception {
+	public void testToDataEntry() throws Exception {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinished(requestNo,
+		assertFalse(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
 		GenericActivityModel pendingActivity = activitiFacade
-				.getActiveActivity(processDefinitionId, requestNo);
+				.getActiveActivity(processDefinitionId, orderNo);
 
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
 		assertEquals("userTask", pendingActivity.getType());
+		assertEquals("Order Data Entry", pendingActivity.getName());
 
-		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
-				requestNo);
-		String assignee = pendingTask.getAssignee();
-		String taskName = pendingTask.getName();
-		assertNotNull(pendingTask);
-		assertEquals("Business Development Executive", taskName);
-		assertEquals(USER1_ID, assignee);
-		LOGGER.info("DelegationState:{}", pendingTask.getDelegationState());
-
-		List<Task> taskList = activitiFacade.getTasksForUser(USER1_ID);
-		assertEquals(1, taskList.size());
-
-		// with declared assignee, can not find task in his group
-		taskList = activitiFacade.getTasksForGroup(GROUP_ID);
-		assertEquals(0, taskList.size());
 	}
 
 	private String startProcess() throws Exception {
-		Map<String, Object> variableMap = TrainingRequestProcessTestUtils
-				.getRequestVariables();
+		Map<String, Object> variableMap = new HashMap<String, Object>();
+		variableMap.put("order", order);
+		variableMap.put("customer", new CustomerModel());
 		ProcessInstance processInstance = activitiFacade.startProcess(
-				processDefinitionId, requestNo, variableMap);
+				processDefinitionId, orderNo, variableMap);
 		return processInstance.getId();
 	}
 
@@ -121,16 +115,22 @@ public class TrainingRequest01IntegrationTest {
 
 		activitiFacade.createUser(USER2_ID, USER2_ID, "", USER2_ID
 				+ "@test.com", "123456");
+
+		activitiFacade.createUser(USER3_ID, USER3_ID, "", USER3_ID
+				+ "@test.com", "123456");
+
 		activitiFacade.createMembership(USER1_ID, GROUP_ID);
 		activitiFacade.createMembership(USER2_ID, GROUP_ID);
+		activitiFacade.createMembership(USER3_ID, GROUP_ID);
 	}
 
 	private void removeUsers() throws Exception {
 		activitiFacade.deleteMemberFromGroup(GROUP_ID, USER1_ID);
 		activitiFacade.deleteMemberFromGroup(GROUP_ID, USER2_ID);
-
+		activitiFacade.deleteMemberFromGroup(GROUP_ID, USER3_ID);
 		activitiFacade.deleteUser(USER1_ID);
 		activitiFacade.deleteUser(USER2_ID);
+		activitiFacade.deleteUser(USER3_ID);
 		activitiFacade.deleteGroup(GROUP_ID);
 
 	}

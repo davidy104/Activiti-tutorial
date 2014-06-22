@@ -253,7 +253,11 @@ public class ActivitiFacade {
 	}
 
 	public List<Task> getTasksForUser(String userId) {
-		return this.getPaginatedTasksForUser(userId, null, null);
+		return taskService.createTaskQuery().taskAssignee(userId)
+//				.taskCandidateOrAssigned(userId)
+				.orderByTaskCreateTime().asc()
+				.list();
+		// return this.getPaginatedTasksForUser(userId, null, null);
 	}
 
 	public List<Task> getTasksForGroup(String groupId) {

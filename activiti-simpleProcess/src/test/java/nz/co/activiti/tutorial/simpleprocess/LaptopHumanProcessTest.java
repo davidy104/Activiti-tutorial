@@ -17,6 +17,7 @@ import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.simpleprocess.config.ApplicationContextConfiguration;
 
+import org.activiti.engine.impl.form.StringFormType;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -58,6 +59,7 @@ public class LaptopHumanProcessTest {
 
 	@Before
 	public void initialize() throws Exception {
+
 		LOGGER.info("initialize start:{}");
 		// InputStream processStream = LaptopHumanProcessTest.class
 		// .getClassLoader().getResourceAsStream(PROCESS_LOCATION);
@@ -65,8 +67,8 @@ public class LaptopHumanProcessTest {
 		// deployId = activitiFacade.deployment(PROCESS_NAME, PROCESS_CATEGORY,
 		// processStream).getId();
 
-		 deployId = activitiFacade
-		 .deployProcessesFromClasspath(PROCESS_LOCATION).get(0);
+		deployId = activitiFacade
+				.deployProcessesFromClasspath(PROCESS_LOCATION).get(0);
 
 		LOGGER.info("deployId:{} ", deployId);
 
