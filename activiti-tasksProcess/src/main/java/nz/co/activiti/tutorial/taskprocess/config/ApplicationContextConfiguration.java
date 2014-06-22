@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
-@ComponentScan({ "nz.co.activiti.tutorial.taskprocess",
-		"nz.co.activiti.tutorial.ds" })
+@ComponentScan({ "nz.co.activiti.tutorial.ds",
+		"nz.co.activiti.tutorial.taskprocess" })
 @Import({ InfrastructureContextConfiguration.class })
 @ImportResource({ "classpath:activitiAppContext.xml" })
 public class ApplicationContextConfiguration {

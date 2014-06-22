@@ -51,8 +51,7 @@ public class TaskDSImpl implements TaskDS {
 	}
 
 	@Override
-	public void updateTask(String taskId, TaskEntity updateTask)
-			throws Exception {
+	public void updateTask(String taskId, Task updateTask) throws Exception {
 		LOGGER.info("updateTask start:{}", taskId);
 		Task existedTask = this.getTaskById(taskId);
 		if (updateTask.getParentTaskId() != null) {

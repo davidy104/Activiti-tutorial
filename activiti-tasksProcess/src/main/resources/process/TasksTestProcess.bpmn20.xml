@@ -3,28 +3,28 @@
   <process id="orderTaskProcess" name="Order Task Process" isExecutable="true">
     <startEvent id="startevent1" name="Start">
       <extensionElements>
-        <activiti:formProperty id="orderNo" name="Order Number" type="string" expression="#{order.orderNo}" writable="false" required="true"></activiti:formProperty>
-        <activiti:formProperty id="shipAddr" name="Ship Address" type="string" expression="#{order.address}" required="true"></activiti:formProperty>
-        <activiti:formProperty id="ordertime" name="Order Time" type="date" expression="#{order.orderTime}" required="true"></activiti:formProperty>
+        <activiti:formProperty id="orderNo" name="Order Number" type="string" expression="${order.orderNo}" writable="false" required="true"></activiti:formProperty>
       </extensionElements>
     </startEvent>
     <userTask id="orderDataEntryTask" name="Order Data Entry" activiti:assignee="kermit">
       <extensionElements>
-        <activiti:formProperty id="orderNumber" name="Order Number" type="string" expression="${orderNo}" writable="false" required="true"></activiti:formProperty>
-        <activiti:formProperty id="shipAddress" name="Ship Address" type="string" expression="${shipAddr}" required="true"></activiti:formProperty>
-        <activiti:formProperty id="orderTime" name="Order Time" type="date" expression="${ordertime}" datePattern="yyyy-MM-dd hh:mm:ss" required="true"></activiti:formProperty>
+        <activiti:formProperty id="orderNumber" name="Order Number" type="string" expression="${order.orderNo}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="shipAddress" name="Ship Address" type="string" expression="${order.address}" required="true"></activiti:formProperty>
+        <activiti:formProperty id="orderTime" name="Order Time" type="date" expression="${order.orderTime}" datePattern="yyyy-MM-dd hh:mm:ss" required="true"></activiti:formProperty>
+        <activiti:formProperty id="custName" name="Customer Name" type="string" expression="${order.customer.customerName}" required="true"></activiti:formProperty>
+        <activiti:formProperty id="custEmail" name="CustomerEmail" type="string" expression="${order.customer.customerEmail}" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <userTask id="orderApprovalTask" name="Order Approval " activiti:candidateGroups="orderAdmin">
       <extensionElements>
-        <activiti:formProperty id="orderNumber" name="Order Number" type="string " expression="#{order.orderNo}" writable="false" required="true"></activiti:formProperty>
-        <activiti:formProperty id="totalItems" name="Total Items" type="long" expression="#{order.totalItems}" writable="false" required="true"></activiti:formProperty>
-        <activiti:formProperty id="totalPrice" name="Total Price" type="string" expression="#{order.totalPrice}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="oaorderNumber" name="Order Number" type="string " expression="${order.orderNo}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="totalItems" name="Total Items" type="long" expression="${order.totalItems}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="totalPrice" name="Total Price" type="string" expression="${order.totalPrice}" writable="false" required="true"></activiti:formProperty>
         <activiti:formProperty id="acceptOrder" name="Accept Order" type="enum" required="true">
           <activiti:value id="true" name="Accept"></activiti:value>
           <activiti:value id="false" name="Reject"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="status" name="Status" type="string" expression="#{order.status}" writable="false" required="true"></activiti:formProperty>
+        <activiti:formProperty id="status" name="Status" type="string" expression="${order.status}" writable="false" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <endEvent id="endevent1" name="End"></endEvent>
@@ -54,7 +54,6 @@ out:println "after calculation: " + order;</script>
     </sequenceFlow>
     <userTask id="orderPaymentTask" name="Order Payment" activiti:assignee="#{order.customer.customerName}">
       <extensionElements>
-        <activiti:formProperty id="orderNo" name="Order Number" type="string" expression="#{order.orderNo}" writable="false" required="true"></activiti:formProperty>
         <activiti:formProperty id="accountNo" name="Account Number" type="string" required="true"></activiti:formProperty>
       </extensionElements>
     </userTask>

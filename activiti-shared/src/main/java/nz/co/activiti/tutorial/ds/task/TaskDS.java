@@ -9,7 +9,6 @@ import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.ds.IdentityType;
 import nz.co.activiti.tutorial.ds.TaskAction;
 
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Event;
 import org.activiti.engine.task.IdentityLink;
@@ -27,7 +26,7 @@ public interface TaskDS {
 
 	Task getTask(String taskName, String businessKey);
 
-	void updateTask(String taskId, TaskEntity updateTask) throws Exception;
+	void updateTask(String taskId, Task updateTask) throws Exception;
 
 	void actionOnTask(String taskId, TaskAction action, String userId,
 			Map<String, Object> variables) throws NotFoundException;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>nz.co.activiti.tutorial</groupId>
@@ -48,6 +49,10 @@
 		<aspectjweaver.version>1.6.12</aspectjweaver.version>
 		<asm-attrs.version>2.2.3</asm-attrs.version>
 		<cglib-nodep.version>2.2.2</cglib-nodep.version>
+
+		<jdom.version>1.1</jdom.version>
+		<commons-codec.version>1.8</commons-codec.version>
+		<commons-io.version>2.4</commons-io.version>
 	</properties>
 
 	<developers>
@@ -62,6 +67,31 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>jdom</groupId>
+				<artifactId>jdom</artifactId>
+				<version>${jdom.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>${commons-codec.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>3.2.1</version>
+			</dependency>
+
+
 
 			<dependency>
 				<groupId>asm</groupId>
@@ -1007,6 +1037,6 @@
 		<module>activiti-simpleProcess</module>
 		<module>activiti-trainingRequestProcess</module>
 		<module>activiti-restapi</module>
-    <module>activiti-tasksProcess</module>
-  </modules>
+		<module>activiti-tasksProcess</module>
+	</modules>
 </project>

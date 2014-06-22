@@ -1,6 +1,7 @@
 package nz.co.activiti.tutorial.taskprocess;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.UUID;
 
 import nz.co.activiti.tutorial.taskprocess.model.LaptopModel;
@@ -31,5 +32,13 @@ public class TestUtils {
 		order.setTotalItems(2);
 
 		return order;
+	}
+
+	public static void submitOrderInfo(OrderModel order) {
+		order.getCustomer().setCustomerEmail("david.yuan@propellerhead.co.nz");
+		order.getCustomer().setCustomerName("david");
+		order.setOrderTime(new Date());
+		order.setAddress("20 opal ave");
+
 	}
 }

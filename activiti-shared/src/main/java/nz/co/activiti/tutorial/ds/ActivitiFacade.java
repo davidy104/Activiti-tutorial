@@ -26,7 +26,6 @@ import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity;
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmActivity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
@@ -168,8 +167,8 @@ public class ActivitiFacade {
 		return task;
 	}
 
-	public Task updateTask(String businessKey, String taskName,
-			TaskEntity updateTask) throws Exception {
+	public Task updateTask(String businessKey, String taskName, Task updateTask)
+			throws Exception {
 		LOGGER.info("updateTask start:{} ");
 		LOGGER.info("businessKey:{} ", businessKey);
 		LOGGER.info("taskName:{} ", taskName);
@@ -254,9 +253,8 @@ public class ActivitiFacade {
 
 	public List<Task> getTasksForUser(String userId) {
 		return taskService.createTaskQuery().taskAssignee(userId)
-//				.taskCandidateOrAssigned(userId)
-				.orderByTaskCreateTime().asc()
-				.list();
+		// .taskCandidateOrAssigned(userId)
+				.orderByTaskCreateTime().asc().list();
 		// return this.getPaginatedTasksForUser(userId, null, null);
 	}
 
