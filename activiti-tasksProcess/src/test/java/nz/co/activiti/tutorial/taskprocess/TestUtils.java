@@ -40,6 +40,6 @@ public class TestUtils {
 		order.setOrderTime(new Date());
 		order.setAddress("20 opal ave");
 	}
-	
+
 	
 }

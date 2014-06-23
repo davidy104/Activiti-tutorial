@@ -113,6 +113,11 @@ public class ActivitiFacade {
 		return executionDs.getVariableOnExecution(executionId, variableName);
 	}
 
+	public void signal(String executionId, Map<String, Object> variables)
+			throws NotFoundException {
+		executionDs.signal(executionId, variables);
+	}
+
 	// --------------processInstance-----------
 	public ProcessInstance startProcess(String processDefinitionId,
 			String businessKey, Map<String, Object> variables)
@@ -392,6 +397,14 @@ public class ActivitiFacade {
 					+ "]");
 		}
 		groupDs.deleteMemberFromGroup(groupId, userId);
+	}
+
+	// ----------------historic-------------------
+
+	public Object getHistoricVariableOnProcess(String processInstanceId,
+			String variableName) {
+		return this.historicDs.getHistoricVariableOnProcess(processInstanceId,
+				variableName);
 	}
 
 	// ----------------generalmethods-------------------

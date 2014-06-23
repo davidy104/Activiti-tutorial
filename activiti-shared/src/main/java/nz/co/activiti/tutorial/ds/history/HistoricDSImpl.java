@@ -152,7 +152,7 @@ public class HistoricDSImpl implements HistoricDS {
 		List<HistoricDetail> details = historyService
 				.createHistoricDetailQuery().variableUpdates()
 				.processInstanceId(processInstanceId).orderByVariableName()
-				.list();
+				.desc().list();
 
 		if (details != null) {
 			for (HistoricDetail detail : details) {

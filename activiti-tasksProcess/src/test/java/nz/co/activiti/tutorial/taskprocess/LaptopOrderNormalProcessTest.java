@@ -3,6 +3,7 @@ package nz.co.activiti.tutorial.taskprocess;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +17,10 @@ import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguratio
 import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.FormService;
-import org.activiti.engine.TaskService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.DelegationState;
 import org.activiti.engine.task.Task;
 import org.junit.After;
 import org.junit.Before;
@@ -29,17 +28,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
-@DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class LaptopOrderProcessTest {
+public class LaptopOrderNormalProcessTest {
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(LaptopOrderProcessTest.class);
+			.getLogger(LaptopOrderNormalProcessTest.class);
 
 	@Resource
 	private ActivitiFacade activitiFacade;
@@ -60,9 +56,6 @@ public class LaptopOrderProcessTest {
 
 	@Resource
 	private FormService formService;
-
-	@Resource
-	private TaskService taskService;
 
 	@Before
 	public void initialize() throws Exception {
@@ -93,123 +86,13 @@ public class LaptopOrderProcessTest {
 	}
 
 	@Test
-	public void testDelegateTask() throws Exception {
+	public void test() throws Exception {
 		String processInstanceId = startProcess();
 		assertNotNull(processInstanceId);
 		LOGGER.info("processInstanceId:{} ", processInstanceId);
 		assertFalse(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
-
-		// get pending task
-		Task pendingTask = activitiFacade.getTask("Order Data Entry", orderNo);
-		this.printTask(pendingTask);
-
-		// check original assignee
-		List<Task> taskList = activitiFacade.getTasksForUser(USER2_ID);
-		assertEquals(taskList.size(), 1);
-
-		// get order from process
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
-		LOGGER.info("order:{} ", order);
-
-		// update task with new assignee, state, and owner
-		pendingTask.setAssignee(USER1_ID);
-		pendingTask.setDelegationState(DelegationState.PENDING);
-		pendingTask.setOwner(USER3_ID);
-		activitiFacade.updateTask(orderNo, "Order Data Entry", pendingTask);
-		this.printTask(pendingTask);
-
-		// check task list for new assignee
-		taskList = activitiFacade.getTasksForUser(USER1_ID);
-		assertEquals(taskList.size(), 1);
-
-		// check task owner's task
-		taskList = taskService.createTaskQuery().taskOwner(USER3_ID).list();
-		assertEquals(taskList.size(), 1);
-
-		// complete task
-		TestUtils.submitOrderInfo(order);
-		Map<String, Object> variableMap = new HashMap<String, Object>();
-		variableMap.put("order", order);
-		// if task is delegate (we updated task with delegation state as PENDING
-		// before),
-		// we should use resolve task first and then complete it
-
-		activitiFacade.resolveTask(pendingTask.getId(), null);
-
-		// after resolve task, process is still pending on this task, so we need
-		// to complete it
-		GenericActivityModel pendingActivity = activitiFacade
-				.getActiveActivity(processDefinitionId, orderNo);
-		assertEquals("userTask", pendingActivity.getType());
-		assertEquals("Order Data Entry", pendingActivity.getName());
-
-		activitiFacade.completeTask(pendingTask.getId(), variableMap);
-
-		// get order from process after data entry
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
-		LOGGER.info("before final decision order:{} ", order);
-
-		pendingActivity = activitiFacade.getActiveActivity(processDefinitionId,
-				orderNo);
-		assertEquals("Decision Task", pendingActivity.getName());
-
-	}
-
-	@Test
-	public void testTaskPeopleUpdate() throws Exception {
-		String processInstanceId = startProcess();
-		assertNotNull(processInstanceId);
-		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinished(orderNo,
-				processDefinitionId));
-
-		// get pending task
-		Task pendingTask = activitiFacade.getTask("Order Data Entry", orderNo);
-		this.printTask(pendingTask);
-
-		// check original assignee
-		List<Task> taskList = activitiFacade.getTasksForUser(USER2_ID);
-		assertEquals(taskList.size(), 1);
-
-		// get order from process
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
-		LOGGER.info("order:{} ", order);
-
-		// update task with new assignee, state, and owner
-		pendingTask.setAssignee(USER1_ID);
-		pendingTask.setOwner(USER3_ID);
-		activitiFacade.updateTask(orderNo, "Order Data Entry", pendingTask);
-		this.printTask(pendingTask);
-
-		// check task list for new assignee
-		taskList = activitiFacade.getTasksForUser(USER1_ID);
-		assertEquals(taskList.size(), 1);
-
-		// complete task
-		TestUtils.submitOrderInfo(order);
-		Map<String, Object> variableMap = new HashMap<String, Object>();
-		variableMap.put("order", order);
-
-		activitiFacade.completeTask(pendingTask.getId(), variableMap);
-
-		// get order from process after data entry
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
-		LOGGER.info("before final decision order:{} ", order);
-	}
-
-	@Test
-	public void testNormalProcess() throws Exception {
-		String processInstanceId = startProcess();
-		assertNotNull(processInstanceId);
-		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinished(orderNo,
-				processDefinitionId));
-
+		// after start check active activity
 		GenericActivityModel pendingActivity = activitiFacade
 				.getActiveActivity(processDefinitionId, orderNo);
 
@@ -218,24 +101,28 @@ public class LaptopOrderProcessTest {
 		assertEquals("userTask", pendingActivity.getType());
 		assertEquals("Order Data Entry", pendingActivity.getName());
 
+		// get active Task
 		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
 				orderNo);
 
 		TaskFormData taskFormData = formService.getTaskFormData(pendingTask
 				.getId());
-
+		// get form properties from task
 		List<FormProperty> formProperties = taskFormData.getFormProperties();
+		assertNotNull(formProperties);
 		for (FormProperty formProperty : formProperties) {
 			LOGGER.info("formName:{} ", formProperty.getName());
 			LOGGER.info("formValue:{} ", formProperty.getValue());
 			LOGGER.info("formType:{} ", formProperty.getType());
 		}
 
+		// get OrderModel object from process variable
 		order = (OrderModel) activitiFacade.getVariableOnExecution(
 				pendingTask.getExecutionId(), "order");
+		assertNotNull(order);
 		LOGGER.info("order:{} ", order);
 
-		// submit order info
+		// submit order info, filling customer info
 		TestUtils.submitOrderInfo(order);
 		Map<String, Object> variableMap = new HashMap<String, Object>();
 		variableMap.put("order", order);
@@ -275,6 +162,60 @@ public class LaptopOrderProcessTest {
 		assertEquals(1, taskList.size());
 		taskList = activitiFacade.getTasksForUser(USER2_ID);
 		assertEquals(0, taskList.size());
+
+		// gonzo complete Order approval task
+		variableMap = new HashMap<String, Object>();
+		variableMap.put("order", order);
+		variableMap.put("acceptOrder", true);
+		activitiFacade.completeTask(pendingTask.getId(), variableMap);
+
+		// check active task, it should be payment task
+		pendingActivity = activitiFacade.getActiveActivity(processDefinitionId,
+				orderNo);
+		assertEquals(pendingActivity.getName(), "Order Payment");
+		assertEquals(pendingActivity.getType(), "userTask");
+
+		pendingTask = activitiFacade
+				.getTask(pendingActivity.getName(), orderNo);
+		LOGGER.info("pendingTask:{}", pendingTask);
+		assertEquals(pendingTask.getAssignee(), "david");
+
+		order = (OrderModel) activitiFacade.getVariableOnExecution(
+				pendingTask.getExecutionId(), "order");
+		assertNotNull(order);
+
+		// david finish payment task
+		variableMap = new HashMap<String, Object>();
+		variableMap.put("order", order);
+		variableMap.put("accountNo", "1234567");
+		activitiFacade.completeTask(pendingTask.getId(), variableMap);
+
+		// check active task, it should be receive task
+		pendingActivity = activitiFacade.getActiveActivity(processDefinitionId,
+				orderNo);
+		LOGGER.info("pendingActivity:{} ", pendingActivity);
+		assertEquals(pendingActivity.getName(), "Payment Confirm");
+		assertEquals(pendingActivity.getType(), "receiveTask");
+
+		ProcessInstance processInstance = activitiFacade.getProcessInstance(
+				orderNo, processDefinitionId);
+
+		String accountNo = (String) activitiFacade.getVariableOnExecution(
+				processInstance.getId(), "accountNo");
+		LOGGER.info("accountNo from process:{}", accountNo);
+
+		order.setStatus("delivered");
+		LOGGER.info("before deliver:{}", order);
+		variableMap = new HashMap<String, Object>();
+		variableMap.put("order", order);
+		activitiFacade.signal(processInstance.getId(), variableMap);
+		assertTrue(activitiFacade.ifProcessFinished(orderNo,
+				processDefinitionId));
+
+		order = (OrderModel) activitiFacade.getHistoricVariableOnProcess(
+				processInstance.getId(), "order");
+		LOGGER.info("get historic order:{}", order);
+
 	}
 
 	private String startProcess() throws Exception {
