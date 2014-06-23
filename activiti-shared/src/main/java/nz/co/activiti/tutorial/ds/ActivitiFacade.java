@@ -228,7 +228,8 @@ public class ActivitiFacade {
 	}
 
 	/**
-	 * Get All tasks for the given User (including candiates tasks)
+	 * Get All tasks for the given User (including candiates tasks) activiti
+	 * needs workaround for taskCandidateOrAssigned
 	 * 
 	 * @param userId
 	 * @param firstResult
@@ -251,11 +252,34 @@ public class ActivitiFacade {
 		return tasks;
 	}
 
+	/**
+	 * get all tasks for the given user (including candidates task, assignees
+	 * task and owners task)
+	 * 
+	 * @param userId
+	 * @return
+	 */
 	public List<Task> getTasksForUser(String userId) {
-		return taskService.createTaskQuery().taskAssignee(userId)
-		// .taskCandidateOrAssigned(userId)
+		LOGGER.info("getTasksForUser start:{}", userId);
+		List<Task> tasks = new ArrayList<Task>();
+
+		List<Task> tempTasks = taskService.createTaskQuery()
+				.taskAssignee(userId).orderByTaskCreateTime().asc().list();
+		LOGGER.info("assigneeTask:{}", tempTasks.size());
+
+		tasks.addAll(tempTasks);
+
+		tempTasks = taskService.createTaskQuery().taskCandidateUser(userId)
 				.orderByTaskCreateTime().asc().list();
-		// return this.getPaginatedTasksForUser(userId, null, null);
+		LOGGER.info("candidateTask:{}", tempTasks.size());
+		tasks.addAll(tempTasks);
+
+		tempTasks = taskService.createTaskQuery().taskOwner(userId)
+				.orderByTaskCreateTime().asc().list();
+		LOGGER.info("ownerTask:{}", tempTasks.size());
+		tasks.addAll(tempTasks);
+
+		return tasks;
 	}
 
 	public List<Task> getTasksForGroup(String groupId) {
@@ -264,7 +288,8 @@ public class ActivitiFacade {
 	}
 
 	/**
-	 * verify if the given user has right to process the task
+	 * verify if the given user has right to process the task (including
+	 * assignee and candidates)
 	 * 
 	 * @param businessKey
 	 * @param taskName
@@ -273,13 +298,16 @@ public class ActivitiFacade {
 	 */
 	public boolean checkIfUserHasRightForGivenTask(String businessKey,
 			String taskName, String userId) {
-		long count = taskService.createTaskQuery().taskAssignee(userId)
+		if (taskService.createTaskQuery().taskAssignee(userId)
 				.processInstanceBusinessKey(businessKey).taskName(taskName)
-				.count();
-		if (count == 0) {
-			return false;
+				.count() == 1) {
+			return true;
+		} else if (taskService.createTaskQuery().taskCandidateUser(userId)
+				.processInstanceBusinessKey(businessKey).taskName(taskName)
+				.count() == 1) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	// --------------identity-----------

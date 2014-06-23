@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.ds.GenericActivityModel;
 import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.taskprocess.model.CustomerModel;
 import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.FormService;
@@ -70,7 +69,7 @@ public class LaptopOrderProcessTest {
 		LOGGER.info("initialize start:{}");
 
 		deployId = activitiFacade.deployProcessesFromClasspath(
-				"process/TasksTestProcess01.bpmn20.xml").get(0);
+				"process/TasksTestProcess02.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
 				.getProcessDefinitionByDeploymentId(deployId);
@@ -232,7 +231,7 @@ public class LaptopOrderProcessTest {
 			LOGGER.info("formType:{} ", formProperty.getType());
 		}
 
-		OrderModel order = (OrderModel) activitiFacade.getVariableOnExecution(
+		order = (OrderModel) activitiFacade.getVariableOnExecution(
 				pendingTask.getExecutionId(), "order");
 		LOGGER.info("order:{} ", order);
 
@@ -249,16 +248,38 @@ public class LaptopOrderProcessTest {
 				orderNo);
 		assertNotNull(pendingActivity);
 		LOGGER.info("pending activity:{}", pendingActivity);
+		assertEquals("Order Approval", pendingActivity.getName());
+		assertEquals("userTask", pendingActivity.getType());
 
 		order = (OrderModel) activitiFacade.getVariableOnExecution(
 				pendingTask.getExecutionId(), "order");
-		LOGGER.info("before final decision order:{} ", order);
+		LOGGER.info("after calculation order:{} ", order);
+
+		// get order approval task
+		pendingTask = activitiFacade
+				.getTask(pendingActivity.getName(), orderNo);
+
+		// check gonzo and fozzie's task (both of them belonging to orderAdmin
+		// group)
+		List<Task> taskList = activitiFacade.getTasksForUser(USER1_ID);
+		assertEquals(1, taskList.size());
+		taskList = activitiFacade.getTasksForUser(USER2_ID);
+		assertEquals(1, taskList.size());
+
+		// gonzo claim task, and check their tasklist again, fozzie's gone
+		pendingTask = activitiFacade.claimTask(pendingTask.getId(), USER1_ID);
+		assertNotNull(pendingTask);
+		assertEquals(pendingTask.getAssignee(), USER1_ID);
+
+		taskList = activitiFacade.getTasksForUser(USER1_ID);
+		assertEquals(1, taskList.size());
+		taskList = activitiFacade.getTasksForUser(USER2_ID);
+		assertEquals(0, taskList.size());
 	}
 
 	private String startProcess() throws Exception {
 		Map<String, Object> variableMap = new HashMap<String, Object>();
 		variableMap.put("order", order);
-		variableMap.put("customer", new CustomerModel());
 		ProcessInstance processInstance = activitiFacade.startProcess(
 				processDefinitionId, orderNo, variableMap);
 		return processInstance.getId();
