@@ -81,7 +81,8 @@ public class HistoricDSImpl implements HistoricDS {
 	public List<HistoricTaskInstance> getHistoricTaskInstances(
 			String processInstanceId) {
 		return historyService.createHistoricTaskInstanceQuery()
-				.processInstanceId(processInstanceId).list();
+				.processInstanceId(processInstanceId)
+				.orderByHistoricTaskInstanceStartTime().asc().list();
 	}
 
 	@Override

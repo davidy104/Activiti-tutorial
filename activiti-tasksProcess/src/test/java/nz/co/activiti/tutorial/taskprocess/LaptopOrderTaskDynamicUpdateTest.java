@@ -16,9 +16,11 @@ import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguratio
 import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.FormService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricDetail;
+import org.activiti.engine.history.HistoricIdentityLink;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.DelegationState;
@@ -37,9 +39,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class LaptopOrderProcessTest {
+public class LaptopOrderTaskDynamicUpdateTest {
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(LaptopOrderProcessTest.class);
+			.getLogger(LaptopOrderTaskDynamicUpdateTest.class);
 
 	@Resource
 	private ActivitiFacade activitiFacade;
@@ -62,14 +64,14 @@ public class LaptopOrderProcessTest {
 	private FormService formService;
 
 	@Resource
-	private TaskService taskService;
+	private HistoryService historyService;
 
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
 
 		deployId = activitiFacade.deployProcessesFromClasspath(
-				"process/TasksTestProcess03.bpmn20.xml").get(0);
+				"process/TasksTestProcess.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
 				.getProcessDefinitionByDeploymentId(deployId);
@@ -125,7 +127,7 @@ public class LaptopOrderProcessTest {
 		assertEquals(taskList.size(), 1);
 
 		// check task owner's task
-		taskList = taskService.createTaskQuery().taskOwner(USER3_ID).list();
+		taskList = activitiFacade.getTasksForUser(USER3_ID);
 		assertEquals(taskList.size(), 1);
 
 		// complete task
@@ -154,8 +156,9 @@ public class LaptopOrderProcessTest {
 
 		pendingActivity = activitiFacade.getActiveActivity(processDefinitionId,
 				orderNo);
-		assertEquals("Decision Task", pendingActivity.getName());
+		assertEquals("Order Approval", pendingActivity.getName());
 
+		this.printHistory(processInstanceId);
 	}
 
 	@Test
@@ -199,82 +202,7 @@ public class LaptopOrderProcessTest {
 		// get order from process after data entry
 		order = (OrderModel) activitiFacade.getVariableOnExecution(
 				pendingTask.getExecutionId(), "order");
-		LOGGER.info("before final decision order:{} ", order);
-	}
-
-	@Test
-	public void testNormalProcess() throws Exception {
-		String processInstanceId = startProcess();
-		assertNotNull(processInstanceId);
-		LOGGER.info("processInstanceId:{} ", processInstanceId);
-		assertFalse(activitiFacade.ifProcessFinished(orderNo,
-				processDefinitionId));
-
-		GenericActivityModel pendingActivity = activitiFacade
-				.getActiveActivity(processDefinitionId, orderNo);
-
-		assertNotNull(pendingActivity);
-		LOGGER.info("pending activity:{}", pendingActivity);
-		assertEquals("userTask", pendingActivity.getType());
-		assertEquals("Order Data Entry", pendingActivity.getName());
-
-		Task pendingTask = activitiFacade.getTask(pendingActivity.getName(),
-				orderNo);
-
-		TaskFormData taskFormData = formService.getTaskFormData(pendingTask
-				.getId());
-
-		List<FormProperty> formProperties = taskFormData.getFormProperties();
-		for (FormProperty formProperty : formProperties) {
-			LOGGER.info("formName:{} ", formProperty.getName());
-			LOGGER.info("formValue:{} ", formProperty.getValue());
-			LOGGER.info("formType:{} ", formProperty.getType());
-		}
-
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
 		LOGGER.info("order:{} ", order);
-
-		// submit order info
-		TestUtils.submitOrderInfo(order);
-		Map<String, Object> variableMap = new HashMap<String, Object>();
-		variableMap.put("order", order);
-		activitiFacade.completeTask(pendingTask.getId(), variableMap);
-
-		assertFalse(activitiFacade.ifProcessFinished(orderNo,
-				processDefinitionId));
-
-		pendingActivity = activitiFacade.getActiveActivity(processDefinitionId,
-				orderNo);
-		assertNotNull(pendingActivity);
-		LOGGER.info("pending activity:{}", pendingActivity);
-		assertEquals("Order Approval", pendingActivity.getName());
-		assertEquals("userTask", pendingActivity.getType());
-
-		order = (OrderModel) activitiFacade.getVariableOnExecution(
-				pendingTask.getExecutionId(), "order");
-		LOGGER.info("after calculation order:{} ", order);
-
-		// get order approval task
-		pendingTask = activitiFacade
-				.getTask(pendingActivity.getName(), orderNo);
-
-		// check gonzo and fozzie's task (both of them belonging to orderAdmin
-		// group)
-		List<Task> taskList = activitiFacade.getTasksForUser(USER1_ID);
-		assertEquals(1, taskList.size());
-		taskList = activitiFacade.getTasksForUser(USER2_ID);
-		assertEquals(1, taskList.size());
-
-		// gonzo claim task, and check their tasklist again, fozzie's gone
-		pendingTask = activitiFacade.claimTask(pendingTask.getId(), USER1_ID);
-		assertNotNull(pendingTask);
-		assertEquals(pendingTask.getAssignee(), USER1_ID);
-
-		taskList = activitiFacade.getTasksForUser(USER1_ID);
-		assertEquals(1, taskList.size());
-		taskList = activitiFacade.getTasksForUser(USER2_ID);
-		assertEquals(0, taskList.size());
 	}
 
 	private String startProcess() throws Exception {
@@ -321,4 +249,67 @@ public class LaptopOrderProcessTest {
 
 	}
 
+	private void printHistory(String processInstanceId) throws Exception {
+		LOGGER.info("print historicIdentity start:{}");
+		List<HistoricIdentityLink> historicIdentityList = historyService
+				.getHistoricIdentityLinksForProcessInstance(processInstanceId);
+		for (HistoricIdentityLink historicIdentityLink : historicIdentityList) {
+			String info = "[userId:" + historicIdentityLink.getUserId()
+					+ ", groupId:" + historicIdentityLink.getGroupId()
+					+ ", type:" + historicIdentityLink.getType() + ", taskId:"
+					+ historicIdentityLink.getTaskId();
+
+			LOGGER.info("historicIdentity:{} ", info);
+		}
+		LOGGER.info("print historicIdentity end:{}");
+
+		LOGGER.info("print HistoricTaskInstance start:{}");
+		List<HistoricTaskInstance> taskInstances = historyService
+				.createHistoricTaskInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.orderByHistoricTaskInstanceStartTime().desc().list();
+
+		for (HistoricTaskInstance historicTaskInstance : taskInstances) {
+			String info = "[taskName:" + historicTaskInstance.getName()
+					+ ", assignee:" + historicTaskInstance.getAssignee()
+					+ ", duriation:"
+					+ historicTaskInstance.getDurationInMillis()
+					+ ", claimTime:" + historicTaskInstance.getClaimTime();
+
+			LOGGER.info("historicTaskInstance:{} ", info);
+		}
+		LOGGER.info("print HistoricTaskInstance end:{}");
+
+		List<HistoricActivityInstance> historicActivityInstances = historyService
+				.createHistoricActivityInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.processDefinitionId(processDefinitionId)
+				.orderByHistoricActivityInstanceEndTime().asc().list();
+		LOGGER.info("print historicActivityInstance start:{}");
+		for (HistoricActivityInstance historicActivityInstance : historicActivityInstances) {
+			String info = "[name:" + historicActivityInstance.getActivityName()
+					+ ", type:" + historicActivityInstance.getActivityType()
+					+ ", CalledProcessInstanceId:"
+					+ historicActivityInstance.getCalledProcessInstanceId()
+					+ ", executionId:"
+					+ historicActivityInstance.getExecutionId()
+					+ ", startTime:" + historicActivityInstance.getStartTime()
+					+ ", endTime:" + historicActivityInstance.getEndTime();
+			LOGGER.info("historicActivityInstance:{} ", info);
+		}
+		LOGGER.info("print historicActivityInstance end:{}");
+
+		List<HistoricDetail> historicDetails = historyService
+				.createHistoricDetailQuery()
+				.processInstanceId(processInstanceId).orderByTime().asc()
+				.list();
+		for (HistoricDetail historicDetail : historicDetails) {
+			String info = "[id:" + historicDetail.getId() + ", taskId:"
+					+ historicDetail.getTaskId() + ", processInstanceId:"
+					+ historicDetail.getProcessInstanceId() + ", time:"
+					+ historicDetail.getTime();
+
+			LOGGER.info("historicDetail:{} ", info);
+		}
+	}
 }

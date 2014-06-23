@@ -400,7 +400,6 @@ public class ActivitiFacade {
 	}
 
 	// ----------------historic-------------------
-
 	public Object getHistoricVariableOnProcess(String processInstanceId,
 			String variableName) {
 		return this.historicDs.getHistoricVariableOnProcess(processInstanceId,

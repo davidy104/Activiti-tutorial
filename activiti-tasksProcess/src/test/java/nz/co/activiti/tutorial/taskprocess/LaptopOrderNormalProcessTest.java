@@ -20,8 +20,10 @@ import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.history.HistoricActivityInstance;
 import org.activiti.engine.history.HistoricDetail;
-import org.activiti.engine.history.HistoricVariableUpdate;
+import org.activiti.engine.history.HistoricIdentityLink;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -68,7 +70,7 @@ public class LaptopOrderNormalProcessTest {
 		LOGGER.info("initialize start:{}");
 
 		deployId = activitiFacade.deployProcessesFromClasspath(
-				"process/TasksTestProcess03.bpmn20.xml").get(0);
+				"process/TasksTestProcess.bpmn20.xml").get(0);
 
 		ProcessDefinition processDefinition = activitiFacade
 				.getProcessDefinitionByDeploymentId(deployId);
@@ -218,26 +220,12 @@ public class LaptopOrderNormalProcessTest {
 		assertTrue(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
-		 order = (OrderModel) activitiFacade.getHistoricVariableOnProcess(
-		 processInstance.getId(), "order");
-		 LOGGER.info("get historic order:{}", order);
+		processInstanceId = processInstance.getId();
+		order = (OrderModel) activitiFacade.getHistoricVariableOnProcess(
+				processInstance.getId(), "order");
+		LOGGER.info("get historic order:{}", order);
 
-//		processInstance = activitiFacade.getProcessInstance(orderNo,
-//				processDefinitionId);
-//
-//		List<HistoricDetail> details = historyService
-//				.createHistoricDetailQuery().variableUpdates()
-//				.processInstanceId(processInstanceId).orderByTime().desc().list();
-//
-//		for (HistoricDetail detail : details) {
-//			HistoricVariableUpdate historicVariableUpdate = (HistoricVariableUpdate) detail;
-//			String vName = historicVariableUpdate.getVariableName();
-//			LOGGER.info("historicVariableUpdate:{} ", historicVariableUpdate);
-//			if (vName.equalsIgnoreCase("order")) {
-//				OrderModel to = (OrderModel) historicVariableUpdate.getValue();
-//				LOGGER.info("order in history:{} ", to);
-//			}
-//		}
+		this.printHistory(processInstanceId);
 
 	}
 
@@ -276,13 +264,75 @@ public class LaptopOrderNormalProcessTest {
 		activitiFacade.deleteGroup(GROUP_ID);
 	}
 
-	private void printTask(Task task) {
-		LOGGER.info("task Name:{}", task.getName());
-		LOGGER.info("deletgationState:{}", task.getDelegationState());
-		LOGGER.info("task Assignee:{}", task.getAssignee());
-		LOGGER.info("task Owner:{}", task.getOwner());
-		LOGGER.info("task defintionKey:{}", task.getTaskDefinitionKey());
+	// private void printTask(Task task) {
+	// LOGGER.info("task Name:{}", task.getName());
+	// LOGGER.info("deletgationState:{}", task.getDelegationState());
+	// LOGGER.info("task Assignee:{}", task.getAssignee());
+	// LOGGER.info("task Owner:{}", task.getOwner());
+	// LOGGER.info("task defintionKey:{}", task.getTaskDefinitionKey());
+	// }
 
+	private void printHistory(String processInstanceId) throws Exception {
+		LOGGER.info("print historicIdentity start:{}");
+		List<HistoricIdentityLink> historicIdentityList = historyService
+				.getHistoricIdentityLinksForProcessInstance(processInstanceId);
+		for (HistoricIdentityLink historicIdentityLink : historicIdentityList) {
+			String info = "[userId:" + historicIdentityLink.getUserId()
+					+ ", groupId:" + historicIdentityLink.getGroupId()
+					+ ", type:" + historicIdentityLink.getType() + ", taskId:"
+					+ historicIdentityLink.getTaskId();
+
+			LOGGER.info("historicIdentity:{} ", info);
+		}
+		LOGGER.info("print historicIdentity end:{}");
+
+		LOGGER.info("print HistoricTaskInstance start:{}");
+		List<HistoricTaskInstance> taskInstances = historyService
+				.createHistoricTaskInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.orderByHistoricTaskInstanceStartTime().desc().list();
+
+		for (HistoricTaskInstance historicTaskInstance : taskInstances) {
+			String info = "[taskName:" + historicTaskInstance.getName()
+					+ ", assignee:" + historicTaskInstance.getAssignee()
+					+ ", duriation:"
+					+ historicTaskInstance.getDurationInMillis()
+					+ ", claimTime:" + historicTaskInstance.getClaimTime();
+
+			LOGGER.info("historicTaskInstance:{} ", info);
+		}
+		LOGGER.info("print HistoricTaskInstance end:{}");
+
+		List<HistoricActivityInstance> historicActivityInstances = historyService
+				.createHistoricActivityInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.processDefinitionId(processDefinitionId)
+				.orderByHistoricActivityInstanceEndTime().asc().list();
+		LOGGER.info("print historicActivityInstance start:{}");
+		for (HistoricActivityInstance historicActivityInstance : historicActivityInstances) {
+			String info = "[name:" + historicActivityInstance.getActivityName()
+					+ ", type:" + historicActivityInstance.getActivityType()
+					+ ", CalledProcessInstanceId:"
+					+ historicActivityInstance.getCalledProcessInstanceId()
+					+ ", executionId:"
+					+ historicActivityInstance.getExecutionId()
+					+ ", startTime:" + historicActivityInstance.getStartTime()
+					+ ", endTime:" + historicActivityInstance.getEndTime();
+			LOGGER.info("historicActivityInstance:{} ", info);
+		}
+		LOGGER.info("print historicActivityInstance end:{}");
+
+		List<HistoricDetail> historicDetails = historyService
+				.createHistoricDetailQuery()
+				.processInstanceId(processInstanceId).orderByTime().asc()
+				.list();
+		for (HistoricDetail historicDetail : historicDetails) {
+			String info = "[id:" + historicDetail.getId() + ", taskId:"
+					+ historicDetail.getTaskId() + ", processInstanceId:"
+					+ historicDetail.getProcessInstanceId() + ", time:"
+					+ historicDetail.getTime();
+
+			LOGGER.info("historicDetail:{} ", info);
+		}
 	}
-
 }
