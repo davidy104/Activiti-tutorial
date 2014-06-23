@@ -132,8 +132,7 @@ public class HistoricDSImpl implements HistoricDS {
 		List<Object> objectList = null;
 		List<HistoricDetail> details = historyService
 				.createHistoricDetailQuery().variableUpdates()
-				.processInstanceId(processInstanceId).orderByVariableName()
-				.list();
+				.processInstanceId(processInstanceId).orderByTime().list();
 
 		if (details != null) {
 			objectList = new ArrayList<Object>();
@@ -146,13 +145,16 @@ public class HistoricDSImpl implements HistoricDS {
 		return objectList;
 	}
 
+	/**
+	 * get the lastest object by name
+	 */
 	@Override
 	public Object getHistoricVariableOnProcess(String processInstanceId,
 			String variableName) {
 		List<HistoricDetail> details = historyService
 				.createHistoricDetailQuery().variableUpdates()
-				.processInstanceId(processInstanceId).orderByVariableName()
-				.desc().list();
+				.processInstanceId(processInstanceId).orderByTime().desc()
+				.list();
 
 		if (details != null) {
 			for (HistoricDetail detail : details) {

@@ -17,8 +17,11 @@ import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguratio
 import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.FormService;
+import org.activiti.engine.HistoryService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.TaskFormData;
+import org.activiti.engine.history.HistoricDetail;
+import org.activiti.engine.history.HistoricVariableUpdate;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -56,6 +59,9 @@ public class LaptopOrderNormalProcessTest {
 
 	@Resource
 	private FormService formService;
+
+	@Resource
+	private HistoryService historyService;
 
 	@Before
 	public void initialize() throws Exception {
@@ -212,9 +218,26 @@ public class LaptopOrderNormalProcessTest {
 		assertTrue(activitiFacade.ifProcessFinished(orderNo,
 				processDefinitionId));
 
-		order = (OrderModel) activitiFacade.getHistoricVariableOnProcess(
-				processInstance.getId(), "order");
-		LOGGER.info("get historic order:{}", order);
+		 order = (OrderModel) activitiFacade.getHistoricVariableOnProcess(
+		 processInstance.getId(), "order");
+		 LOGGER.info("get historic order:{}", order);
+
+//		processInstance = activitiFacade.getProcessInstance(orderNo,
+//				processDefinitionId);
+//
+//		List<HistoricDetail> details = historyService
+//				.createHistoricDetailQuery().variableUpdates()
+//				.processInstanceId(processInstanceId).orderByTime().desc().list();
+//
+//		for (HistoricDetail detail : details) {
+//			HistoricVariableUpdate historicVariableUpdate = (HistoricVariableUpdate) detail;
+//			String vName = historicVariableUpdate.getVariableName();
+//			LOGGER.info("historicVariableUpdate:{} ", historicVariableUpdate);
+//			if (vName.equalsIgnoreCase("order")) {
+//				OrderModel to = (OrderModel) historicVariableUpdate.getValue();
+//				LOGGER.info("order in history:{} ", to);
+//			}
+//		}
 
 	}
 
