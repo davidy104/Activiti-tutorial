@@ -13,8 +13,8 @@ import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.ds.ActivitiFacade;
 import nz.co.activiti.tutorial.ds.GenericActivityModel;
+import nz.co.activiti.tutorial.laptop.data.OrderModel;
 import nz.co.activiti.tutorial.taskprocess.config.ApplicationContextConfiguration;
-import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
 
 import org.activiti.engine.FormService;
 import org.activiti.engine.HistoryService;

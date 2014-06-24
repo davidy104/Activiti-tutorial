@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.UUID;
 
-import nz.co.activiti.tutorial.taskprocess.model.LaptopModel;
-import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
+import nz.co.activiti.tutorial.laptop.data.LaptopModel;
+import nz.co.activiti.tutorial.laptop.data.OrderModel;
 
 public class TestUtils {
 
@@ -41,5 +41,4 @@ public class TestUtils {
 		order.setAddress("20 opal ave");
 	}
 
-	
 }

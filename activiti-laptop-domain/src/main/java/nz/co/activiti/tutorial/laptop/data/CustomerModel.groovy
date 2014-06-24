@@ -1,4 +1,4 @@
-package nz.co.activiti.tutorial.taskprocess.model
+package nz.co.activiti.tutorial.laptop.data
 
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString

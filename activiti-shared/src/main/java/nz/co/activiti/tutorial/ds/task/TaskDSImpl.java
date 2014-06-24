@@ -14,7 +14,6 @@ import nz.co.activiti.tutorial.ds.TaskAction;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.TaskService;
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.task.Comment;
 import org.activiti.engine.task.Event;
 import org.activiti.engine.task.IdentityLink;

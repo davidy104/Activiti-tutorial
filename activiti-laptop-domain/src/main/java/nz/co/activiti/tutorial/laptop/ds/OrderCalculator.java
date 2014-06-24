@@ -1,10 +1,10 @@
-package nz.co.activiti.tutorial.taskprocess.ds;
+package nz.co.activiti.tutorial.laptop.ds;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
-import nz.co.activiti.tutorial.taskprocess.model.LaptopModel;
-import nz.co.activiti.tutorial.taskprocess.model.OrderModel;
+import nz.co.activiti.tutorial.laptop.data.LaptopModel;
+import nz.co.activiti.tutorial.laptop.data.OrderModel;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
