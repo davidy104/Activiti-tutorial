@@ -4,7 +4,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackages = "nz.co.activiti.tutorial.rest")
+// @ComponentScan(basePackages = "nz.co.activiti.tutorial.rest")
 // @Import({ ActivitiContextConfiguration.class,
 // InfrastructureContextConfiguration.class })
 public class ApplicationContextConfiguration {
