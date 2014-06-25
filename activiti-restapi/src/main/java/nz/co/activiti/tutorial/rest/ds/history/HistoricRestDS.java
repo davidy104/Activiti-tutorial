@@ -49,8 +49,8 @@ public interface HistoricRestDS {
 	void deleteHistoricProcessInstanceComment(String processInstanceId,
 			String commentId) throws Exception;
 
-	HistoricTaskInstance getHistoricTaskInstance(String processInstanceId,
-			String taskId) throws Exception;
+	HistoricTaskInstance getHistoricTaskInstance(String taskId)
+			throws Exception;
 
 	GenericCollectionModel<HistoricTaskInstance> getHistoricTaskInstances(
 			Map<HistoricTaskInstanceQueryParameter, String> historicTaskInstanceQueryParameters,
