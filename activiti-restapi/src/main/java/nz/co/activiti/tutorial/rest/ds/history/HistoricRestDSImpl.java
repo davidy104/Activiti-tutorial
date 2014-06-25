@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
+import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GenericActivitiRestException;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
@@ -45,14 +46,40 @@ public class HistoricRestDSImpl extends ActivitiRestClientAccessor implements
 			Map<HistoricActivityInstanceQueryParameter, String> historicProcessInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
+
 		return null;
 	}
 
 	@Override
 	public HistoricProcessInstance getHistoricProcessInstanceById(
 			String processInstanceId) throws Exception {
+		LOGGER.info("getHistoricProcessInstanceById start:{}",
+				processInstanceId);
+		HistoricProcessInstance historicProcessInstance = null;
 
-		return null;
+		WebResource webResource = client.resource(baseUrl).path(
+				"/history/historic-process-instances/" + processInstanceId);
+
+		ClientResponse response = webResource.type(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode == ClientResponse.Status.OK) {
+			historicProcessInstance = historicJSONConverter
+					.toHistoricProcessInstance(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException(respStr);
+		} else {
+			throw new GenericActivitiRestException("Unknown exception:{}"
+					+ respStr);
+		}
+
+		LOGGER.info("getHistoricProcessInstanceById end:{}",
+				historicProcessInstance);
+		return historicProcessInstance;
 	}
 
 	@Override
@@ -108,20 +135,58 @@ public class HistoricRestDSImpl extends ActivitiRestClientAccessor implements
 	@Override
 	public void deleteHistoricProcessInstance(String processInstanceId)
 			throws Exception {
+		LOGGER.info("deleteHistoricProcessInstance start:{}", processInstanceId);
+		WebResource webResource = client.resource(baseUrl).path(
+				"/history/historic-process-instances/" + processInstanceId);
 
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.delete(ClientResponse.class);
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
+		if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException(respStr);
+		} else if (statusCode != ClientResponse.Status.OK) {
+			throw new Exception("Unknown exception:{}" + respStr);
+		}
 	}
 
 	@Override
 	public List<HistoricProcessIdentity> getHistoricProcessInstanceIdentities(
 			String processInstanceId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		LOGGER.info("getHistoricProcessInstanceIdentities start:{} ",
+				processInstanceId);
+		List<HistoricProcessIdentity> HistoricProcessIdentities = null;
+
+		WebResource webResource = client.resource(baseUrl).path(
+				"/history/historic-process-instances/" + processInstanceId
+						+ "/identitylinks");
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+		if (statusCode == ClientResponse.Status.OK) {
+			HistoricProcessIdentities = this.historicJSONConverter
+					.toHistoricProcessIdentities(respStr);
+		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
+			throw new NotFoundException(respStr);
+		} else {
+			throw new Exception("Unknown exception:{}" + respStr);
+		}
+		LOGGER.info("getHistoricProcessInstanceIdentities end:{} ");
+		return HistoricProcessIdentities;
 	}
 
 	@Override
 	public List<HistoricProcessInstanceComment> getHistoricProcessInstanceComments(
 			String processInstanceId) throws Exception {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 
@@ -158,20 +223,19 @@ public class HistoricRestDSImpl extends ActivitiRestClientAccessor implements
 			Map<HistoricTaskInstanceQueryParameter, String> historicTaskInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	@Override
 	public void deleteHistoricTaskInstance(String taskId) throws Exception {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public List<HistoricProcessIdentity> getHistoricTaskInstanceIdentities(
 			String taskId) throws Exception {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -180,7 +244,7 @@ public class HistoricRestDSImpl extends ActivitiRestClientAccessor implements
 			Map<HistoricVariableInstanceQueryParameter, String> historicTaskInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
