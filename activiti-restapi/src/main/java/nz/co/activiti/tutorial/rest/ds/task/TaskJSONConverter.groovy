@@ -1,5 +1,7 @@
 package nz.co.activiti.tutorial.rest.ds.task
 
+import java.text.SimpleDateFormat;
+
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
@@ -21,6 +23,8 @@ class TaskJSONConverter {
 
 	@Resource
 	GeneralModelJSONConverter generalModelJSONConverter
+
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 	String toUpdateTaskRequestJson(Task task)throws ConvertException{
 		def json = new JsonBuilder()
@@ -105,7 +109,7 @@ class TaskJSONConverter {
 		String id = (String) jsonResult.get("id");
 		String taskUrl = (String) jsonResult.get("taskUrl");
 
-		String time = (String) jsonResult.get("time");
+		def timeStr = jsonResult.get("time");
 		String userId = (String) jsonResult.get("userId");
 		String[] message = (String[]) jsonResult.get("message");
 
@@ -116,8 +120,11 @@ class TaskJSONConverter {
 				message:message,
 				action:action,
 				taskUrl:taskUrl,
-				time:time,
 				userId:userId)
+
+		if(timeStr){
+			taskEvent.time = sdf.parse(timeStr)
+		}
 
 		log.info "toTaskEvent end:{} $taskEvent"
 		return taskEvent
@@ -136,8 +143,12 @@ class TaskJSONConverter {
 					message:it.message,
 					action:it.action,
 					taskUrl:it.taskUrl,
-					time:it.time,
 					userId:it.userId)
+
+			if(it.time){
+				taskEvent.time = sdf.parse(it.time)
+			}
+
 			taskEvents.add(taskEvent)
 		}
 		log.info "toTaskEvents end:{} "
@@ -154,11 +165,11 @@ class TaskJSONConverter {
 		String id = (String) jsonResult.get("id");
 		String url = (String) jsonResult.get("url");
 		String assignee = (String) jsonResult.get("assignee");
-		String createTime = (String) jsonResult.get("createTime");
+		def createTimeStr = jsonResult.get("createTime");
 		String delegationState = (String) jsonResult.get("delegationState");
 		String description = (String)jsonResult.get("description")
 
-		String dueDate = (String)jsonResult.get("dueDate")
+		def dueDateStr = jsonResult.get("dueDate")
 		String execution = (String)jsonResult.get("execution")
 		String name = (String)jsonResult.get("name")
 		String owner = (String)jsonResult.get("owner")
@@ -176,10 +187,8 @@ class TaskJSONConverter {
 				id:id,
 				assignee:assignee,
 				delegationState:delegationState,
-				createTime:createTime,
 				suspended:suspended,
 				description:description,
-				dueDate:dueDate,
 				execution:execution,
 				name:name,
 				owner:owner,
@@ -190,6 +199,14 @@ class TaskJSONConverter {
 				taskDefinitionKey:taskDefinitionKey,
 				url:url,
 				tenantId:tenantId)
+
+		if(createTimeStr){
+			task.createTime = sdf.parse(createTimeStr)
+		}
+
+		if(dueDateStr){
+			task.dueDate = sdf.parse(dueDateStr)
+		}
 
 		log.info "toTask end:{} $task"
 		return task
@@ -224,10 +241,8 @@ class TaskJSONConverter {
 					id:it.id,
 					assignee:it.assignee,
 					delegationState:it.delegationState,
-					createTime:it.createTime,
 					suspended:it.suspended,
 					description:it.description,
-					dueDate:it.dueDate,
 					execution:it.execution,
 					name:it.name,
 					owner:it.owner,
@@ -238,6 +253,15 @@ class TaskJSONConverter {
 					taskDefinitionKey:it.taskDefinitionKey,
 					url:it.url,
 					tenantId:it.tenantId)
+
+			if(it.createTime){
+				task.createTime = sdf.parse(it.createTime)
+			}
+
+			if(it.dueDate){
+				task.dueDate = sdf.parse(it.dueDate)
+			}
+
 			tasks.addModel(task)
 		}
 		log.info "toTasks end:{}"

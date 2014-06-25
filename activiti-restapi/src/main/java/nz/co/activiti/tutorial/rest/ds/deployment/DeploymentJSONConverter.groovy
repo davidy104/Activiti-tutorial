@@ -1,5 +1,7 @@
 package nz.co.activiti.tutorial.rest.ds.deployment
 
+import java.text.SimpleDateFormat;
+
 import groovy.json.JsonSlurper
 import groovy.util.logging.Slf4j
 import nz.co.activiti.tutorial.ConvertException
@@ -13,28 +15,33 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DeploymentJSONConverter {
 
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+
 	Deployment toDeployment(String jsonText)  throws ConvertException{
-		log.info "toDeploymentResponse start:{} $jsonText"
+		log.info "toDeployment start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
 		Object result = jsonSlurper.parseText(jsonText);
 		Map jsonResult = (Map) result;
 		String id = (String) jsonResult.get("id");
 
 		String name = (String) jsonResult.get("name");
-		String deploymentTime = (String) jsonResult.get("deploymentTime");
+		String deploymentTimeJson = (String) jsonResult.get("deploymentTime");
 		String category = (String) jsonResult.get("category");
 		String url = (String) jsonResult.get("url");
 		String tenantId = (String) jsonResult.get("tenantId");
 
-		Deployment response = new Deployment(id:id,
+		Deployment deployment = new Deployment(id:id,
 		name:name,
-		deploymentTime:deploymentTime,
 		category:category,
 		url:url,
 		tenantId:tenantId)
 
-		log.info "after convert:{} $response"
-		return response
+		if(deploymentTimeJson){
+			deployment.deploymentTime = sdf.parse(deploymentTimeJson)
+		}
+
+		log.info "toDeployment end:{} $deployment"
+		return deployment
 	}
 
 	List<DeploymentResource> toDeploymentResources(String jsonText)  throws ConvertException{
@@ -105,10 +112,14 @@ class DeploymentJSONConverter {
 			println "single response:{} "+it
 			Deployment deployment = new Deployment(id:it.id,
 			name:it.name,
-			deploymentTime:it.deploymentTime,
 			category:it.category,
 			url:it.url,
 			tenantId:it.tenantId)
+
+			if(it.deploymentTime){
+				deployment.deploymentTime = sdf.parse(it.deploymentTime)
+			}
+
 			deployments.addModel(deployment)
 		}
 		log.info "after convert:{} $deployments"

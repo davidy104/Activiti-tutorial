@@ -1,7 +1,6 @@
 package nz.co.activiti.tutorial.taskprocess.rest;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.InputStream;
@@ -11,16 +10,17 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.laptop.data.OrderModel;
-import nz.co.activiti.tutorial.rest.ProcessDeploymentMetaDataTest;
 import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
 import nz.co.activiti.tutorial.rest.ds.group.GroupRestDS;
 import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
+import nz.co.activiti.tutorial.rest.ds.processinstance.ProcessInstanceRestDS;
 import nz.co.activiti.tutorial.rest.ds.user.UserRestDS;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
 import nz.co.activiti.tutorial.rest.model.group.Group;
 import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinitionQueryParameter;
+import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;
 import nz.co.activiti.tutorial.rest.model.user.User;
 import nz.co.activiti.tutorial.taskprocess.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
@@ -34,6 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.gson.Gson;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 public class LaptopOrderNormalProcessTest {
@@ -42,11 +44,13 @@ public class LaptopOrderNormalProcessTest {
 
 	private String processDefinitionId;
 
+	private String processInstanceId;
+
 	private String deployId;
 
-	private static final String USER1_ID = "gonzo";
-	private static final String USER2_ID = "kermit";
-	private static final String USER3_ID = "fozzie";
+	private static final String USER1_ID = "jordan";
+	private static final String USER2_ID = "mike";
+	private static final String USER3_ID = "john";
 	private static final String GROUP_ID = "orderAdmin";
 
 	private static final String TENANT_ID = "laptopOrderProcess999000";
@@ -68,13 +72,16 @@ public class LaptopOrderNormalProcessTest {
 	@Resource
 	private GroupRestDS groupRestDs;
 
+	@Resource
+	private ProcessInstanceRestDS processInstanceRestDs;
+
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
 
-		InputStream processStream = ProcessDeploymentMetaDataTest.class
+		InputStream processStream = LaptopOrderNormalProcessTest.class
 				.getClassLoader().getResourceAsStream(
-						"process/TasksTestProcess.bpmn20.xml");
+						"process/TasksTestProcess02.bpmn20.xml");
 
 		File processFile = File.createTempFile("TasksTestProcess",
 				".bpmn20.xml");
@@ -110,14 +117,36 @@ public class LaptopOrderNormalProcessTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
-
+		if (processInstanceId != null) {
+			processInstanceRestDs.deleteProcessInstance(processInstanceId);
+		}
 		deploymentRestDs.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
 	}
 
 	@Test
-	public void test() {
-		fail("Not yet implemented");
+	public void test() throws Exception {
+		ProcessInstance processInstance = this.startProcess();
+		LOGGER.info("get processInstance afterstart:{}", processInstance);
+		processInstanceId = processInstance.getId();
+		processInstanceRestDs.getLegacyProcessInstance(processInstanceId);
+
+	}
+
+	private ProcessInstance startProcess() throws Exception {
+		Map<String, Object> variableMap = new HashMap<String, Object>();
+		Gson gson = new Gson();
+		String orderJson = gson.toJson(order);
+		LOGGER.info("orderJson:{}", orderJson);
+		variableMap.put("order", orderJson);
+
+		ProcessInstance processInstance = processInstanceRestDs
+				.startProcessByProcessDefinitionId(processDefinitionId,
+						orderNo, variableMap);
+		assertNotNull(processInstance);
+		LOGGER.info("processInstance:{} ", processInstance);
+
+		return processInstance;
 	}
 
 	private void initialUsers() throws Exception {

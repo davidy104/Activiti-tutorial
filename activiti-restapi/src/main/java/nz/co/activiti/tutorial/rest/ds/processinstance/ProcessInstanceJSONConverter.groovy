@@ -86,7 +86,7 @@ class ProcessInstanceJSONConverter {
 		return processInstance
 	}
 
-	GenericCollectionModel<ProcessInstance> toProcessInstances(String jsonText){
+	GenericCollectionModel<ProcessInstance> toProcessInstances(String jsonText) {
 		log.info "toProcessInstances start:{} $jsonText"
 
 		JsonSlurper jsonSlurper = new JsonSlurper();

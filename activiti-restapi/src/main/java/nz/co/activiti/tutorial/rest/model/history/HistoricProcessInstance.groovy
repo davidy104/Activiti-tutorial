@@ -12,9 +12,9 @@ class HistoricProcessInstance implements Serializable{
 	String processDefinitionUrl
 
 	//format:"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-	String startTime
-	String endTime
-	Long durationInMillis
+	Date startTime
+	Date endTime
+	long durationInMillis
 	String startUserId
 	String startActivityId
 	String endActivityId

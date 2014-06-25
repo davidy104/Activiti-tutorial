@@ -8,7 +8,8 @@ import groovy.transform.ToString
 class Deployment implements Serializable {
 	String id
 	String name
-	String deploymentTime
+	//yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+	Date deploymentTime
 	String category
 	String url
 	String tenantId

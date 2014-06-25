@@ -123,6 +123,22 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 	}
 
 	@Override
+	public void getLegacyProcessInstance(String processInstanceId)
+			throws Exception {
+		WebResource webResource = client.resource(baseUrl).path(
+				"/process-instance/" + processInstanceId);
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON).get(ClientResponse.class);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+	}
+
+	@Override
 	public ProcessInstance getProcessInstance(String processInstanceId)
 			throws Exception {
 		LOGGER.info("getProcessInstance start:{} ", processInstanceId);
@@ -256,7 +272,7 @@ public class ProcessInstanceDSRestImpl extends ActivitiRestClientAccessor
 		LOGGER.info("getProcessInstances start:{}");
 		GenericCollectionModel<ProcessInstance> processInstances = null;
 		WebResource webResource = client.resource(baseUrl).path(
-				"/identity/groups");
+				"/runtime/process-instances");
 
 		if (processInstanceQueryParameters != null) {
 			for (Map.Entry<ProcessInstanceQueryParameter, String> entry : processInstanceQueryParameters

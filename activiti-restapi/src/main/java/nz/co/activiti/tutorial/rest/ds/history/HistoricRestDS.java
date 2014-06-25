@@ -2,12 +2,11 @@ package nz.co.activiti.tutorial.rest.ds.history;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
-import nz.co.activiti.tutorial.rest.model.history.HistoricDetail;
-import nz.co.activiti.tutorial.rest.model.history.HistoricDetailQueryParameter;
+import nz.co.activiti.tutorial.rest.model.history.HistoricActivityInstance;
+import nz.co.activiti.tutorial.rest.model.history.HistoricActivityInstanceQueryParameter;
 import nz.co.activiti.tutorial.rest.model.history.HistoricProcessIdentity;
 import nz.co.activiti.tutorial.rest.model.history.HistoricProcessInstance;
 import nz.co.activiti.tutorial.rest.model.history.HistoricProcessInstanceComment;
@@ -18,6 +17,11 @@ import nz.co.activiti.tutorial.rest.model.history.HistoricVariableInstance;
 import nz.co.activiti.tutorial.rest.model.history.HistoricVariableInstanceQueryParameter;
 
 public interface HistoricRestDS {
+
+	GenericCollectionModel<HistoricActivityInstance> getHistoricActivityInstances(
+			Map<HistoricActivityInstanceQueryParameter, String> historicProcessInstanceQueryParameters,
+			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
+			throws Exception;
 
 	HistoricProcessInstance getHistoricProcessInstanceById(
 			String processInstanceId) throws Exception;
@@ -30,7 +34,7 @@ public interface HistoricRestDS {
 	void deleteHistoricProcessInstance(String processInstanceId)
 			throws Exception;
 
-	Set<HistoricProcessIdentity> getHistoricProcessInstanceIdentities(
+	List<HistoricProcessIdentity> getHistoricProcessInstanceIdentities(
 			String processInstanceId) throws Exception;
 
 	List<HistoricProcessInstanceComment> getHistoricProcessInstanceComments(
@@ -55,16 +59,17 @@ public interface HistoricRestDS {
 
 	void deleteHistoricTaskInstance(String taskId) throws Exception;
 
-	Set<HistoricProcessIdentity> getHistoricTaskInstanceIdentities(String taskId)
-			throws Exception;
+	List<HistoricProcessIdentity> getHistoricTaskInstanceIdentities(
+			String taskId) throws Exception;
 
 	GenericCollectionModel<HistoricVariableInstance> getHistoricVariableInstances(
 			Map<HistoricVariableInstanceQueryParameter, String> historicTaskInstanceQueryParameters,
 			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
 			throws Exception;
 
-	GenericCollectionModel<HistoricDetail> getHistoricDetails(
-			Map<HistoricDetailQueryParameter, String> historicTaskInstanceQueryParameters,
-			Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
-			throws Exception;
+	// GenericCollectionModel<HistoricDetail> getHistoricDetails(
+	// Map<HistoricDetailQueryParameter, String>
+	// historicTaskInstanceQueryParameters,
+	// Map<PagingAndSortingParameter, String> pagingAndSortingParameters)
+	// throws Exception;
 }

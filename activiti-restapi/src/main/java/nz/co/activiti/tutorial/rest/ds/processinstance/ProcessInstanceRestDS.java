@@ -24,6 +24,9 @@ public interface ProcessInstanceRestDS {
 
 	ProcessInstance getProcessInstance(String processInstanceId)
 			throws Exception;
+	
+	void getLegacyProcessInstance(String processInstanceId)
+			throws Exception;
 
 	void deleteProcessInstance(String processInstanceId) throws Exception;
 

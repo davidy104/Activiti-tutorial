@@ -203,7 +203,7 @@ public class GroupRestDSImpl extends ActivitiRestClientAccessor implements
 		LOGGER.info("userId:{} ", userId);
 		MemberShip memberShip = null;
 		WebResource webResource = client.resource(baseUrl).path(
-				"/identity/groups" + groupId + "/members");
+				"/identity/groups/" + groupId + "/members");
 		String requestJson = "{\"userId\":\"" + userId + "\"}";
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)
@@ -233,7 +233,7 @@ public class GroupRestDSImpl extends ActivitiRestClientAccessor implements
 	public void deleteMemberFromGroup(String groupId, String userId)
 			throws Exception {
 		WebResource webResource = client.resource(baseUrl).path(
-				"/identity/groups" + groupId + "/members/" + userId);
+				"/identity/groups/" + groupId + "/members/" + userId);
 
 		ClientResponse response = webResource
 				.accept(MediaType.APPLICATION_JSON)

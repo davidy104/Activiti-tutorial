@@ -8,12 +8,12 @@ class Task implements Serializable {
 
 	String assignee
 	//format:yyyy-MM-dd'T'HH:mm:ss.SSSZ
-	String createTime
+	Date createTime
 	String delegationState
 	String description
 
 	//format:yyyy-MM-dd'T'HH:mm:ss.SSSZ
-	String dueDate
+	Date dueDate
 	String execution
 	String id
 	String name

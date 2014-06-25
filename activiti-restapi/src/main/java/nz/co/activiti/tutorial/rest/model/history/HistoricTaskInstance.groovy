@@ -6,7 +6,6 @@ import nz.co.activiti.tutorial.rest.model.Variable
 @ToString(includeNames = true, includeFields=true)
 @EqualsAndHashCode(includes=["id","name","processDefinitionId","processInstanceId","executionId","tenantId"])
 class HistoricTaskInstance implements Serializable {
-
 	String id
 	String processDefinitionId
 	String processDefinitionUrl
@@ -18,16 +17,17 @@ class HistoricTaskInstance implements Serializable {
 	String deleteReason
 	String owner
 	String assignee
-	String startTime
-	String endTime
-	String durationInMillis
-	String workTimeInMillis
+	//yyyy-MM-dd'T'HH:mm:ss.SSSZ
+	Date startTime
+	Date endTime
+	long durationInMillis
+	long workTimeInMillis
 
-	String claimTime
+	Date claimTime
 	String taskDefinitionKey
 	String formKey
 	Integer priority
-	String dueDate
+	Date dueDate
 	String parentTaskId
 	String url
 	String tenantId

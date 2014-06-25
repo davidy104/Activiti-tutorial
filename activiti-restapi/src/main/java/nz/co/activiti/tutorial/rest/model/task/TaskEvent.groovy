@@ -11,7 +11,7 @@ class TaskEvent implements Serializable {
 	String[] message
 	String taskUrl
 	//format:"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-	String time
+	Date time
 	String url
 	String userId
 
