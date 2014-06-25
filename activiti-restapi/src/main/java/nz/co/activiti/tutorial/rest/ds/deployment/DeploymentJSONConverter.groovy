@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component
 @Slf4j
 class DeploymentJSONConverter {
 
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
 	Deployment toDeployment(String jsonText)  throws ConvertException{
 		log.info "toDeployment start:{} $jsonText"

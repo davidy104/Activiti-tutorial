@@ -6,12 +6,12 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 
-import nz.co.activiti.tutorial.GenericActivitiRestException;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.VariableScope;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
 import nz.co.activiti.tutorial.rest.GeneralModelJSONConverter;
+import nz.co.activiti.tutorial.rest.GenericActivitiRestException;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.rest.model.Variable;

@@ -1,12 +1,16 @@
 package nz.co.activiti.tutorial.rest.config;
 
+import nz.co.activiti.tutorial.config.InfrastructureContextConfiguration;
+
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ImportResource;
 
 @Configuration
 @ComponentScan(basePackages = "nz.co.activiti.tutorial.rest")
-// @Import({ InfrastructureContextConfiguration.class })
-// @ImportResource({ "classpath:activitiAppContext.xml" })
+@Import({ InfrastructureContextConfiguration.class })
+@ImportResource({ "classpath:activitiAppContext.xml" })
 public class ApplicationContextConfiguration {
 
 	// please check ActivitiContextConfig xml file
