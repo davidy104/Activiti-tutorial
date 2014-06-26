@@ -44,20 +44,19 @@ class TaskJSONConverter {
 	String toTaskActionRequestJson(TaskActionRequest taskActionRequest)throws ConvertException{
 		def json = new JsonBuilder()
 		String variablesParam
-		if(taskActionRequest.variables){
-			variablesParam = generalModelJSONConverter.toVariablesJson(taskActionRequest.variables)
-		}
 
 		json{
 			action taskActionRequest.action.name()
 			if(taskActionRequest.assignee){
 				assignee taskActionRequest.assignee
 			}
-			if(variablesParam){
-				println "variablesParam:{} $variablesParam"
+			if(taskActionRequest.variables){
 				variables(
-						variablesParam.collect {key, val ->
-							[name:"${key}",value:"${val}"]
+						taskActionRequest.variables.collect { variable->
+							[
+								name:variable.name,
+								value:variable.value,
+							]
 						}
 						)
 			}

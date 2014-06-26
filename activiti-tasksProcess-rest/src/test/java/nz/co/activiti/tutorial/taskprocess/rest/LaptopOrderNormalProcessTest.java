@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,6 +17,7 @@ import javax.annotation.Resource;
 import nz.co.activiti.tutorial.laptop.data.OrderModel;
 import nz.co.activiti.tutorial.rest.ds.ActivitiRestFacade;
 import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
+import nz.co.activiti.tutorial.rest.ds.form.FormRestDS;
 import nz.co.activiti.tutorial.rest.ds.group.GroupRestDS;
 import nz.co.activiti.tutorial.rest.ds.history.HistoricRestDS;
 import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
@@ -22,7 +25,6 @@ import nz.co.activiti.tutorial.rest.ds.processinstance.ProcessInstanceRestDS;
 import nz.co.activiti.tutorial.rest.ds.task.TaskRestDS;
 import nz.co.activiti.tutorial.rest.ds.user.UserRestDS;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
-import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
 import nz.co.activiti.tutorial.rest.model.group.Group;
 import nz.co.activiti.tutorial.rest.model.history.HistoricActivityInstance;
@@ -91,7 +93,12 @@ public class LaptopOrderNormalProcessTest {
 	private TaskRestDS taskRestDs;
 
 	@Resource
+	private FormRestDS formRestDs;
+
+	@Resource
 	private ActivitiRestFacade activitiRestFacade;
+
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 	@Before
 	public void initialize() throws Exception {
@@ -99,7 +106,7 @@ public class LaptopOrderNormalProcessTest {
 
 		InputStream processStream = LaptopOrderNormalProcessTest.class
 				.getClassLoader().getResourceAsStream(
-						"process/TasksTestProcess02.bpmn20.xml");
+						"process/TasksTestProcess03.bpmn20.xml");
 
 		File processFile = File.createTempFile("TasksTestProcess",
 				".bpmn20.xml");
@@ -189,11 +196,21 @@ public class LaptopOrderNormalProcessTest {
 		assertEquals(taskSet.size(), 1);
 
 		// submit order info for data entry
-		TestUtils.submitOrderInfo(order);
-		LOGGER.info("after filling order info:{}", gson.toJson(order));
+//		Map<String, String> properties = new HashMap<String, String>();
+//		properties.put("orderNumber", order.getOrderNo());
+//		properties.put("shipAddress", "20 opal ave");
+//		properties.put("custName", "david");
+//		properties.put("orderTime", sdf.format(new Date()));
+//		properties.put("custEmail", "david.yuan@propellerhead.co.nz");
+//		formRestDs.submitTaskForm(taskId, properties);
+
 		variableMap = new HashMap<String, Object>();
-		variableMap.put("order", gson.toJson(order));
-		task = activitiRestFacade.completeTask(taskId, null);
+		variableMap.put("orderNumber", order.getOrderNo());
+		variableMap.put("shipAddress", "20 opal ave");
+		variableMap.put("custName", "david");
+		variableMap.put("orderTime", sdf.format(new Date()));
+		variableMap.put("custEmail", "david.yuan@propellerhead.co.nz");
+		task = activitiRestFacade.completeTask(taskId, variableMap);
 		LOGGER.info("after complete dataEntry task:{} ", task);
 		processInstanceId = task.getProcessInstance();
 		processInstance = processInstanceRestDs
