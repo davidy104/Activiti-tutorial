@@ -50,9 +50,16 @@ class TaskJSONConverter {
 
 		json{
 			action taskActionRequest.action.name()
-			assignee taskActionRequest.assignee
+			if(taskActionRequest.assignee){
+				assignee taskActionRequest.assignee
+			}
 			if(variablesParam){
-				variables variablesParam
+				println "variablesParam:{} $variablesParam"
+				variables(
+						variablesParam.collect {key, val ->
+							[name:"${key}",value:"${val}"]
+						}
+						)
 			}
 		}
 		return json.toString();

@@ -9,4 +9,11 @@ class TaskActionRequest  implements Serializable {
 	TaskAction action
 	String assignee
 	List<Variable> variables
+
+	void addVariable(Variable variable){
+		if(!variables){
+			variables = new ArrayList<Variable>()
+		}
+		variables << variable
+	}
 }

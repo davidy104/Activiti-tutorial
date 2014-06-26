@@ -64,9 +64,12 @@ class HistoricJSONConverter {
 					calledProcessInstanceId:it.calledProcessInstanceId,
 					taskId:it.taskId,
 					assignee:it.assignee,
-					durationInMillis:it.durationInMillis,
 					tenantId:it.tenantId
 					)
+
+			if(it.durationInMillis){
+				historicActivityInstance.durationInMillis = (Long)it.durationInMillis
+			}
 
 			if(it.startTime){
 				historicActivityInstance.startTime = sdf.parse(it.startTime)
@@ -94,7 +97,6 @@ class HistoricJSONConverter {
 		String processDefinitionId = (String) jsonResult.get("processDefinitionId")
 		String startTimeJson = (String) jsonResult.get("startTime")
 		String endTimeJson = (String) jsonResult.get("endTime")
-		long durationInMillis = (Long)jsonResult.get("durationInMillis")
 		String startUserId = (String) jsonResult.get("startUserId")
 		String startActivityId = (String) jsonResult.get("startActivityId")
 		String endActivityId = (String) jsonResult.get("endActivityId")
@@ -114,7 +116,6 @@ class HistoricJSONConverter {
 				processDefinitionUrl:processDefinitionUrl,
 				businessKey:businessKey,
 				processDefinitionId:processDefinitionId,
-				durationInMillis:durationInMillis,
 				startUserId:startUserId,
 				startActivityId:startActivityId,
 				endActivityId:endActivityId,
@@ -124,6 +125,10 @@ class HistoricJSONConverter {
 				tenantId:tenantId)
 
 		historicProcessInstance.variables = variables
+
+		if(jsonResult.get("durationInMillis")){
+			historicProcessInstance.durationInMillis = (Long)jsonResult.get("durationInMillis")
+		}
 
 		if(startTimeJson){
 			historicProcessInstance.startTime = sdf.parse(startTimeJson)
@@ -166,7 +171,6 @@ class HistoricJSONConverter {
 					processDefinitionUrl:it.processDefinitionUrl,
 					businessKey:it.businessKey,
 					processDefinitionId:it.processDefinitionId,
-					durationInMillis:it.durationInMillis,
 					startUserId:it.startUserId,
 					startActivityId:it.startActivityId,
 					endActivityId:it.endActivityId,
@@ -174,6 +178,10 @@ class HistoricJSONConverter {
 					superProcessInstanceId:it.superProcessInstanceId,
 					url:it.url,
 					tenantId:it.tenantId)
+
+			if(it.durationInMillis){
+				historicProcessInstance.durationInMillis = (Long)it.durationInMillis
+			}
 
 			if(it.startTime){
 				historicProcessInstance.startTime = sdf.parse(it.startTime)
@@ -372,13 +380,19 @@ class HistoricJSONConverter {
 					deleteReason:it.deleteReason,
 					owner:it.owner,
 					assignee:it.assignee,
-					durationInMillis:it.durationInMillis,
-					workTimeInMillis:it.workTimeInMillis,
 					taskDefinitionKey:it.taskDefinitionKey,
 					formKey:it.formKey,
 					priority:it.priority,
 					parentTaskId:it.parentTaskId,
 					tenantId:it.tenantId)
+
+			if(it.durationInMillis){
+				historicTaskInstance.durationInMillis = (Long)it.durationInMillis
+			}
+
+			if(it.workTimeInMillis){
+				historicTaskInstance.workTimeInMillis = (Long)it.workTimeInMillis
+			}
 
 			if(it.variables){
 				historicTaskInstance.variables = generalModelJSONConverter.toVariables(it.variables)
@@ -436,8 +450,15 @@ class HistoricJSONConverter {
 					processInstanceUrl:it.processInstanceUrl,
 					taskId:it.taskId)
 
-			if(it.variables){
-				historicVariableInstance.variables = generalModelJSONConverter.toVariables(it.variables)
+			if(it.variable){
+				println "variable name json:{} $it.variable.name"
+				Variable variable = new Variable(
+						name:it.variable.name,
+						scope:it.variable.scope,
+						value:it.variable.value,
+						type:it.variable.type
+						)
+				historicVariableInstance.addVariable(variable)
 			}
 
 			historicVariableInstances.addModel(historicVariableInstance)

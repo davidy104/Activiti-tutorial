@@ -13,4 +13,11 @@ class HistoricVariableInstance {
 	String processInstanceUrl
 	String taskId
 	List<Variable> variables
+
+	void addVariable(Variable variable){
+		if(!variables){
+			variables = new ArrayList<Variable>()
+		}
+		variables << variable
+	}
 }

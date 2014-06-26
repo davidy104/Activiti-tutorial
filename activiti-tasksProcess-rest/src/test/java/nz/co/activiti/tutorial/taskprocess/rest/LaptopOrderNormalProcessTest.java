@@ -1,26 +1,35 @@
 package nz.co.activiti.tutorial.taskprocess.rest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
 import nz.co.activiti.tutorial.laptop.data.OrderModel;
+import nz.co.activiti.tutorial.rest.ds.ActivitiRestFacade;
 import nz.co.activiti.tutorial.rest.ds.deployment.DeploymentRestDS;
 import nz.co.activiti.tutorial.rest.ds.group.GroupRestDS;
+import nz.co.activiti.tutorial.rest.ds.history.HistoricRestDS;
 import nz.co.activiti.tutorial.rest.ds.processdefinition.ProcessDefinitionRestDS;
 import nz.co.activiti.tutorial.rest.ds.processinstance.ProcessInstanceRestDS;
+import nz.co.activiti.tutorial.rest.ds.task.TaskRestDS;
 import nz.co.activiti.tutorial.rest.ds.user.UserRestDS;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
+import nz.co.activiti.tutorial.rest.model.PagingAndSortingParameter;
 import nz.co.activiti.tutorial.rest.model.deployment.Deployment;
 import nz.co.activiti.tutorial.rest.model.group.Group;
+import nz.co.activiti.tutorial.rest.model.history.HistoricActivityInstance;
 import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinition;
 import nz.co.activiti.tutorial.rest.model.processdefinition.ProcessDefinitionQueryParameter;
 import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;
+import nz.co.activiti.tutorial.rest.model.task.Task;
 import nz.co.activiti.tutorial.rest.model.user.User;
 import nz.co.activiti.tutorial.taskprocess.rest.config.ApplicationContextConfiguration;
 import nz.co.activiti.tutorial.utils.GeneralUtils;
@@ -75,6 +84,15 @@ public class LaptopOrderNormalProcessTest {
 	@Resource
 	private ProcessInstanceRestDS processInstanceRestDs;
 
+	@Resource
+	private HistoricRestDS historicRestDs;
+
+	@Resource
+	private TaskRestDS taskRestDs;
+
+	@Resource
+	private ActivitiRestFacade activitiRestFacade;
+
 	@Before
 	public void initialize() throws Exception {
 		LOGGER.info("initialize start:{}");
@@ -117,8 +135,10 @@ public class LaptopOrderNormalProcessTest {
 	public void clean() throws Exception {
 		LOGGER.info("undeploy process start:{}");
 		removeUsers();
+
 		if (processInstanceId != null) {
 			processInstanceRestDs.deleteProcessInstance(processInstanceId);
+			historicRestDs.deleteHistoricProcessInstance(processInstanceId);
 		}
 		deploymentRestDs.undeployment(deployId);
 		LOGGER.info("undeploy process end:{}");
@@ -126,10 +146,59 @@ public class LaptopOrderNormalProcessTest {
 
 	@Test
 	public void test() throws Exception {
+		String taskId = null;
+		OrderModel order = null;
+		Set<Task> taskSet = null;
+		Task task = null;
+		Map<String, Object> variableMap = null;
+		Gson gson = new Gson();
+
 		ProcessInstance processInstance = this.startProcess();
 		LOGGER.info("get processInstance afterstart:{}", processInstance);
 		processInstanceId = processInstance.getId();
-		processInstanceRestDs.getLegacyProcessInstance(processInstanceId);
+
+		String activityId = processInstance.getActivityId();
+		LOGGER.info("activityId:{} ", activityId);
+
+		HistoricActivityInstance historicActivityInstance = activitiRestFacade
+				.getHistoricActivityInstance(activityId, processInstanceId);
+		LOGGER.info("historicActivityInstance:{} ", historicActivityInstance);
+
+		String orderJson = activitiRestFacade.getLatestUpdatedHistoricVariable(
+				processInstanceId, "order");
+		assertNotNull(orderJson);
+		LOGGER.info("orderJson:{} ", orderJson);
+
+		order = gson.fromJson(orderJson, OrderModel.class);
+		LOGGER.info("get order from processInstance:{} ", order);
+
+		if (historicActivityInstance.getActivityType().equals("userTask")) {
+			taskId = historicActivityInstance.getTaskId();
+		}
+
+		task = taskRestDs.getTaskById(taskId);
+		assertNotNull(task);
+		assertEquals(task.getAssignee(), USER1_ID);
+		LOGGER.info("activie task:{} ", task);
+
+		assertFalse(activitiRestFacade.isProcessFinished(orderNo,
+				processInstanceId));
+
+		taskSet = activitiRestFacade.getTasksForUser(USER1_ID);
+		assertNotNull(taskSet);
+		assertEquals(taskSet.size(), 1);
+
+		// submit order info for data entry
+		TestUtils.submitOrderInfo(order);
+		LOGGER.info("after filling order info:{}", gson.toJson(order));
+		variableMap = new HashMap<String, Object>();
+		variableMap.put("order", gson.toJson(order));
+		task = activitiRestFacade.completeTask(taskId, null);
+		LOGGER.info("after complete dataEntry task:{} ", task);
+		processInstanceId = task.getProcessInstance();
+		processInstance = processInstanceRestDs
+				.getProcessInstance(processInstanceId);
+		LOGGER.info("processInstance:{} ", processInstance);
 
 	}
 

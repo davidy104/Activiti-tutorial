@@ -17,8 +17,8 @@ enum TaskQueryParameter {
 	unassigned,
 	delegationState,
 
-	candiUser,
-	candiGroup,
+	candidateUser,
+	candidateGroup,
 
 	involvedUser,
 	taskDefinitionKey,

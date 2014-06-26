@@ -24,7 +24,6 @@ class ProcessInstanceJSONConverter {
 				businessKey "${businessKeyParam}"
 			}
 			if(variablesParam){
-
 				variables(
 						variablesParam.collect {key, val ->
 							[name:"${key}",value:"${val}"]
