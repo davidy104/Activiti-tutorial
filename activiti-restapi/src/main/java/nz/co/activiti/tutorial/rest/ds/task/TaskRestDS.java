@@ -6,6 +6,7 @@ import java.util.Set;
 
 import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.ds.IdentityType;
+import nz.co.activiti.tutorial.ds.TaskAction;
 import nz.co.activiti.tutorial.ds.VariableScope;
 import nz.co.activiti.tutorial.rest.model.GenericCollectionModel;
 import nz.co.activiti.tutorial.rest.model.Identity;
@@ -75,5 +76,8 @@ public interface TaskRestDS {
 	List<TaskEvent> getAllEventsOnTask(String taskId) throws Exception;
 
 	TaskEvent getEventOnTask(String taskId, String eventId) throws Exception;
+
+	void actionOnTask(String taskId,TaskAction taskAction, Map<String, Object> variables)
+			throws Exception;
 
 }

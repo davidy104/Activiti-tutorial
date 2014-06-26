@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 import nz.co.activiti.tutorial.NotFoundException;
 import nz.co.activiti.tutorial.ds.Family;
 import nz.co.activiti.tutorial.ds.IdentityType;
+import nz.co.activiti.tutorial.ds.TaskAction;
 import nz.co.activiti.tutorial.ds.VariableScope;
 import nz.co.activiti.tutorial.rest.ActionType;
 import nz.co.activiti.tutorial.rest.ActivitiRestClientAccessor;
@@ -733,6 +734,32 @@ public class TaskRestDSImpl extends ActivitiRestClientAccessor implements
 
 		LOGGER.info("getEventOnTask end:{} ", taskEvent);
 		return taskEvent;
+	}
+
+	@Override
+	public void actionOnTask(String taskId, TaskAction taskAction,
+			Map<String, Object> variables) throws Exception {
+		LOGGER.info("actionOnTask start:{} ", taskId);
+
+		WebResource webResource = client.resource(baseUrl).path(
+				"/task/" + taskId + "/" + taskAction.name());
+		String requestJson = null;
+
+		if (variables != null) {
+			requestJson = this.taskJSONConverter.toTaskVariablesJson(variables);
+		}
+		LOGGER.info("requestJson:{} ", requestJson);
+
+		ClientResponse response = webResource
+				.accept(MediaType.APPLICATION_JSON)
+				.type(MediaType.APPLICATION_JSON)
+				.put(ClientResponse.class, requestJson);
+
+		Status statusCode = response.getClientResponseStatus();
+		LOGGER.info("statusCode:{} ", statusCode);
+		String respStr = getResponsePayload(response);
+		LOGGER.info("respStr:{} ", respStr);
+
 	}
 
 }

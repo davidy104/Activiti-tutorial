@@ -143,7 +143,23 @@
 			</exclusions>
 		</dependency>
 
-	</dependencies>
 
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+
+		<!-- Restlet for Java Standard Edition <dependency> <groupId>org.restlet.jse</groupId> 
+			<artifactId>org.restlet</artifactId> <version>2.1.2</version> </dependency> -->
+		<!-- "HTTP engine capable of handling enormous loads" <dependency> <groupId>org.restlet.jse</groupId> 
+			<artifactId>org.restlet.ext.simple</artifactId> <version>2.1.2</version> 
+			</dependency> -->
+
+
+	</dependencies>
+	<!-- <repositories> <repository> <id>maven-restlet</id> <name>Public online 
+		Restlet repository</name> <url>http://maven.restlet.org</url> </repository> 
+		</repositories> -->
 
 </project>

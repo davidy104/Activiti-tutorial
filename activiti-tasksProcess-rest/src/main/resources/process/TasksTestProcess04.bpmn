@@ -5,22 +5,14 @@
     <userTask id="orderDataEntryTask" name="Order Data Entry" activiti:assignee="jordan"></userTask>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="orderDataEntryTask"></sequenceFlow>
-    <scriptTask id="calculation" name="Calculation" scriptFormat="groovy" activiti:autoStoreVariables="true">
-      <script>out:println "start calculate: " + order;
-order.setTotalPrice(new BigDecimal(5001.00));
-execution.setVariable("order", order);
-out:println "after calculation: " + order;	
-			</script>
-    </scriptTask>
     <scriptTask id="scripttask2" name="Notificaton" scriptFormat="groovy" activiti:autoStoreVariables="true">
       <script>out:println "\n === Notification for the order request ==="
 			</script>
     </scriptTask>
     <sequenceFlow id="flow14" sourceRef="scripttask2" targetRef="endevent1"></sequenceFlow>
-    <sequenceFlow id="flow16" sourceRef="orderDataEntryTask" targetRef="calculation"></sequenceFlow>
     <receiveTask id="receivetask1" name="Decision Task"></receiveTask>
     <sequenceFlow id="flow18" sourceRef="receivetask1" targetRef="scripttask2"></sequenceFlow>
-    <sequenceFlow id="flow19" sourceRef="calculation" targetRef="receivetask1"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="orderDataEntryTask" targetRef="receivetask1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_orderTaskProcess">
     <bpmndi:BPMNPlane bpmnElement="orderTaskProcess" id="BPMNPlane_orderTaskProcess">
@@ -32,9 +24,6 @@ out:println "after calculation: " + order;
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="660.0" y="130.0"></omgdc:Bounds>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="calculation" id="BPMNShape_calculation">
-        <omgdc:Bounds height="55.0" width="105.0" x="155.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
         <omgdc:Bounds height="55.0" width="105.0" x="490.0" y="120.0"></omgdc:Bounds>
@@ -50,16 +39,12 @@ out:println "after calculation: " + order;
         <omgdi:waypoint x="595.0" y="147.0"></omgdi:waypoint>
         <omgdi:waypoint x="660.0" y="147.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="125.0" y="147.0"></omgdi:waypoint>
-        <omgdi:waypoint x="155.0" y="147.0"></omgdi:waypoint>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
         <omgdi:waypoint x="445.0" y="147.0"></omgdi:waypoint>
         <omgdi:waypoint x="490.0" y="147.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
-        <omgdi:waypoint x="260.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="125.0" y="147.0"></omgdi:waypoint>
         <omgdi:waypoint x="340.0" y="147.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

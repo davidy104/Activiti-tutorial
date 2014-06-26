@@ -243,6 +243,7 @@ public class ActivitiRestFacade {
 		LOGGER.info("completeTask start:{} ", taskId);
 		Task completedTask = null;
 		TaskActionRequest taskActionRequest = new TaskActionRequest();
+
 		if (variables != null) {
 			for (Map.Entry<String, Object> entry : variables.entrySet()) {
 				Variable variable = new Variable();
@@ -258,4 +259,16 @@ public class ActivitiRestFacade {
 		LOGGER.info("completeTask end:{} ", completedTask);
 		return completedTask;
 	}
+
+	public Task claimTask(String taskId, String assignee) throws Exception {
+		LOGGER.info("claimTask start:{} ", taskId);
+		Task claimedTask = null;
+		TaskActionRequest taskActionRequest = new TaskActionRequest();
+		taskActionRequest.setAssignee(assignee);
+		taskActionRequest.setAction(TaskAction.claim);
+		claimedTask = this.taskRestDs.actionOnTask(taskId, taskActionRequest);
+		LOGGER.info("claimTask end:{} ", claimedTask);
+		return claimedTask;
+	}
+
 }

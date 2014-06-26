@@ -64,6 +64,19 @@ class TaskJSONConverter {
 		return json.toString();
 	}
 
+	String toTaskVariablesJson(Map variableMap)throws ConvertException{
+		def json = new JsonBuilder()
+		json{
+			variableMap.each{ k, v ->
+				println "${k}:${v}"
+				k v
+			}
+		}
+	}
+
+
+
+
 	TaskComment toTaskComment(String jsonText)throws ConvertException{
 		log.info "toTaskComment start:{} $jsonText"
 		JsonSlurper jsonSlurper = new JsonSlurper();
@@ -164,54 +177,57 @@ class TaskJSONConverter {
 
 	Task toTask(String jsonText)throws ConvertException{
 		log.info "toTask start:{} $jsonText"
-		JsonSlurper jsonSlurper = new JsonSlurper();
-		Object result = jsonSlurper.parseText(jsonText);
+		Task task = null
+		if(jsonText){
+			JsonSlurper jsonSlurper = new JsonSlurper();
+			Object result = jsonSlurper.parseText(jsonText);
 
-		Map jsonResult = (Map) result;
-		String id = (String) jsonResult.get("id");
-		String url = (String) jsonResult.get("url");
-		String assignee = (String) jsonResult.get("assignee");
-		def createTimeStr = jsonResult.get("createTime");
-		String delegationState = (String) jsonResult.get("delegationState");
-		String description = (String)jsonResult.get("description")
+			Map jsonResult = (Map) result;
+			String id = (String) jsonResult.get("id");
+			String url = (String) jsonResult.get("url");
+			String assignee = (String) jsonResult.get("assignee");
+			def createTimeStr = jsonResult.get("createTime");
+			String delegationState = (String) jsonResult.get("delegationState");
+			String description = (String)jsonResult.get("description")
 
-		def dueDateStr = jsonResult.get("dueDate")
-		String execution = (String)jsonResult.get("execution")
-		String name = (String)jsonResult.get("name")
-		String owner = (String)jsonResult.get("owner")
+			def dueDateStr = jsonResult.get("dueDate")
+			String execution = (String)jsonResult.get("execution")
+			String name = (String)jsonResult.get("name")
+			String owner = (String)jsonResult.get("owner")
 
-		String parentTask = (String)jsonResult.get("parentTask")
-		Integer priority = (Integer)jsonResult.get("priority")
-		String processDefinition = (String)jsonResult.get("processDefinition")
-		String processInstance = (String)jsonResult.get("processInstance")
+			String parentTask = (String)jsonResult.get("parentTask")
+			Integer priority = (Integer)jsonResult.get("priority")
+			String processDefinition = (String)jsonResult.get("processDefinition")
+			String processInstance = (String)jsonResult.get("processInstance")
 
-		boolean suspended = (Boolean)jsonResult.get("suspended")
-		String taskDefinitionKey = (String)jsonResult.get("taskDefinitionKey")
-		String tenantId = (String) jsonResult.get("tenantId");
+			boolean suspended = (Boolean)jsonResult.get("suspended")
+			String taskDefinitionKey = (String)jsonResult.get("taskDefinitionKey")
+			String tenantId = (String) jsonResult.get("tenantId");
 
-		Task task = new Task(
-				id:id,
-				assignee:assignee,
-				delegationState:delegationState,
-				suspended:suspended,
-				description:description,
-				execution:execution,
-				name:name,
-				owner:owner,
-				parentTask:parentTask,
-				priority:priority,
-				processDefinition:processDefinition,
-				processInstance:processInstance,
-				taskDefinitionKey:taskDefinitionKey,
-				url:url,
-				tenantId:tenantId)
+			task = new Task(
+					id:id,
+					assignee:assignee,
+					delegationState:delegationState,
+					suspended:suspended,
+					description:description,
+					execution:execution,
+					name:name,
+					owner:owner,
+					parentTask:parentTask,
+					priority:priority,
+					processDefinition:processDefinition,
+					processInstance:processInstance,
+					taskDefinitionKey:taskDefinitionKey,
+					url:url,
+					tenantId:tenantId)
 
-		if(createTimeStr){
-			task.createTime = sdf.parse(createTimeStr)
-		}
+			if(createTimeStr){
+				task.createTime = sdf.parse(createTimeStr)
+			}
 
-		if(dueDateStr){
-			task.dueDate = sdf.parse(dueDateStr)
+			if(dueDateStr){
+				task.dueDate = sdf.parse(dueDateStr)
+			}
 		}
 
 		log.info "toTask end:{} $task"

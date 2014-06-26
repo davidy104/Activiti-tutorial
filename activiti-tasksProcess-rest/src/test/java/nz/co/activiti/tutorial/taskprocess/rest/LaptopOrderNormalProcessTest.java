@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -106,7 +105,7 @@ public class LaptopOrderNormalProcessTest {
 
 		InputStream processStream = LaptopOrderNormalProcessTest.class
 				.getClassLoader().getResourceAsStream(
-						"process/TasksTestProcess03.bpmn20.xml");
+						"process/TasksTestProcess04.bpmn20.xml");
 
 		File processFile = File.createTempFile("TasksTestProcess",
 				".bpmn20.xml");
@@ -154,7 +153,6 @@ public class LaptopOrderNormalProcessTest {
 	@Test
 	public void test() throws Exception {
 		String taskId = null;
-		OrderModel order = null;
 		Set<Task> taskSet = null;
 		Task task = null;
 		Map<String, Object> variableMap = null;
@@ -181,6 +179,7 @@ public class LaptopOrderNormalProcessTest {
 
 		if (historicActivityInstance.getActivityType().equals("userTask")) {
 			taskId = historicActivityInstance.getTaskId();
+			LOGGER.info("taskId:{} ",taskId);
 		}
 
 		task = taskRestDs.getTaskById(taskId);
@@ -196,26 +195,19 @@ public class LaptopOrderNormalProcessTest {
 		assertEquals(taskSet.size(), 1);
 
 		// submit order info for data entry
-//		Map<String, String> properties = new HashMap<String, String>();
-//		properties.put("orderNumber", order.getOrderNo());
-//		properties.put("shipAddress", "20 opal ave");
-//		properties.put("custName", "david");
-//		properties.put("orderTime", sdf.format(new Date()));
-//		properties.put("custEmail", "david.yuan@propellerhead.co.nz");
-//		formRestDs.submitTaskForm(taskId, properties);
+//		TestUtils.submitOrderInfo(order);
+//
+//		variableMap = new HashMap<String, Object>();
+//		variableMap.put("order", gson.toJson(order));
 
-		variableMap = new HashMap<String, Object>();
-		variableMap.put("orderNumber", order.getOrderNo());
-		variableMap.put("shipAddress", "20 opal ave");
-		variableMap.put("custName", "david");
-		variableMap.put("orderTime", sdf.format(new Date()));
-		variableMap.put("custEmail", "david.yuan@propellerhead.co.nz");
-		task = activitiRestFacade.completeTask(taskId, variableMap);
-		LOGGER.info("after complete dataEntry task:{} ", task);
-		processInstanceId = task.getProcessInstance();
-		processInstance = processInstanceRestDs
-				.getProcessInstance(processInstanceId);
-		LOGGER.info("processInstance:{} ", processInstance);
+		 task = activitiRestFacade.completeTask(taskId, null);
+		 LOGGER.info("after complete dataEntry task:{} ", task);
+		 processInstanceId = task.getProcessInstance();
+		 processInstance = processInstanceRestDs
+		 .getProcessInstance(processInstanceId);
+		 LOGGER.info("processInstance:{} ", processInstance);
+
+//		RestletSupport.completeTask(taskId);
 
 	}
 

@@ -34,7 +34,6 @@ import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.IdentityLink;
 import org.activiti.engine.task.Task;
-import org.activiti.engine.task.TaskQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,31 +229,6 @@ public class ActivitiFacade {
 			}
 		}
 		return identityList;
-	}
-
-	/**
-	 * Get All tasks for the given User (including candiates tasks) activiti
-	 * needs workaround for taskCandidateOrAssigned
-	 * 
-	 * @param userId
-	 * @param firstResult
-	 * @param maxResults
-	 * @return
-	 */
-	public List<Task> getPaginatedTasksForUser(String userId,
-			Integer firstResult, Integer maxResults) {
-		LOGGER.info("getAllTasksForUser start:{} ", userId);
-		List<Task> tasks = null;
-		TaskQuery taskQuery = taskService.createTaskQuery()
-				.taskCandidateOrAssigned(userId).orderByTaskCreateTime().asc();
-
-		if (firstResult != null && maxResults != null) {
-			tasks = taskQuery.listPage(firstResult, maxResults);
-		} else {
-			tasks = taskQuery.list();
-		}
-		LOGGER.info("getAllTasksForUser end:{} ");
-		return tasks;
 	}
 
 	/**

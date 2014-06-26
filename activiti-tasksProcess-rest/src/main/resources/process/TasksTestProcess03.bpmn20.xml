@@ -1,24 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
   <process id="orderTaskProcess" name="Order Task Process" isExecutable="true">
-    <startEvent id="startevent1" name="Start">
-      <extensionElements>
-        <activiti:formProperty id="orderNo" name="Order Number" type="string" expression="${order.orderNo}" writable="false" required="true"></activiti:formProperty>
-      </extensionElements>
-    </startEvent>
-    <userTask id="orderDataEntryTask" name="Order Data Entry" activiti:assignee="jordan">
-      <extensionElements>
-        <activiti:formProperty id="orderNumber" name="Order Number" type="string" required="true"></activiti:formProperty>
-        <activiti:formProperty id="shipAddress" name="Ship Address" type="string" variable="address" required="true"></activiti:formProperty>
-        <activiti:formProperty id="orderTime" name="Order Time" type="date" variable="orderTime" datePattern="yyyy-MM-dd hh:mm:ss" required="true"></activiti:formProperty>
-        <activiti:formProperty id="custName" name="Customer Name" type="string" variable="customerName" required="true"></activiti:formProperty>
-        <activiti:formProperty id="custEmail" name="CustomerEmail" type="string" variable="customerEmail" required="true"></activiti:formProperty>
-      </extensionElements>
-    </userTask>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="orderDataEntryTask" name="Order Data Entry" activiti:assignee="jordan"></userTask>
     <endEvent id="endevent1" name="End"></endEvent>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="orderDataEntryTask"></sequenceFlow>
     <scriptTask id="calculation" name="Calculation" scriptFormat="groovy" activiti:autoStoreVariables="true">
-      <script>out:println "address:=========== " + address;
+      <script>out:println "start calculate: " + order;
+order.setTotalPrice(new BigDecimal(5001.00));
+execution.setVariable("order", order);
+out:println "after calculation: " + order;	
 			</script>
     </scriptTask>
     <scriptTask id="scripttask2" name="Notificaton" scriptFormat="groovy" activiti:autoStoreVariables="true">
