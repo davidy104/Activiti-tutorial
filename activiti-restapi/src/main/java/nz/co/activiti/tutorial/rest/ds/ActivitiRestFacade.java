@@ -2,6 +2,7 @@ package nz.co.activiti.tutorial.rest.ds;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,10 +26,13 @@ import nz.co.activiti.tutorial.rest.model.history.HistoricProcessInstance;
 import nz.co.activiti.tutorial.rest.model.history.HistoricProcessInstanceQueryParameter;
 import nz.co.activiti.tutorial.rest.model.history.HistoricVariableInstance;
 import nz.co.activiti.tutorial.rest.model.history.HistoricVariableInstanceQueryParameter;
+import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstance;
+import nz.co.activiti.tutorial.rest.model.processinstance.ProcessInstanceQueryParameter;
 import nz.co.activiti.tutorial.rest.model.task.Task;
 import nz.co.activiti.tutorial.rest.model.task.TaskActionRequest;
 import nz.co.activiti.tutorial.rest.model.task.TaskQueryParameter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -127,9 +131,12 @@ public class ActivitiRestFacade {
 		Map<HistoricProcessInstanceQueryParameter, String> historicProcessInstanceQueryParameters = new HashMap<HistoricProcessInstanceQueryParameter, String>();
 		historicProcessInstanceQueryParameters.put(
 				HistoricProcessInstanceQueryParameter.businessKey, businessKey);
-		historicProcessInstanceQueryParameters.put(
-				HistoricProcessInstanceQueryParameter.processInstanceId,
-				processInstanceId);
+		if (!StringUtils.isEmpty(processInstanceId)) {
+			historicProcessInstanceQueryParameters.put(
+					HistoricProcessInstanceQueryParameter.processInstanceId,
+					processInstanceId);
+		}
+
 		GenericCollectionModel<HistoricProcessInstance> historicProcessInstances = historicRestDs
 				.getHistoricProcessInstances(
 						historicProcessInstanceQueryParameters, null);
@@ -238,10 +245,9 @@ public class ActivitiRestFacade {
 	 * @return
 	 * @throws Exception
 	 */
-	public Task completeTask(String taskId, Map<String, Object> variables)
+	public void completeTask(String taskId, Map<String, Object> variables)
 			throws Exception {
 		LOGGER.info("completeTask start:{} ", taskId);
-		Task completedTask = null;
 		TaskActionRequest taskActionRequest = new TaskActionRequest();
 
 		if (variables != null) {
@@ -255,20 +261,50 @@ public class ActivitiRestFacade {
 		}
 
 		taskActionRequest.setAction(TaskAction.complete);
-		completedTask = this.taskRestDs.actionOnTask(taskId, taskActionRequest);
-		LOGGER.info("completeTask end:{} ", completedTask);
-		return completedTask;
+		this.taskRestDs.actionOnTask(taskId, taskActionRequest);
+
+		LOGGER.info("completeTask end:{} ");
 	}
 
-	public Task claimTask(String taskId, String assignee) throws Exception {
+	/**
+	 * 
+	 * @param taskId
+	 * @param assignee
+	 * @throws Exception
+	 */
+	public void claimTask(String taskId, String assignee) throws Exception {
 		LOGGER.info("claimTask start:{} ", taskId);
-		Task claimedTask = null;
 		TaskActionRequest taskActionRequest = new TaskActionRequest();
 		taskActionRequest.setAssignee(assignee);
 		taskActionRequest.setAction(TaskAction.claim);
-		claimedTask = this.taskRestDs.actionOnTask(taskId, taskActionRequest);
-		LOGGER.info("claimTask end:{} ", claimedTask);
-		return claimedTask;
+		this.taskRestDs.actionOnTask(taskId, taskActionRequest);
+		LOGGER.info("claimTask end:{} ");
 	}
 
+	// -----------------ProcessInstance-----------------------
+	/**
+	 * 
+	 * @param businessKey
+	 * @return
+	 * @throws Exception
+	 */
+	public ProcessInstance getProcessInstanceByBusinessKey(String businessKey)
+			throws Exception {
+		Map<ProcessInstanceQueryParameter, String> processInstanceQueryParameters = null;
+		Map<PagingAndSortingParameter, String> pagingAndSortingParameters = null;
+
+		GenericCollectionModel<ProcessInstance> processInstances = processInstanceRestDs
+				.getProcessInstances(processInstanceQueryParameters,
+						pagingAndSortingParameters);
+
+		List<ProcessInstance> processInstanceList = processInstances
+				.getModelList();
+		if (processInstanceList == null || processInstanceList.size() != 1) {
+			throw new NotFoundException(
+					"ProcessInstance not found by businessKey[" + businessKey
+							+ "]");
+		}
+
+		return processInstanceList.get(0);
+	}
 }

@@ -32,7 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-//@Ignore("not run all the time")
+@Ignore("not run all the time")
 public class DeploymentIntegrationTest {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(DeploymentIntegrationTest.class);

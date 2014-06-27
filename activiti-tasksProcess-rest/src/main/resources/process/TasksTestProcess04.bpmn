@@ -12,7 +12,14 @@
     <sequenceFlow id="flow14" sourceRef="scripttask2" targetRef="endevent1"></sequenceFlow>
     <receiveTask id="receivetask1" name="Decision Task"></receiveTask>
     <sequenceFlow id="flow18" sourceRef="receivetask1" targetRef="scripttask2"></sequenceFlow>
-    <sequenceFlow id="flow19" sourceRef="orderDataEntryTask" targetRef="receivetask1"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="orderDataEntryTask" targetRef="calculation"></sequenceFlow>
+    <scriptTask id="calculation" name="Calculation" scriptFormat="groovy" activiti:autoStoreVariables="true">
+      <script>out:println "start calculation:========== " ;
+execution.setVariable("totalPrice", "5001");
+
+			</script>
+    </scriptTask>
+    <sequenceFlow id="flow20" sourceRef="calculation" targetRef="receivetask1"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_orderTaskProcess">
     <bpmndi:BPMNPlane bpmnElement="orderTaskProcess" id="BPMNPlane_orderTaskProcess">
@@ -31,6 +38,9 @@
       <bpmndi:BPMNShape bpmnElement="receivetask1" id="BPMNShape_receivetask1">
         <omgdc:Bounds height="55.0" width="105.0" x="340.0" y="120.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="calculation" id="BPMNShape_calculation">
+        <omgdc:Bounds height="55.0" width="105.0" x="180.0" y="120.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="72.0" y="85.0"></omgdi:waypoint>
         <omgdi:waypoint x="72.0" y="120.0"></omgdi:waypoint>
@@ -45,6 +55,10 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="125.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="180.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="285.0" y="147.0"></omgdi:waypoint>
         <omgdi:waypoint x="340.0" y="147.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>

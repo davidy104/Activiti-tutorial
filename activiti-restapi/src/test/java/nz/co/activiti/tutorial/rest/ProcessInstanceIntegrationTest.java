@@ -32,6 +32,7 @@ import nz.co.activiti.tutorial.utils.GeneralUtils;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -44,6 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
+@Ignore("not run all the time")
 public class ProcessInstanceIntegrationTest {
 
 	private static final Logger LOGGER = LoggerFactory

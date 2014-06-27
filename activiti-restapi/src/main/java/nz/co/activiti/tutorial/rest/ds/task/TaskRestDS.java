@@ -29,7 +29,7 @@ public interface TaskRestDS {
 
 	Task updateTask(String taskId, Task updateTask) throws Exception;
 
-	Task actionOnTask(String taskId, TaskActionRequest taskActionRequest)
+	void actionOnTask(String taskId, TaskActionRequest taskActionRequest)
 			throws Exception;
 
 	void deleteTask(String taskId, boolean cascadeHistory, boolean deleteReason)

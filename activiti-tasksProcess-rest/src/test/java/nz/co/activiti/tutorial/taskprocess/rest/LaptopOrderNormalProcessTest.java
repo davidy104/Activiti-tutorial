@@ -1,9 +1,8 @@
 package nz.co.activiti.tutorial.taskprocess.rest;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
 import java.io.File;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -48,6 +47,7 @@ import com.google.gson.Gson;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContextConfiguration.class })
+// @Ignore
 public class LaptopOrderNormalProcessTest {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(LaptopOrderNormalProcessTest.class);
@@ -179,7 +179,7 @@ public class LaptopOrderNormalProcessTest {
 
 		if (historicActivityInstance.getActivityType().equals("userTask")) {
 			taskId = historicActivityInstance.getTaskId();
-			LOGGER.info("taskId:{} ",taskId);
+			LOGGER.info("taskId:{} ", taskId);
 		}
 
 		task = taskRestDs.getTaskById(taskId);
@@ -194,21 +194,26 @@ public class LaptopOrderNormalProcessTest {
 		assertNotNull(taskSet);
 		assertEquals(taskSet.size(), 1);
 
-		// submit order info for data entry
-//		TestUtils.submitOrderInfo(order);
-//
-//		variableMap = new HashMap<String, Object>();
-//		variableMap.put("order", gson.toJson(order));
+		TestUtils.submitOrderInfo(order);
+		variableMap = new HashMap<String, Object>();
+		variableMap.put("customerName", "david");
+		variableMap.put("customerEmail", "david@gamil.com");
+		activitiRestFacade.completeTask(taskId, null);
 
-		 task = activitiRestFacade.completeTask(taskId, null);
-		 LOGGER.info("after complete dataEntry task:{} ", task);
-		 processInstanceId = task.getProcessInstance();
-		 processInstance = processInstanceRestDs
-		 .getProcessInstance(processInstanceId);
-		 LOGGER.info("processInstance:{} ", processInstance);
+		processInstance = activitiRestFacade
+				.getProcessInstanceByBusinessKey(orderNo);
+		processInstanceId = processInstance.getId();
+		activityId = processInstance.getActivityId();
+		LOGGER.info("processInstance:{} ", processInstance);
 
-//		RestletSupport.completeTask(taskId);
+		String totalPrice = activitiRestFacade
+				.getLatestUpdatedHistoricVariable(processInstanceId,
+						"totalPrice");
+		LOGGER.info("totalPrice:{} ", totalPrice);
 
+		historicActivityInstance = activitiRestFacade
+				.getHistoricActivityInstance(activityId, processInstanceId);
+		LOGGER.info("historicActivityInstance:{} ", historicActivityInstance);
 	}
 
 	private ProcessInstance startProcess() throws Exception {

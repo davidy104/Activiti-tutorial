@@ -157,11 +157,10 @@ public class TaskRestDSImpl extends ActivitiRestClientAccessor implements
 	}
 
 	@Override
-	public Task actionOnTask(String taskId, TaskActionRequest taskActionRequest)
+	public void actionOnTask(String taskId, TaskActionRequest taskActionRequest)
 			throws Exception {
 		LOGGER.info("actionOnTask start:{} ", taskId);
 		LOGGER.info("taskActionRequest:{} ", taskActionRequest);
-		Task task = null;
 
 		WebResource webResource = client.resource(baseUrl).path(
 				"/runtime/tasks/" + taskId);
@@ -180,18 +179,10 @@ public class TaskRestDSImpl extends ActivitiRestClientAccessor implements
 		String respStr = getResponsePayload(response);
 		LOGGER.info("respStr:{} ", respStr);
 
-		if (statusCode == ClientResponse.Status.OK) {
-			task = taskJSONConverter.toTask(respStr);
-		} else if (statusCode == ClientResponse.Status.NOT_FOUND) {
-			throw new NotFoundException("task not found by id[" + taskId + "]");
-		} else if (statusCode == ClientResponse.Status.CONFLICT
-				|| statusCode == ClientResponse.Status.BAD_REQUEST) {
-			throw new GenericActivitiRestException(respStr);
-		} else {
+		if (statusCode != ClientResponse.Status.OK) {
 			throw new Exception("Unknow exception:{} " + respStr);
 		}
-		LOGGER.info("actionOnTask end:{} ", task);
-		return task;
+		LOGGER.info("actionOnTask end:{} ");
 	}
 
 	@Override
